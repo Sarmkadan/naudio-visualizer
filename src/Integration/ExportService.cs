@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -42,7 +43,7 @@ public class ExportService
     /// </summary>
     public async Task<bool> ExportWaveformAsync(WaveformData waveform, string filePath, string format = "json")
     {
-        if (waveform == null)
+        if (waveform is null)
             throw new ArgumentNullException(nameof(waveform));
 
         if (string.IsNullOrWhiteSpace(filePath))
@@ -83,7 +84,7 @@ public class ExportService
     /// </summary>
     public async Task<bool> ExportSpectrumAsync(SpectrumData spectrum, string filePath, string format = "json")
     {
-        if (spectrum == null)
+        if (spectrum is null)
             throw new ArgumentNullException(nameof(spectrum));
 
         if (string.IsNullOrWhiteSpace(filePath))
@@ -124,7 +125,7 @@ public class ExportService
     /// </summary>
     public async Task<bool> ExportSpectrogramAsync(SpectrogramData spectrogram, string filePath, string format = "json")
     {
-        if (spectrogram == null)
+        if (spectrogram is null)
             throw new ArgumentNullException(nameof(spectrogram));
 
         if (string.IsNullOrWhiteSpace(filePath))
@@ -165,7 +166,7 @@ public class ExportService
     /// </summary>
     public async Task<bool> ExportMetadataAsync(Dictionary<string, string> metadata, string filePath, string format = "json")
     {
-        if (metadata == null)
+        if (metadata is null)
             throw new ArgumentNullException(nameof(metadata));
 
         if (string.IsNullOrWhiteSpace(filePath))

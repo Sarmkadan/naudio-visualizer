@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -109,13 +110,13 @@ public class VisualizationApiConfiguration
     {
         try
         {
-            if (_audioWorker != null)
+            if (_audioWorker is not null)
                 await _audioWorker.StopAsync();
 
-            if (_exportWorker != null)
+            if (_exportWorker is not null)
                 await _exportWorker.StopAsync();
 
-            if (_taskRunner != null)
+            if (_taskRunner is not null)
                 await _taskRunner.StopAsync();
 
             _logger.Info("API workers stopped.");
@@ -131,7 +132,7 @@ public class VisualizationApiConfiguration
     /// </summary>
     public void ConfigureWebhooks(string? audioFrameWebhook = null, string? errorWebhook = null)
     {
-        if (_webhookPublisher == null)
+        if (_webhookPublisher is null)
         {
             _logger.Warn("Webhook publisher not configured.");
             return;
@@ -155,7 +156,7 @@ public class VisualizationApiConfiguration
     /// </summary>
     public void RegisterMaintenanceTasks()
     {
-        if (_taskRunner == null)
+        if (_taskRunner is null)
         {
             _logger.Warn("Task runner not configured.");
             return;

@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -96,7 +97,7 @@ public class ExceptionHandler
     /// </summary>
     public void RegisterHandler<T>(Func<T, ExceptionContext> handler) where T : Exception
     {
-        if (handler == null)
+        if (handler is null)
             throw new ArgumentNullException(nameof(handler));
 
         _handlers[typeof(T)] = ex => handler((T)ex);
@@ -107,7 +108,7 @@ public class ExceptionHandler
     /// </summary>
     public ExceptionContext Handle(Exception exception)
     {
-        if (exception == null)
+        if (exception is null)
             throw new ArgumentNullException(nameof(exception));
 
         // Look up registered handler
@@ -143,7 +144,7 @@ public class ExceptionHandler
     {
         var context = Handle(exception);
 
-        if (context.IsRecoverable && recoveryAction != null)
+        if (context.IsRecoverable && recoveryAction is not null)
         {
             try
             {
@@ -167,7 +168,7 @@ public class ExceptionHandler
     {
         var context = Handle(exception);
 
-        if (context.IsRecoverable && recoveryFunc != null)
+        if (context.IsRecoverable && recoveryFunc is not null)
         {
             try
             {

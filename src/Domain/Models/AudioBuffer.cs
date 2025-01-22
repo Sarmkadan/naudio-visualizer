@@ -83,7 +83,7 @@ public sealed class AudioBuffer
     /// </summary>
     public void Write(float[] samples)
     {
-        if (samples == null)
+        if (samples is null)
             throw new ArgumentNullException(nameof(samples));
 
         lock (_lock)

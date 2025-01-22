@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -66,7 +67,7 @@ public static class ValidationUtility
     /// </summary>
     public static bool ValidateAudioData(float[]? data)
     {
-        return data != null && data.Length > 0;
+        return data is not null && data.Length > 0;
     }
 
     /// <summary>
@@ -122,7 +123,7 @@ public static class ValidationUtility
     /// </summary>
     public static bool ValidateRequiredParameters(params object?[] parameters)
     {
-        return parameters.All(p => p != null);
+        return parameters.All(p => p is not null);
     }
 
     /// <summary>
@@ -130,7 +131,7 @@ public static class ValidationUtility
     /// </summary>
     public static bool ValidateCollection<T>(IEnumerable<T>? collection)
     {
-        return collection != null && collection.Any();
+        return collection is not null && collection.Any();
     }
 
     /// <summary>
@@ -147,7 +148,7 @@ public static class ValidationUtility
     /// </summary>
     public static void ThrowIfNull(object? value, string parameterName)
     {
-        if (value == null)
+        if (value is null)
             throw new ArgumentNullException(parameterName);
     }
 

@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -32,7 +33,7 @@ public class LoggingMiddleware
     /// </summary>
     public T Execute<T>(string operationName, Func<T> operation)
     {
-        if (operation == null)
+        if (operation is null)
             throw new ArgumentNullException(nameof(operation));
 
         var startTime = DateTime.UtcNow;
@@ -63,7 +64,7 @@ public class LoggingMiddleware
     /// </summary>
     public async System.Threading.Tasks.Task<T> ExecuteAsync<T>(string operationName, Func<System.Threading.Tasks.Task<T>> operation)
     {
-        if (operation == null)
+        if (operation is null)
             throw new ArgumentNullException(nameof(operation));
 
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
@@ -93,7 +94,7 @@ public class LoggingMiddleware
     /// </summary>
     public void Execute(string operationName, Action operation)
     {
-        if (operation == null)
+        if (operation is null)
             throw new ArgumentNullException(nameof(operation));
 
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
@@ -121,7 +122,7 @@ public class LoggingMiddleware
     /// </summary>
     public async System.Threading.Tasks.Task ExecuteAsync(string operationName, Func<System.Threading.Tasks.Task> operation)
     {
-        if (operation == null)
+        if (operation is null)
             throw new ArgumentNullException(nameof(operation));
 
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
