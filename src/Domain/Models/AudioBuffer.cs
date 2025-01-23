@@ -130,25 +130,37 @@ public sealed class AudioBuffer
         }
     }
 
-    /// <summary>
     /// Reads and removes samples from the buffer.
-    /// </summary>
-    public float[] Read(int sampleCount)
+    /// Hotfix: Modified to prevent audio clicks during underrun by returning zero-padded samples
+    ///         when requested sampleCount exceeds available samples.
+    /// <param name="sampleCount">The number of samples to read.</param>
+    /// <param name="actualSamplesRead">Output parameter indicating the actual number of samples read from the buffer (excluding zero-padding).</param>
+    /// <returns>An array containing the read samples. Will be zero-padded if an underrun occurs.</returns>
+    public float[] Read(int sampleCount, out int actualSamplesRead)
     {
         lock (_lock)
         {
-            if (sampleCount > Count)
-                sampleCount = Count;
+            if (sampleCount <= 0)
+            {
+                actualSamplesRead = 0;
+                return [];
+            }
+
+            // Determine how many samples we can actually read
+            actualSamplesRead = Math.Min(sampleCount, Count);
 
             var result = new float[sampleCount];
 
-            for (int i = 0; i < sampleCount; i++)
+            for (int i = 0; i < actualSamplesRead; i++)
             {
                 result[i] = _buffer[_readPos];
                 _readPos = (_readPos + 1) % Capacity;
                 Count--;
             }
 
+            // If an underrun occurred (actualSamplesRead < sampleCount),
+            // the remaining part of 'result' is already initialized to zeros (default for float[]).
+            
             return result;
         }
     }
