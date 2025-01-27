@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  naudio-visualizer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: naudio-visualizer
+    image: naudio-visualizer:1.2.0
+
+    # Interactive and TTY for console output
+    stdin_open: true
+    tty: true
+
+    # Environment variables
+    environment:
+      - DISPLAY=${DISPLAY}
+      - DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+      - LOG_LEVEL=Info
+
+    # Volume mounts
+    volumes:
+      # X11 socket for display
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+
+      # Optional: X authority
+      - ${HOME}/.Xauthority:/root/.Xauthority:ro
+
+      # Data and logs
+      - ./data:/app/data
+      - ./logs:/app/logs
+
+    # Device access for audio
+    devices:
+      # ALSA audio devices
+      - /dev/snd:/dev/snd
+
+    # Port mappings (if using HTTP API)
+    ports:
+      - "5000:5000"   # HTTP API
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '1'
+          memory: 512M
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+    # Restart policy
+    restart: unless-stopped
+
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  default:
+    name: naudio-visualizer-network
+
+# Optional: separate database service for session storage
+  # db:
+  #   image: postgres:16-alpine
+  #   container_name: naudio-db
+  #   environment:
+  #     POSTGRES_DB: naudio_visualizer
+  #     POSTGRES_USER: naudio
+  #     POSTGRES_PASSWORD: ${DB_PASSWORD}
+  #   volumes:
+  #     - db_data:/var/lib/postgresql/data
+  #   restart: unless-stopped
+
+# volumes:
+#   db_data:
+#     driver: local
