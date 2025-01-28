@@ -1,8 +1,8 @@
-# NAudio Visualizer
+[![Build](https://github.com/sarmkadan/naudio-visualizer/actions/workflows/build.yml/badge.svg)](https://github.com/sarmkadan/naudio-visualizer/actions/workflows/build.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![.NET](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
 
-[![.NET 10](https://img.shields.io/badge/.NET-10.0-512BD4)](https://dotnet.microsoft.com)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Build Status](https://github.com/Sarmkadan/naudio-visualizer/workflows/Build/badge.svg)](https://github.com/Sarmkadan/naudio-visualizer)
+# NAudio Visualizer
 
 Real-time audio visualization for .NET applications with NAudio and SkiaSharp. Capture audio from any device and render stunning waveform, spectrum, and spectrogram visualizations with high performance and minimal latency.
 
