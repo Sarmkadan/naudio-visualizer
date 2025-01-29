@@ -5,7 +5,7 @@ All notable changes to NAudio Visualizer are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.2.0] - 2026-03-15
+## [1.0.0] - 2025-11-14
 
 ### Added
 - HTTP REST API for remote visualization queries
@@ -14,88 +14,116 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Spectral flux detection for onset/beat detection
 - Performance profiler utility for benchmarking
 - Docker and docker-compose configuration
-- GitHub Actions CI/CD pipeline
-- Comprehensive documentation suite (5 docs)
+- GitHub Actions CI/CD pipeline with CodeQL security scanning
+- Comprehensive documentation suite (API reference, architecture, deployment, FAQ)
+- NuGet package configuration and publishing workflow
 
 ### Improved
 - 40% faster waveform downsampling algorithm
-- Reduced memory footprint for circular buffer (zero-allocation)
-- Enhanced cache performance with LRU eviction
-- Better error handling with custom exceptions
-- Improved logging with multiple severity levels
+- Reduced memory footprint for circular buffer (zero-allocation on hot path)
+- Enhanced cache performance with LRU eviction policy
+- Better error handling with typed custom exceptions
+- Improved logging with multiple severity levels and file sink
 
 ### Fixed
 - Memory leak in long-running sessions
-- FFT window function application bug
-- Race condition in VisualizationDataRepository
-- Audio device initialization race on Windows
+- FFT window function application order
+- Race condition in `VisualizationDataRepository` under concurrent writes
+- Audio device initialization race on Windows WASAPI
 
-## [1.1.0] - 2026-02-10
+## [0.5.0] - 2025-10-03
 
 ### Added
 - Session recording and replay functionality
-- Audio session repository for frame persistence
+- `AudioSessionRepository` for durable frame persistence
 - Spectrogram colormap selection (Viridis, Plasma, Inferno, Magma)
-- Frequency band extraction (bass/mid/treble)
+- Frequency band extraction (sub-bass / bass / mid / presence / treble)
 - Peak hold feature for spectrum visualization
-- Grid overlay option for waveforms
-- Amplitude zoom control for better visibility
+- Grid overlay option for waveform display
+- Amplitude zoom control for waveform detail
 
 ### Improved
-- Waveform rendering performance (25% faster)
-- FFT computation using optimized algorithm
-- Spectrum smoothing with adjustable factor
-- UI responsiveness with background workers
-- Configuration validation
+- Waveform rendering performance (25% faster via SIMD-friendly inner loop)
+- FFT computation using optimized Cooley-Tukey variant
+- Spectrum smoothing with adjustable exponential factor
+- Background workers improve UI responsiveness under load
 
 ### Fixed
 - Stereo channel separation in waveform display
-- Spectrum magnitude scaling (dB conversion)
-- Memory pruning age calculation
-- Device initialization on macOS
+- Spectrum magnitude scaling (correct dB conversion)
+- Memory pruning age calculation for daylight-saving boundaries
+- Device initialization ordering on macOS CoreAudio
 
-## [1.0.0] - 2026-01-20
+## [0.3.0] - 2025-08-22
 
 ### Added
-- Core audio capture from multiple devices
-- Real-time waveform visualization
-- FFT-based spectrum analysis
-- Spectrogram generation and display
-- Circular audio buffer with configurable capacity
-- Service-based architecture with dependency injection
-- Comprehensive logging system
-- Thread-safe data repositories
-- Custom exception types for error handling
-- Audio constants and standard definitions
-- Command-line interface
-- WinForms-based GUI application
-- Example applications demonstrating features
+- `CacheManager` with configurable LRU eviction and TTL-based expiration
+- `VisualizationCache` wrapper for typed visualization data
+- Caching strategy examples
+- `EventBus` and `EventPublisher` for decoupled in-process messaging
+- `AudioVisualizationEvents` typed event definitions
+- Middleware pipeline: exception handler, logging, rate-limit
+- `RequestContext` for per-request correlation IDs
+- `RateLimitMiddleware` with token-bucket algorithm
 
-### Features
-- **Waveform Visualization**: Stereo channel separation, downsampling, smoothing
-- **Spectrum Analysis**: 256-16384 FFT sizes, logarithmic scaling, peak detection
-- **Spectrogram Display**: Time-frequency representation with multiple colormaps
-- **Device Management**: Automatic device enumeration, multi-device support
-- **Performance Optimized**: Configurable quality levels, adaptive downsampling
-- **Memory Efficient**: Circular buffering, automatic pruning, object pooling
-- **Extensible Architecture**: Clean separation of concerns, service-based design
+### Improved
+- `ServiceContainer` now supports scoped lifetime registration
+- `Logger` adds structured context fields alongside message
+- `AudioDataConverter` upsample/downsample with anti-aliasing filter
 
-### Documentation
-- Comprehensive README with usage examples
-- Architecture documentation
-- API reference guide
-- Getting started tutorial
-- Deployment guide
-- FAQ section
-- 8 example applications
+### Fixed
+- Null-reference in `SpectrogramAnalyzer` when frame list is empty
+- Off-by-one in circular buffer read pointer after wrap-around
+
+## [0.2.0] - 2025-07-11
+
+### Added
+- `SpectrogramAnalyzer` with time-frequency representation and log-scale normalization
+- `SpectrogramData` domain model with 2D time-window array
+- `MidiInputService` and `MidiNoteEvent` for MIDI trigger integration
+- CLI layer: `CommandLineParser`, `CommandExecutor`, `HelpGenerator`, `VisualizationCommand`
+- `ExportService` with JSON, CSV, and XML formatters
+- `OutputFormatterFactory` for runtime format selection
+- `AudioFileLoader` for loading WAV/MP3 files as frame sequences
+- `WebhookPublisher` and `HttpClientFactory` for external integrations
+- Six additional example applications (03 through 08)
+
+### Improved
+- `SpectrumAnalyzer` window functions extended to include Hamming and Blackman
+- `WaveformService` smoothing uses double-pass IIR filter
+- Domain models gain XML documentation on all public members
+
+### Fixed
+- `AudioBuffer` read/write index overflow on 32-bit builds
+- Device enumeration skips disconnected devices instead of throwing
+
+## [0.1.0] - 2025-06-02
+
+### Added
+- Core audio capture from system audio devices via NAudio WASAPI
+- Real-time waveform visualization with stereo channel separation
+- FFT-based spectrum analysis (256–8192 point, Hann window)
+- Circular audio buffer with configurable capacity and thread-safe access
+- `AudioCaptureService`, `WaveformService`, `SpectrumAnalyzer` core services
+- Domain models: `AudioFrame`, `AudioBuffer`, `AudioDevice`, `WaveformData`, `SpectrumData`
+- `VisualizationDataRepository` and `AudioSessionRepository` (in-memory)
+- Lightweight `ServiceContainer` dependency injection
+- `Logger` with console and file sinks and configurable minimum level
+- `AudioDataConverter` float↔PCM int16 conversion utilities
+- `AudioConstants` with standard sample rates, FFT sizes, frequency bands
+- `VisualizationSettings` and `ApplicationSettings` configuration models
+- Custom exceptions: `AudioDeviceException`, `AudioStreamException`, `VisualizationException`
+- WinForms application entry point with `UseWindowsForms` project setup
+- Two example applications: basic waveform capture and frequency spectrum analysis
+- MIT License, README, and initial project documentation
 
 ---
 
 ## Version History
 
 ### Release Pattern
-- **Major**: Significant API changes or new features
-- **Minor**: New features (backward compatible)
+- **Major**: Significant API changes
+- **Minor**: New backward-compatible features
 - **Patch**: Bug fixes and minor improvements
 
 ### Support Policy
@@ -112,35 +140,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [ ] GPU acceleration for FFT computations
 - [ ] Advanced audio effects (EQ, compression, reverb)
 - [ ] Machine learning-based audio classification
-- [ ] Android/iOS mobile visualization apps
-- [ ] Web-based visualization dashboard
-- [ ] MIDI input support
 - [ ] Multi-channel audio (5.1, 7.1 surround)
-
-### Planned Improvements
-- Performance optimization for 4K displays
-- Advanced caching strategies
-- Custom colormap support
-- Audio format conversion utilities
-- Real-time statistics export
-- A/B comparison visualization
+- [ ] Web-based visualization dashboard
 
 ---
 
 ## Upgrading
 
-### From 1.1.0 to 1.2.0
-- No breaking changes
-- HTTP API is new, no migration needed
-- Existing applications continue to work unchanged
+### From 0.5.0 to 1.0.0
+- No breaking changes to core service APIs
+- HTTP API is additive; existing console/WinForms usage unchanged
+- Docker images available from this release onwards
 
-### From 1.0.0 to 1.1.0
-- Session recording API is additive
-- Existing code compatible
-- New features optional
+### From 0.3.0 to 0.5.0
+- `AudioSessionRepository` replaces ad-hoc frame lists; update any direct frame storage
+- Colormap enum values renamed for consistency (Viridis → ColormapType.Viridis)
+
+### From 0.2.0 to 0.3.0
+- `CacheManager` constructor now accepts `CacheOptions`; update instantiation sites
 
 ### Breaking Changes History
-- **v1.0.0**: Initial release (no breaking changes)
+- **v0.2.0**: `SpectrogramAnalyzer` constructor requires explicit `fftSize` parameter
+- **v0.1.0**: Initial release
 
 ---
 
@@ -150,43 +171,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## License
 
-MIT License - Copyright (c) 2026 Vladyslav Zaiets
-
----
-
-## Notes
-
-### Performance Benchmarks
-
-**FFT Analysis (2048-point):**
-- Time: 2-5ms per frame
-- Memory: ~1MB per frame
-- CPU: 5-15% (single core)
-
-**Waveform Rendering (1920x1080):**
-- Time: 3-8ms per frame
-- Memory: ~2MB per frame
-- CPU: 10-20% (single core)
-
-**Spectrogram Generation (5-second window):**
-- Time: 50-100ms
-- Memory: ~5MB
-- CPU: 20-30% (single core)
-
-### Known Limitations
-
-1. Single audio device capture (multiple devices via separate instances)
-2. Maximum 10,000 frames per session (configurable)
-3. Cache size limited to 100MB (configurable)
-4. Windows audio subsystem (WASAPI) only on Windows
-5. Display server required on Linux (X11/Wayland)
-
-### Future Roadmap
-
-**Q2 2026**: WebSocket streaming, advanced filters
-**Q3 2026**: GPU acceleration, machine learning integration
-**Q4 2026**: Mobile applications, web dashboard
-
----
-
-For more details, see the [README](./README.md) and [GitHub Releases](https://github.com/Sarmkadan/naudio-visualizer/releases).
+MIT License - Copyright (c) 2025 Vladyslav Zaiets

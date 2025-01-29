@@ -20,7 +20,7 @@ Real-time audio visualization for .NET applications with NAudio and SkiaSharp. C
 - [Performance Optimization](#performance-optimization)
 - [Benchmarks](#benchmarks)
 - [Testing](#testing)
-- [Ecosystem](#ecosystem)
+- [Related Projects](#related-projects)
 - [Contributing](#contributing)
 
 ## Features
@@ -955,7 +955,7 @@ Test categories used in this project:
 | `Integration` | End-to-end audio pipeline tests |
 | `Performance` | Benchmark assertions with tight time budgets |
 
-## Ecosystem
+## Related Projects
 
 Part of a collection of .NET libraries and tools. See more at [github.com/sarmkadan](https://github.com/sarmkadan).
 
