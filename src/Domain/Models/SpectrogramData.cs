@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -135,7 +136,7 @@ public class SpectrogramData : VisualizationData
     /// </summary>
     public void AddSpectrumFrame(SpectrumData spectrum)
     {
-        if (spectrum == null)
+        if (spectrum is null)
             throw new ArgumentNullException(nameof(spectrum));
 
         _spectrumFrames.Add(spectrum);

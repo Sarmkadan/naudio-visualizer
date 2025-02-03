@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -65,7 +66,7 @@ public class ScheduledTaskRunner : IDisposable
             _cancellationTokenSource?.Cancel();
         }
 
-        if (_runnerTask != null)
+        if (_runnerTask is not null)
         {
             try
             {
@@ -91,7 +92,7 @@ public class ScheduledTaskRunner : IDisposable
         if (interval <= TimeSpan.Zero)
             throw new ArgumentException("Interval must be greater than zero.", nameof(interval));
 
-        if (taskDelegate == null)
+        if (taskDelegate is null)
             throw new ArgumentNullException(nameof(taskDelegate));
 
         lock (_lockObject)

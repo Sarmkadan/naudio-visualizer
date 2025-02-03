@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -38,7 +39,7 @@ public class VisualizationCache : IDisposable
     /// </summary>
     public string CacheWaveform(WaveformData waveform)
     {
-        if (waveform == null)
+        if (waveform is null)
             throw new ArgumentNullException(nameof(waveform));
 
         string key = GenerateKey("waveform", waveform.Timestamp);
@@ -60,7 +61,7 @@ public class VisualizationCache : IDisposable
     /// </summary>
     public string CacheSpectrum(SpectrumData spectrum)
     {
-        if (spectrum == null)
+        if (spectrum is null)
             throw new ArgumentNullException(nameof(spectrum));
 
         string key = GenerateKey("spectrum", spectrum.Timestamp);
@@ -82,7 +83,7 @@ public class VisualizationCache : IDisposable
     /// </summary>
     public string CacheSpectrogram(SpectrogramData spectrogram)
     {
-        if (spectrogram == null)
+        if (spectrogram is null)
             throw new ArgumentNullException(nameof(spectrogram));
 
         string key = GenerateKey("spectrogram", spectrogram.Timestamp);

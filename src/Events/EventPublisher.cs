@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -23,7 +24,7 @@ public static class EventPublisher
     {
         get
         {
-            if (_instance == null)
+            if (_instance is null)
             {
                 lock (LockObject)
                 {

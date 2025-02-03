@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -31,7 +32,7 @@ public static class PathUtility
     /// </summary>
     public static string Combine(params string[] segments)
     {
-        if (segments == null || segments.Length == 0)
+        if (segments is null || segments.Length == 0)
             return string.Empty;
 
         string result = segments[0];
