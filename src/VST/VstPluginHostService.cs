@@ -122,7 +122,7 @@ public sealed class VstPluginHostService : IVstPluginHost, IDisposable
         {
             _logger.Info($"Loading VST plugin: {Path.GetFileName(pluginPath)}");
 
-            var plugin = await Task.Run(() => CreatePluginInstance(pluginPath));
+            var plugin = await Task.Run(() => CreatePluginInstance(pluginPath)).ConfigureAwait(false);
             plugin.Initialize(SampleRate, BlockSize);
 
             lock (_chainLock)
@@ -167,7 +167,7 @@ public sealed class VstPluginHostService : IVstPluginHost, IDisposable
         }
 
         string name = plugin.Info.Name;
-        await Task.Run(plugin.Dispose);
+        await Task.Run(plugin.Dispose).ConfigureAwait(false);
 
         _logger.Info($"Plugin unloaded: {name} ({pluginId})");
         EventPublisher.Instance.Publish(new VstPluginUnloadedEvent
