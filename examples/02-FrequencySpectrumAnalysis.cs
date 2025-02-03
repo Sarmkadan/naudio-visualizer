@@ -73,11 +73,11 @@ public class FrequencySpectrumAnalysisExample
             audioService.Initialize(deviceIndex: 0, sampleRate: 48000);
 
             Console.WriteLine("Analyzing audio spectrum (20 seconds)...");
-            await audioService.StartRecordingAsync();
+            await audioService.StartRecordingAsync().ConfigureAwait(false);
 
-            await Task.Delay(TimeSpan.FromSeconds(20));
+            await Task.Delay(TimeSpan.FromSeconds(20)).ConfigureAwait(false);
 
-            await audioService.StopRecordingAsync();
+            await audioService.StopRecordingAsync().ConfigureAwait(false);
 
             Console.WriteLine("\n\nSpectrum Analysis Completed!");
             Console.WriteLine($"Total Frames Processed: {frameCount}");

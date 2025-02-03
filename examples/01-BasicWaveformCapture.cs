@@ -65,12 +65,12 @@ public class BasicWaveformCaptureExample
             audioService.Initialize(deviceIndex: 0);
 
             Console.WriteLine("Starting audio capture (30 seconds)...");
-            await audioService.StartRecordingAsync();
+            await audioService.StartRecordingAsync().ConfigureAwait(false);
 
-            await Task.Delay(TimeSpan.FromSeconds(30));
+            await Task.Delay(TimeSpan.FromSeconds(30)).ConfigureAwait(false);
 
             Console.WriteLine("\nStopping audio capture...");
-            await audioService.StopRecordingAsync();
+            await audioService.StopRecordingAsync().ConfigureAwait(false);
 
             var totalTime = DateTime.UtcNow - startTime;
             Console.WriteLine($"\nCapture completed!");
