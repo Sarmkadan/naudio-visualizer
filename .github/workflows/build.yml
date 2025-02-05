@@ -2,198 +2,39 @@ name: Build & Test
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, master, develop ]
   pull_request:
-    branches: [ main, develop ]
-
-env:
-  DOTNET_VERSION: '10.0.x'
-  BUILD_CONFIG: Release
+    branches: [ main, master, develop ]
 
 jobs:
-  build-and-test:
-    name: Build and Test
-    runs-on: ${{ matrix.os }}
+  build:
+    runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        include:
-          - os: ubuntu-latest
-            runtime: linux-x64
-            artifact: naudio-visualizer-linux-x64
-          - os: windows-latest
-            runtime: win-x64
-            artifact: naudio-visualizer-win-x64.exe
-          - os: macos-latest
-            runtime: osx-x64
-            artifact: naudio-visualizer-macos-x64
+        dotnet-version: ['8.0.x']
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ matrix.dotnet-version }}
 
-      - name: Restore dependencies
-        run: dotnet restore
+    - name: Restore dependencies
+      run: dotnet restore
 
-      - name: Build
-        run: dotnet build -c ${{ env.BUILD_CONFIG }} --no-restore
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
 
-      - name: Run tests
-        run: dotnet test -c ${{ env.BUILD_CONFIG }} --no-build --logger "trx" --collect:"XPlat Code Coverage"
-        continue-on-error: true
+    - name: Test
+      run: dotnet test --no-build --configuration Release --verbosity normal --logger "trx;LogFileName=test-results.trx"
+      continue-on-error: false
 
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: test-results-${{ matrix.os }}
-          path: '**/TestResults/**'
-
-      - name: Publish
-        run: dotnet publish -c ${{ env.BUILD_CONFIG }} -o ./publish
-
-      - name: Create artifact (Linux/macOS)
-        if: runner.os != 'Windows'
-        run: |
-          cd publish
-          tar -czf ../${{ matrix.artifact }}.tar.gz .
-          cd ..
-
-      - name: Create artifact (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          cd publish
-          7z a ../${{ matrix.artifact }}.zip .
-          cd ..
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.artifact }}
-          path: '${{ matrix.artifact }}.*'
-
-  code-quality:
-    name: Code Quality Analysis
-    runs-on: windows-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Install analyzer
-        run: dotnet tool install -g roslynator.commandline
-
-      - name: Analyze code
-        run: roslynator analyze --no-restore naudio-visualizer.csproj
-        continue-on-error: true
-
-  docker-build:
-    name: Docker Build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile
-          push: false
-          tags: naudio-visualizer:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-  security-scan:
-    name: Security Scan
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-
-      - name: Upload Trivy results
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: 'trivy-results.sarif'
-
-  performance-test:
-    name: Performance Benchmarks
-    runs-on: windows-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Restore dependencies
-        run: dotnet restore
-
-      - name: Run benchmarks
-        run: dotnet run -c Release --project examples/05-PerformanceProfiling.cs
-        continue-on-error: true
-
-      - name: Upload benchmark results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: benchmark-results
-          path: 'benchmark-results.*'
-
-  release:
-    name: Create Release
-    needs: [build-and-test, code-quality, docker-build]
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: |
-            naudio-visualizer-*/**/*
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Push Docker image
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: |
-            naudio-visualizer:latest
-            naudio-visualizer:${{ github.ref_name }}
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results-${{ matrix.dotnet-version }}
+        path: '**/TestResults/*.trx'
+        retention-days: 7
