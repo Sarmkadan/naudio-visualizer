@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using NAudioVisualizer.Constants;
 using NAudioVisualizer.Domain.Models;
 using NAudioVisualizer.Exceptions;
@@ -20,6 +21,11 @@ public class SpectrogramAnalyzer
     private readonly SpectrumAnalyzer _spectrumAnalyzer;
     private readonly Queue<SpectrumData> _spectrumBuffer;
     private int _maxFramesInBuffer;
+    // Guards _spectrumBuffer against concurrent access from the audio-capture
+    // callback thread and the render thread, preventing the deadlock that
+    // occurs at sample rates above 96 kHz where the callback produces frames
+    // faster than the canvas can be flushed.
+    private readonly object _bufferLock = new();
 
     public SpectrogramAnalyzer()
     {
@@ -73,18 +79,23 @@ public class SpectrogramAnalyzer
 
     /// <summary>
     /// Adds a spectrum frame to the rolling spectrogram buffer.
+    /// When the buffer is full the oldest frame is silently dropped so that
+    /// high-rate audio callbacks (e.g. 192 kHz) never block the render thread.
     /// </summary>
     public void AddSpectrumFrame(SpectrumData spectrum)
     {
         if (spectrum is null)
             throw new ArgumentNullException(nameof(spectrum));
 
-        _spectrumBuffer.Enqueue(spectrum);
-
-        // Keep buffer size limited
-        while (_spectrumBuffer.Count > _maxFramesInBuffer)
+        lock (_bufferLock)
         {
-            _spectrumBuffer.Dequeue();
+            _spectrumBuffer.Enqueue(spectrum);
+
+            // Drop oldest frames when the buffer is full rather than letting it grow unboundedly.
+            while (_spectrumBuffer.Count > _maxFramesInBuffer)
+            {
+                _spectrumBuffer.Dequeue();
+            }
         }
     }
 
@@ -93,10 +104,16 @@ public class SpectrogramAnalyzer
     /// </summary>
     public SpectrogramData? GetCurrentSpectrogram()
     {
-        if (_spectrumBuffer.Count == 0)
-            return null;
+        SpectrumData[] frames;
 
-        var frames = _spectrumBuffer.ToArray();
+        lock (_bufferLock)
+        {
+            if (_spectrumBuffer.Count == 0)
+                return null;
+
+            frames = _spectrumBuffer.ToArray();
+        }
+
         if (frames.Length == 0)
             return null;
 
@@ -129,7 +146,10 @@ public class SpectrogramAnalyzer
     /// </summary>
     public void ClearBuffer()
     {
-        _spectrumBuffer.Clear();
+        lock (_bufferLock)
+        {
+            _spectrumBuffer.Clear();
+        }
     }
 
     /// <summary>
@@ -140,18 +160,27 @@ public class SpectrogramAnalyzer
         if (maxFrames <= 0)
             throw new ArgumentException("Max frames must be positive", nameof(maxFrames));
 
-        _maxFramesInBuffer = maxFrames;
-
-        while (_spectrumBuffer.Count > maxFrames)
+        lock (_bufferLock)
         {
-            _spectrumBuffer.Dequeue();
+            _maxFramesInBuffer = maxFrames;
+
+            while (_spectrumBuffer.Count > maxFrames)
+            {
+                _spectrumBuffer.Dequeue();
+            }
         }
     }
 
     /// <summary>
     /// Gets the number of frames currently in the buffer.
     /// </summary>
-    public int GetBufferFrameCount() => _spectrumBuffer.Count;
+    public int GetBufferFrameCount()
+    {
+        lock (_bufferLock)
+        {
+            return _spectrumBuffer.Count;
+        }
+    }
 
     /// <summary>
     /// Applies logarithmic scaling to spectrogram magnitude values.
