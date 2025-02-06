@@ -19,6 +19,19 @@ namespace NAudioVisualizer.Services;
 public class SpectrumAnalyzer
 {
     /// <summary>
+    /// Peak-hold magnitude values (in the same scale as the current spectrum data).
+    /// Indexed by frequency bin. Null until the first call to <see cref="UpdatePeakHolds"/>.
+    /// </summary>
+    private float[]? _peakHolds;
+
+    /// <summary>
+    /// Rate at which peak-hold bars decay, expressed in dB per second.
+    /// Defaults to 20 dB/s, which is suitable for general music monitoring.
+    /// Set a lower value (e.g. 5–10 dB/s) for transient peak monitoring,
+    /// or a higher value (e.g. 40–60 dB/s) for real-time speech analysis.
+    /// </summary>
+    public float PeakHoldDecayDbPerSecond { get; set; } = 20f;
+    /// <summary>
     /// Generates spectrum visualization from an audio frame using FFT.
     /// </summary>
     public SpectrumData AnalyzeSpectrum(AudioFrame frame, int fftSize = AudioConstants.DEFAULT_FFT_SIZE)
@@ -237,6 +250,60 @@ public class SpectrumAnalyzer
 
         spectrum.Normalize();
     }
+
+    /// <summary>
+    /// Updates peak-hold values for each frequency bin using the current spectrum frame.
+    /// Peaks rise instantly and decay at <see cref="PeakHoldDecayDbPerSecond"/> dB per second,
+    /// normalized against the actual elapsed time so the decay is frame-rate independent.
+    /// </summary>
+    /// <param name="spectrum">The current spectrum frame to compare against held peaks.</param>
+    /// <param name="elapsedSeconds">
+    /// Elapsed time since the previous call, in seconds (e.g. 1.0/60 for a 60 fps render loop).
+    /// Must be greater than zero.
+    /// </param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="spectrum"/> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="elapsedSeconds"/> is not positive.</exception>
+    public void UpdatePeakHolds(SpectrumData spectrum, double elapsedSeconds)
+    {
+        if (spectrum is null)
+            throw new ArgumentNullException(nameof(spectrum));
+
+        if (elapsedSeconds <= 0)
+            throw new ArgumentOutOfRangeException(nameof(elapsedSeconds), "Elapsed time must be positive.");
+
+        var magnitudes = spectrum.GetData();
+
+        if (_peakHolds is null || _peakHolds.Length != magnitudes.Length)
+        {
+            _peakHolds = (float[])magnitudes.Clone();
+            return;
+        }
+
+        float decayAmount = PeakHoldDecayDbPerSecond * (float)elapsedSeconds;
+
+        for (int i = 0; i < magnitudes.Length; i++)
+        {
+            if (magnitudes[i] >= _peakHolds[i])
+            {
+                _peakHolds[i] = magnitudes[i];
+            }
+            else
+            {
+                _peakHolds[i] = Math.Max(_peakHolds[i] - decayAmount, magnitudes[i]);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Returns a snapshot of the current peak-hold values, or <c>null</c> if
+    /// <see cref="UpdatePeakHolds"/> has not been called yet.
+    /// </summary>
+    public float[]? GetPeakHolds() => _peakHolds is null ? null : (float[])_peakHolds.Clone();
+
+    /// <summary>
+    /// Resets all peak-hold values.
+    /// </summary>
+    public void ResetPeakHolds() => _peakHolds = null;
 }
 
 /// <summary>
