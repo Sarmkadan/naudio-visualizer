@@ -16,6 +16,15 @@ namespace NAudioVisualizer.Services;
 /// <summary>
 /// Service for performing FFT and frequency spectrum analysis on audio data.
 /// </summary>
+/// <example>
+/// <code>
+/// var analyzer = new SpectrumAnalyzer { PeakHoldDecayDbPerSecond = 10f };
+/// SpectrumData spectrum = analyzer.AnalyzeSpectrum(audioFrame, fftSize: 2048);
+/// analyzer.ConvertToLogScale(spectrum);
+/// analyzer.UpdatePeakHolds(spectrum, elapsedSeconds: 1.0 / 60);
+/// float[]? peaks = analyzer.GetPeakHolds();
+/// </code>
+/// </example>
 public class SpectrumAnalyzer
 {
     /// <summary>
@@ -32,8 +41,25 @@ public class SpectrumAnalyzer
     /// </summary>
     public float PeakHoldDecayDbPerSecond { get; set; } = 20f;
     /// <summary>
-    /// Generates spectrum visualization from an audio frame using FFT.
+    /// Generates a frequency magnitude spectrum from an audio frame using FFT.
+    /// A Hann window is applied to the samples before transformation to reduce
+    /// spectral leakage.
     /// </summary>
+    /// <param name="frame">
+    /// The captured audio frame. Must pass <see cref="AudioFrame.IsValid()"/>.
+    /// </param>
+    /// <param name="fftSize">
+    /// FFT window size in samples. Must be a power of two in the range
+    /// [<see cref="AudioConstants.FFT_MINIMUM"/>, <see cref="AudioConstants.FFT_MAXIMUM"/>].
+    /// Values outside this range are silently clamped to
+    /// <see cref="AudioConstants.DEFAULT_FFT_SIZE"/> (2048). Common values: 512, 1024, 2048, 4096.
+    /// </param>
+    /// <returns>
+    /// A <see cref="SpectrumData"/> containing <c>fftSize / 2</c> linear magnitude bins.
+    /// Call <see cref="ConvertToLogScale"/> to convert to dB before rendering.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="frame"/> is null.</exception>
+    /// <exception cref="VisualizationException">Thrown when FFT processing fails.</exception>
     public SpectrumData AnalyzeSpectrum(AudioFrame frame, int fftSize = AudioConstants.DEFAULT_FFT_SIZE)
     {
         if (frame is null)
@@ -130,8 +156,16 @@ public class SpectrumAnalyzer
     }
 
     /// <summary>
-    /// Converts magnitude values to logarithmic scale (dB).
+    /// Converts magnitude values in <paramref name="spectrum"/> to logarithmic dB scale
+    /// using the formula <c>20 × log₁₀(|magnitude| / referenceValue)</c>.
+    /// After conversion, <see cref="SpectrumData.IsLogScale"/> is set to <c>true</c> and
+    /// subsequent calls are no-ops.
     /// </summary>
+    /// <param name="spectrum">The spectrum data to convert in place.</param>
+    /// <param name="referenceValue">
+    /// Reference amplitude level corresponding to 0 dBFS. Defaults to 1.0 (full scale).
+    /// </param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="spectrum"/> is null.</exception>
     public void ConvertToLogScale(SpectrumData spectrum, float referenceValue = 1f)
     {
         if (spectrum is null)
@@ -141,8 +175,15 @@ public class SpectrumAnalyzer
     }
 
     /// <summary>
-    /// Applies smoothing to spectrum to reduce visual noise.
+    /// Applies a moving-average smoothing pass to the magnitude bins of
+    /// <paramref name="spectrum"/> to reduce visual noise between frames.
     /// </summary>
+    /// <param name="spectrum">The spectrum data to smooth in place.</param>
+    /// <param name="windowSize">
+    /// Number of adjacent bins to average. Must be ≥ 2 and less than the number of bins.
+    /// Defaults to 3.
+    /// </param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="spectrum"/> is null.</exception>
     public void SmoothSpectrum(SpectrumData spectrum, int windowSize = 3)
     {
         if (spectrum is null)
@@ -152,8 +193,11 @@ public class SpectrumAnalyzer
     }
 
     /// <summary>
-    /// Finds dominant frequency peak in the spectrum.
+    /// Returns the frequency (in Hz) of the highest-magnitude bin in <paramref name="spectrum"/>.
     /// </summary>
+    /// <param name="spectrum">The spectrum data to search.</param>
+    /// <returns>Dominant frequency in Hz, or 0 when the spectrum has no bins.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="spectrum"/> is null.</exception>
     public float FindDominantFrequency(SpectrumData spectrum)
     {
         if (spectrum is null)
@@ -163,8 +207,13 @@ public class SpectrumAnalyzer
     }
 
     /// <summary>
-    /// Calculates spectral centroid (center of mass of the spectrum).
+    /// Calculates the spectral centroid (center of mass) of the frequency spectrum.
+    /// The centroid is a perceptual brightness measure: higher values indicate
+    /// brighter, treble-heavy content.
     /// </summary>
+    /// <param name="spectrum">The spectrum data to analyse.</param>
+    /// <returns>Spectral centroid in Hz, or 0 when the total magnitude is zero.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="spectrum"/> is null.</exception>
     public float CalculateSpectralCentroid(SpectrumData spectrum)
     {
         if (spectrum is null)
@@ -189,8 +238,17 @@ public class SpectrumAnalyzer
     }
 
     /// <summary>
-    /// Extracts frequency bands from the spectrum (bass, mid, treble).
+    /// Partitions the spectrum into bass (0–250 Hz), mid (250–4000 Hz), and treble
+    /// (&gt;4000 Hz) bands and returns the normalized energy contribution of each.
+    /// The three <see cref="FrequencyBands"/> values always sum to 1.0 when total energy
+    /// is non-zero.
     /// </summary>
+    /// <param name="spectrum">The spectrum data to partition.</param>
+    /// <returns>
+    /// A <see cref="FrequencyBands"/> instance with normalized energy ratios in [0, 1].
+    /// All values are 0 when the total energy is zero.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="spectrum"/> is null.</exception>
     public FrequencyBands ExtractFrequencyBands(SpectrumData spectrum)
     {
         if (spectrum is null)
@@ -241,8 +299,13 @@ public class SpectrumAnalyzer
     }
 
     /// <summary>
-    /// Normalizes spectrum data to 0-1 range.
+    /// Normalizes the magnitude values of <paramref name="spectrum"/> to the [0, 1] range
+    /// by dividing each value by the observed maximum magnitude.
+    /// After normalization, <see cref="VisualizationData.IsNormalized"/> is <c>true</c>
+    /// and subsequent calls are no-ops.
     /// </summary>
+    /// <param name="spectrum">The spectrum data to normalize in place.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="spectrum"/> is null.</exception>
     public void NormalizeSpectrum(SpectrumData spectrum)
     {
         if (spectrum is null)
