@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using NAudioVisualizer.Events;
@@ -88,7 +89,7 @@ public class WebhookPublisher
             await _httpRequester.PostJsonAsync(webhookUrl, json).ConfigureAwait(false);
             _logger.Debug($"Webhook published successfully to {webhookUrl}");
         }
-        catch (Exception ex)
+        catch (HttpRequestException ex)
         {
             _logger.Warn($"Failed to publish webhook to {webhookUrl}: {ex.Message}");
         }

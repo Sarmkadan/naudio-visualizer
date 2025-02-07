@@ -91,7 +91,7 @@ public class SpectrumAnalyzer
 
             return spectrum;
         }
-        catch (Exception ex)
+        catch (InvalidOperationException ex)
         {
             throw new VisualizationException(
                 $"Failed to analyze spectrum: {ex.Message}",

@@ -140,7 +140,12 @@ public class ConfigurationManager
                 _logger.Info($"Configuration loaded from '{_configFilePath}'");
             }
         }
-        catch (Exception ex)
+        catch (IOException ex)
+        {
+            _logger.Warn($"Failed to load configuration: {ex.Message}. Using defaults.");
+            LoadDefaults();
+        }
+        catch (JsonException ex)
         {
             _logger.Warn($"Failed to load configuration: {ex.Message}. Using defaults.");
             LoadDefaults();
@@ -162,7 +167,7 @@ public class ConfigurationManager
 
             _logger.Info($"Configuration saved to '{_configFilePath}'");
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             _logger.Error($"Failed to save configuration: {ex.Message}");
             throw;
@@ -247,7 +252,7 @@ public class ConfigurationManager
 
             _logger.Info($"Settings exported to '{filePath}'");
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             _logger.Error($"Failed to export settings: {ex.Message}");
             throw;
@@ -278,10 +283,13 @@ public class ConfigurationManager
                 _logger.Info($"Settings imported from '{filePath}'");
             }
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             _logger.Error($"Failed to import settings: {ex.Message}");
             throw;
         }
-    }
-}
+        catch (JsonException ex)
+        {
+            _logger.Error($"Failed to import settings: {ex.Message}");
+            throw;
+        }
