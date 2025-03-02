@@ -3,6 +3,8 @@
 // CTO & Software Architect
 // =============================================================================
 
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 
@@ -11,7 +13,7 @@ namespace NAudioVisualizer.Domain.Models;
 /// <summary>
 /// Circular buffer for storing audio data with efficient memory usage.
 /// </summary>
-public class AudioBuffer
+public sealed class AudioBuffer
 {
     /// <summary>
     /// Internal circular buffer storing audio samples.
