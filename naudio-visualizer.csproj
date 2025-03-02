@@ -12,7 +12,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>Vladyslav Zaiets</Authors>
     <PackageId>Zaiets.naudio.visualizer</PackageId>
-    <Version>1.0.0</Version>
+    <Version>2.0.0</Version>
     <Description>Real-time audio visualization with NAudio and SkiaSharp - waveform, spectrum, spectrogram</Description>
     <PackageTags>audio naudio visualization skia skiasharp waveform spectrum spectrogram</PackageTags>
     <PackageProjectUrl>https://github.com/sarmkadan/naudio-visualizer</PackageProjectUrl>
