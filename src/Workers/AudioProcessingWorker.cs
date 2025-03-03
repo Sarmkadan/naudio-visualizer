@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -65,7 +66,7 @@ public class AudioProcessingWorker : IDisposable
             _cancellationTokenSource?.Cancel();
         }
 
-        if (_workerTask != null)
+        if (_workerTask is not null)
         {
             try
             {
@@ -85,7 +86,7 @@ public class AudioProcessingWorker : IDisposable
     /// </summary>
     public void EnqueueTask(ProcessingTask task)
     {
-        if (task == null)
+        if (task is null)
             throw new ArgumentNullException(nameof(task));
 
         lock (_taskQueue)
@@ -133,7 +134,7 @@ public class AudioProcessingWorker : IDisposable
                     task = _taskQueue.Dequeue();
             }
 
-            if (task != null)
+            if (task is not null)
             {
                 try
                 {

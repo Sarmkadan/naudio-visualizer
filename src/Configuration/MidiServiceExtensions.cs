@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -22,7 +23,7 @@ public static class MidiServiceExtensions
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="container"/> is <see langword="null"/>.</exception>
     public static ServiceContainer AddMidiServices(this ServiceContainer container)
     {
-        if (container == null)
+        if (container is null)
             throw new ArgumentNullException(nameof(container));
 
         container.RegisterFactory<MidiInputService>(static _ => new MidiInputService());
@@ -43,7 +44,7 @@ public static class MidiEventPublisher
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="note"/> is <see langword="null"/>.</exception>
     public static void PublishNoteReceived(MidiNoteEvent note)
     {
-        if (note == null)
+        if (note is null)
             throw new ArgumentNullException(nameof(note));
 
         EventPublisher.Instance.Publish(note);
@@ -60,7 +61,7 @@ public static class MidiEventPublisher
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="handler"/> is <see langword="null"/>.</exception>
     public static IDisposable SubscribeNoteReceived(Action<MidiNoteEvent> handler)
     {
-        if (handler == null)
+        if (handler is null)
             throw new ArgumentNullException(nameof(handler));
 
         return EventPublisher.Subscribe(handler);

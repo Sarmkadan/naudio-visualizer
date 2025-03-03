@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -37,7 +38,7 @@ public class CacheManager<TKey, TValue> where TKey : notnull
     /// </summary>
     public void Set(TKey key, TValue value, TimeSpan? expiration = null)
     {
-        if (key == null)
+        if (key is null)
             throw new ArgumentNullException(nameof(key));
 
         lock (_lockObject)
@@ -189,14 +190,14 @@ public class CacheManager<TKey, TValue> where TKey : notnull
 
         foreach (var kvp in _cache)
         {
-            if (kvp.Value.LastAccessedAt < oldestTime && oldestKey != null)
+            if (kvp.Value.LastAccessedAt < oldestTime && oldestKey is not null)
             {
                 oldestKey = kvp.Key;
                 oldestTime = kvp.Value.LastAccessedAt;
             }
         }
 
-        if (oldestKey != null)
+        if (oldestKey is not null)
             _cache.Remove(oldestKey);
     }
 

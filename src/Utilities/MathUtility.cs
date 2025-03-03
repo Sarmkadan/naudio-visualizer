@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -64,7 +65,7 @@ public static class MathUtility
     /// </summary>
     public static float CalculateRms(float[] signal)
     {
-        if (signal == null || signal.Length == 0)
+        if (signal is null || signal.Length == 0)
             return 0f;
 
         float sum = 0f;
@@ -81,7 +82,7 @@ public static class MathUtility
     /// </summary>
     public static float CalculatePeak(float[] signal)
     {
-        if (signal == null || signal.Length == 0)
+        if (signal is null || signal.Length == 0)
             return 0f;
 
         float peak = 0f;
@@ -124,7 +125,7 @@ public static class MathUtility
     /// </summary>
     public static void ApplyHannWindow(float[] signal)
     {
-        if (signal == null || signal.Length == 0)
+        if (signal is null || signal.Length == 0)
             return;
 
         int n = signal.Length;
@@ -140,7 +141,7 @@ public static class MathUtility
     /// </summary>
     public static void ApplyHammingWindow(float[] signal)
     {
-        if (signal == null || signal.Length == 0)
+        if (signal is null || signal.Length == 0)
             return;
 
         int n = signal.Length;
