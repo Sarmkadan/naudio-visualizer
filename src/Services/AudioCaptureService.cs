@@ -129,7 +129,7 @@ public class AudioCaptureService : IDisposable
             {
                 while (!_cancellationTokenSource.Token.IsCancellationRequested)
                 {
-                    await Task.Delay(50);
+                    await Task.Delay(50).ConfigureAwait(false);
                 }
             }, _cancellationTokenSource.Token);
 

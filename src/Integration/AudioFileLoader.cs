@@ -65,7 +65,7 @@ public class AudioFileLoader
             // Attempt to extract additional metadata if available
             try
             {
-                await ExtractAudioPropertiesAsync(metadata);
+                await ExtractAudioPropertiesAsync(metadata).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -115,7 +115,7 @@ public class AudioFileLoader
         // 3. Calculate duration based on file size
         // 4. Extract any ID3 or other tags
 
-        await Task.Delay(10); // Simulate work
+        await Task.Delay(10).ConfigureAwait(false); // Simulate work
 
         metadata.SampleRate ??= 44100; // Default to CD quality
         metadata.BitDepth ??= 16;

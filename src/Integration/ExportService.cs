@@ -62,7 +62,7 @@ public class ExportService
             };
 
             FileSystemUtility.EnsureDirectoryExists(Path.GetDirectoryName(filePath) ?? ".");
-            await FileSystemUtility.WriteFileAsync(filePath, content);
+            await FileSystemUtility.WriteFileAsync(filePath, content).ConfigureAwait(false);
 
             long fileSize = FileSystemUtility.GetFileSize(filePath);
             _logger.Info($"Exported waveform to '{filePath}' ({FileSystemUtility.FormatFileSize(fileSize)})");
@@ -103,7 +103,7 @@ public class ExportService
             };
 
             FileSystemUtility.EnsureDirectoryExists(Path.GetDirectoryName(filePath) ?? ".");
-            await FileSystemUtility.WriteFileAsync(filePath, content);
+            await FileSystemUtility.WriteFileAsync(filePath, content).ConfigureAwait(false);
 
             long fileSize = FileSystemUtility.GetFileSize(filePath);
             _logger.Info($"Exported spectrum to '{filePath}' ({FileSystemUtility.FormatFileSize(fileSize)})");
@@ -144,7 +144,7 @@ public class ExportService
             };
 
             FileSystemUtility.EnsureDirectoryExists(Path.GetDirectoryName(filePath) ?? ".");
-            await FileSystemUtility.WriteFileAsync(filePath, content);
+            await FileSystemUtility.WriteFileAsync(filePath, content).ConfigureAwait(false);
 
             long fileSize = FileSystemUtility.GetFileSize(filePath);
             _logger.Info($"Exported spectrogram to '{filePath}' ({FileSystemUtility.FormatFileSize(fileSize)})");
@@ -185,7 +185,7 @@ public class ExportService
             };
 
             FileSystemUtility.EnsureDirectoryExists(Path.GetDirectoryName(filePath) ?? ".");
-            await FileSystemUtility.WriteFileAsync(filePath, content);
+            await FileSystemUtility.WriteFileAsync(filePath, content).ConfigureAwait(false);
 
             long fileSize = FileSystemUtility.GetFileSize(filePath);
             _logger.Info($"Exported metadata to '{filePath}' ({FileSystemUtility.FormatFileSize(fileSize)})");
