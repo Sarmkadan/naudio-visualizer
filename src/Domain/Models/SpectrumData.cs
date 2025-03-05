@@ -96,7 +96,9 @@ public class SpectrumData : VisualizationData
 
         for (int i = 0; i < _magnitudes.Length; i++)
         {
-            float magnitude = Math.Max(_magnitudes[i], 0.00001f);
+            // Take absolute value before clamping so that negative intermediate
+            // FFT magnitudes (e.g. with FftSize 512) are not inverted by Log10.
+            float magnitude = Math.Max(Math.Abs(_magnitudes[i]), 0.00001f);
             _magnitudes[i] = 20f * (float)Math.Log10(magnitude / referenceValue);
         }
 
