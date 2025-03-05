@@ -8,6 +8,8 @@ using System;
 using NAudioVisualizer.Constants;
 using NAudioVisualizer.Domain.Models;
 using NAudioVisualizer.Exceptions;
+using System.Numerics;
+using NAudio.Dsp;
 
 namespace NAudioVisualizer.Services;
 
@@ -33,11 +35,11 @@ public class SpectrumAnalyzer
             if (fftSize < AudioConstants.FFT_MINIMUM || fftSize > AudioConstants.FFT_MAXIMUM)
                 fftSize = AudioConstants.DEFAULT_FFT_SIZE;
 
-            // Apply window function to samples
-            var windowed = ApplyHannWindow(frame.Samples, fftSize);
+            // Apply window function to samples and prepare for FFT
+            var windowedAndPadded = ApplyHannWindow(frame.Samples, fftSize);
 
-            // Perform simple FFT (magnitude spectrum)
-            var magnitudes = ComputeMagnitudeSpectrum(windowed);
+            // Perform FFT and compute magnitude spectrum
+            var magnitudes = ComputeMagnitudeSpectrum(windowedAndPadded);
 
             // Generate frequency bins
             var frequencies = GenerateFrequencyBins(frame.SampleRate, fftSize);
@@ -63,51 +65,38 @@ public class SpectrumAnalyzer
     /// <summary>
     /// Applies Hann window function to samples for better FFT results.
     /// </summary>
-    private float[] ApplyHannWindow(float[] samples, int fftSize)
+    private Complex[] ApplyHannWindow(float[] samples, int fftSize)
     {
-        var windowed = new float[Math.Min(samples.Length, fftSize)];
-        Array.Copy(samples, windowed, windowed.Length);
+        var windowed = new Complex[fftSize];
 
-        // Pad with zeros if necessary
-        var result = new float[fftSize];
-        Array.Copy(windowed, result, windowed.Length);
-
-        // Apply Hann window
-        for (int i = 0; i < windowed.Length; i++)
+        for (int i = 0; i < fftSize; i++)
         {
-            float window = 0.5f * (1 - (float)Math.Cos(2 * Math.PI * i / (windowed.Length - 1)));
-            result[i] = windowed[i] * window;
+            if (i < samples.Length)
+            {
+                float window = 0.5f * (1 - (float)Math.Cos(2 * Math.PI * i / (fftSize - 1)));
+                windowed[i] = new Complex(samples[i] * window, 0);
+            }
+            else
+            {
+                windowed[i] = new Complex(0, 0); // Pad with zeros
+            }
         }
-
-        return result;
+        return windowed;
     }
 
     /// <summary>
-    /// Computes magnitude spectrum (simplified FFT using energy bins).
+    /// Computes magnitude spectrum using NAudio's Fast Fourier Transform.
     /// </summary>
-    private float[] ComputeMagnitudeSpectrum(float[] samples)
+    private float[] ComputeMagnitudeSpectrum(Complex[] samples)
     {
-        int spectrumSize = samples.Length / 2;
-        var magnitude = new float[spectrumSize];
+        FastFourierTransform.FFT(true, (int)Math.Log(samples.Length, 2), samples);
 
-        // Simplified spectrum: divide into frequency bands and calculate energy
-        int bandWidth = samples.Length / spectrumSize;
-
-        for (int i = 0; i < spectrumSize; i++)
+        var magnitudes = new float[samples.Length / 2];
+        for (int i = 0; i < samples.Length / 2; i++)
         {
-            float energy = 0f;
-            int bandSize = 0;
-
-            for (int j = i * bandWidth; j < (i + 1) * bandWidth && j < samples.Length; j++)
-            {
-                energy += samples[j] * samples[j];
-                bandSize++;
-            }
-
-            magnitude[i] = (float)Math.Sqrt(energy / bandSize);
+            magnitudes[i] = (float)Math.Sqrt(samples[i].Real * samples[i].Real + samples[i].Imaginary * samples[i].Imaginary);
         }
-
-        return magnitude;
+        return magnitudes;
     }
 
     /// <summary>
