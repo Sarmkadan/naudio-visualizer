@@ -5,6 +5,7 @@
 // =============================================================================
 
 using System;
+using NAudioVisualizer.Themes;
 
 namespace NAudioVisualizer.Domain.Models;
 
@@ -22,6 +23,24 @@ public class VisualizationSettings
     /// the gradient colors used during rendering.
     /// </summary>
     public VisualizerTheme Theme { get; set; } = VisualizerTheme.Presets.Classic;
+
+    /// <summary>
+    /// Preset color scheme applied to the visualizer.
+    /// Setting this property also updates <see cref="Theme"/> to the scheme's
+    /// underlying <see cref="ColorScheme.Theme"/>.
+    /// Defaults to <see langword="null"/> (no scheme override; uses <see cref="Theme"/> directly).
+    /// </summary>
+    public ColorScheme? ColorScheme
+    {
+        get => _colorScheme;
+        set
+        {
+            _colorScheme = value;
+            if (value is not null)
+                Theme = value.Theme;
+        }
+    }
+    private ColorScheme? _colorScheme;
 
     /// <summary>
     /// Unique settings identifier.
