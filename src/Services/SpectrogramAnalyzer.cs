@@ -105,7 +105,7 @@ public class SpectrogramAnalyzer
 
             return spectrogram;
         }
-        catch (Exception ex)
+        catch (InvalidOperationException ex)
         {
             throw new VisualizationException(
                 $"Failed to build spectrogram: {ex.Message}",

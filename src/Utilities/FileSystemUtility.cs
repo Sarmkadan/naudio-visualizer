@@ -34,7 +34,7 @@ public static class FileSystemUtility
             Directory.CreateDirectory(path);
             return true;
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             throw new IOException($"Failed to create directory '{path}'.", ex);
         }
@@ -117,7 +117,7 @@ public static class FileSystemUtility
             File.Delete(filePath);
             return true;
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             throw new IOException($"Failed to delete file '{filePath}'.", ex);
         }
@@ -135,7 +135,7 @@ public static class FileSystemUtility
         {
             Directory.Delete(dirPath, recursive: true);
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             throw new IOException($"Failed to delete directory '{dirPath}'.", ex);
         }
@@ -171,7 +171,7 @@ public static class FileSystemUtility
             EnsureDirectoryExists(Path.GetDirectoryName(filePath) ?? ".");
             await File.WriteAllTextAsync(filePath, content).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             throw new IOException($"Failed to write to file '{filePath}'.", ex);
         }
@@ -189,7 +189,7 @@ public static class FileSystemUtility
         {
             return await File.ReadAllTextAsync(filePath).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             throw new IOException($"Failed to read file '{filePath}'.", ex);
         }

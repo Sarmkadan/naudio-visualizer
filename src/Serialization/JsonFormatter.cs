@@ -148,7 +148,7 @@ public class JsonFormatter : IOutputFormatter
 
             return waveform;
         }
-        catch (Exception ex)
+        catch (JsonException ex)
         {
             throw new FormatException("Failed to parse waveform JSON.", ex);
         }
@@ -172,7 +172,7 @@ public class JsonFormatter : IOutputFormatter
 
             return spectrum;
         }
-        catch (Exception ex)
+        catch (JsonException ex)
         {
             throw new FormatException("Failed to parse spectrum JSON.", ex);
         }

@@ -75,7 +75,7 @@ public class WaveformService
 
             return waveform;
         }
-        catch (Exception ex)
+        catch (InvalidOperationException ex)
         {
             throw new VisualizationException(
                 $"Failed to generate waveform: {ex.Message}",
