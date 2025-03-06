@@ -31,6 +31,10 @@ public class SpectrumData : VisualizationData
 
     /// <summary>
     /// FFT size used for spectrum analysis.
+    /// Must be a power of two in the range [<see cref="AudioConstants.FFT_MINIMUM"/>,
+    /// <see cref="AudioConstants.FFT_MAXIMUM"/>] (e.g. 512, 1024, 2048, 4096).
+    /// Larger values increase frequency resolution (Hz per bin = SampleRate / FftSize)
+    /// but require more CPU time per frame.
     /// </summary>
     public int FftSize { get; set; }
 
@@ -60,8 +64,23 @@ public class SpectrumData : VisualizationData
     public float PeakMagnitude { get; private set; }
 
     /// <summary>
-    /// Initializes a new spectrum data with magnitude and frequency values.
+    /// Initializes a new spectrum data instance with pre-computed magnitude and frequency values.
     /// </summary>
+    /// <param name="magnitudes">
+    /// Linear FFT magnitude values for each frequency bin (non-negative).
+    /// Length must match <paramref name="frequencies"/>.
+    /// </param>
+    /// <param name="frequencies">
+    /// Corresponding frequency value in Hz for each magnitude bin.
+    /// Typically evenly spaced from 0 to SampleRate / 2.
+    /// </param>
+    /// <param name="sampleRate">Sample rate of the source audio in Hz (e.g. 44100, 48000).</param>
+    /// <param name="fftSize">
+    /// FFT window size used to produce this spectrum (power of two, e.g. 2048).
+    /// </param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="magnitudes"/> or <paramref name="frequencies"/> is null.
+    /// </exception>
     public SpectrumData(float[] magnitudes, float[] frequencies, int sampleRate, int fftSize)
     {
         _magnitudes = magnitudes ?? throw new ArgumentNullException(nameof(magnitudes));
