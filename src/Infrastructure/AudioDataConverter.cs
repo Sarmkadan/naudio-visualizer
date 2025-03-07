@@ -212,7 +212,7 @@ public static class AudioDataConverter
     public static float[] NormalizeSamples(float[] samples)
     {
         if (samples is null || samples.Length == 0)
-            return samples;
+            return samples ?? [];
 
         float peak = CalculatePeakLevel(samples);
         if (peak == 0 || peak >= 1f)
@@ -233,7 +233,7 @@ public static class AudioDataConverter
     public static float[] ApplyGain(float[] samples, float gainDb)
     {
         if (samples is null || samples.Length == 0)
-            return samples;
+            return samples ?? [];
 
         float gainLinear = DbToLinear(gainDb);
         var gainedSamples = new float[samples.Length];

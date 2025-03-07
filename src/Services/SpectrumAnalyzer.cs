@@ -8,7 +8,6 @@ using System;
 using NAudioVisualizer.Constants;
 using NAudioVisualizer.Domain.Models;
 using NAudioVisualizer.Exceptions;
-using System.Numerics;
 using NAudio.Dsp;
 
 namespace NAudioVisualizer.Services;
@@ -104,21 +103,19 @@ public class SpectrumAnalyzer
     /// <summary>
     /// Applies Hann window function to samples for better FFT results.
     /// </summary>
-    private Complex[] ApplyHannWindow(float[] samples, int fftSize)
+    private NAudio.Dsp.Complex[] ApplyHannWindow(float[] samples, int fftSize)
     {
-        var windowed = new Complex[fftSize];
+        var windowed = new NAudio.Dsp.Complex[fftSize];
 
         for (int i = 0; i < fftSize; i++)
         {
             if (i < samples.Length)
             {
                 float window = 0.5f * (1 - (float)Math.Cos(2 * Math.PI * i / (fftSize - 1)));
-                windowed[i] = new Complex(samples[i] * window, 0);
+                windowed[i].X = samples[i] * window;
+                windowed[i].Y = 0;
             }
-            else
-            {
-                windowed[i] = new Complex(0, 0); // Pad with zeros
-            }
+            // else: default(NAudio.Dsp.Complex) has X=0, Y=0 already
         }
         return windowed;
     }
@@ -126,14 +123,14 @@ public class SpectrumAnalyzer
     /// <summary>
     /// Computes magnitude spectrum using NAudio's Fast Fourier Transform.
     /// </summary>
-    private float[] ComputeMagnitudeSpectrum(Complex[] samples)
+    private float[] ComputeMagnitudeSpectrum(NAudio.Dsp.Complex[] samples)
     {
         FastFourierTransform.FFT(true, (int)Math.Log(samples.Length, 2), samples);
 
         var magnitudes = new float[samples.Length / 2];
         for (int i = 0; i < samples.Length / 2; i++)
         {
-            magnitudes[i] = (float)Math.Sqrt(samples[i].Real * samples[i].Real + samples[i].Imaginary * samples[i].Imaginary);
+            magnitudes[i] = (float)Math.Sqrt(samples[i].X * samples[i].X + samples[i].Y * samples[i].Y);
         }
         return magnitudes;
     }
@@ -260,7 +257,6 @@ public class SpectrumAnalyzer
 
         // Define frequency ranges
         const float BASS_MAX = 250f;
-        const float MID_MIN = 250f;
         const float MID_MAX = 4000f;
         const float TREBLE_MIN = 4000f;
 

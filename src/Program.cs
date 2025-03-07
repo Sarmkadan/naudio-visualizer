@@ -8,8 +8,6 @@ using System;
 using System.Windows.Forms;
 using NAudioVisualizer.Configuration;
 using NAudioVisualizer.Constants;
-using NAudioVisualizer.UI;
-
 namespace NAudioVisualizer;
 
 /// <summary>
@@ -73,15 +71,10 @@ static class Program
 }
 
 /// <summary>
-/// Placeholder for UI namespace - main application form.
+/// Main application window for audio visualization.
 /// </summary>
-namespace NAudioVisualizer.UI
+public partial class MainForm : Form
 {
-    /// <summary>
-    /// Main application window for audio visualization.
-    /// </summary>
-    public partial class MainForm : Form
-    {
         private readonly ServiceContainer _serviceContainer;
         private readonly ApplicationSettings _settings;
 
@@ -244,5 +237,4 @@ namespace NAudioVisualizer.UI
             }
             base.Dispose(disposing);
         }
-    }
 }

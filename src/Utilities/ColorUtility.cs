@@ -196,8 +196,7 @@ public static class ColorUtility
     }
 
     /// <summary>
-    /// Adjusts color brightness.
-    /// factor > 1 = brighter, factor < 1 = darker
+    /// Adjusts color brightness. Values above 1.0 increase brightness, below 1.0 decrease it.
     /// </summary>
     public static Color AdjustBrightness(Color color, float factor)
     {
@@ -208,8 +207,7 @@ public static class ColorUtility
     }
 
     /// <summary>
-    /// Adjusts color saturation.
-    /// factor > 1 = more saturated, factor < 1 = less saturated
+    /// Adjusts color saturation. Values above 1.0 increase saturation, below 1.0 reduce it.
     /// </summary>
     public static Color AdjustSaturation(Color color, float factor)
     {
