@@ -49,6 +49,70 @@ Switch between views from the View menu:
 - **Spectrum** - FFT frequency analysis (Hann window, configurable FFT size)
 - **Spectrogram** - scrolling time-frequency heatmap
 
+## Usage Examples
+
+The repository includes practical usage examples demonstrating different ways to use the NAudio Visualizer library. These examples serve as both documentation and executable samples you can run to see the library in action.
+
+### Available Examples
+
+| Example | Description | Key Features |
+|---------|-------------|--------------|
+| **[BasicUsage.cs](examples/BasicUsage.cs)** | Minimal setup and first call to get started quickly | Simple initialization, basic audio capture, event handling |
+| **[AdvancedUsage.cs](examples/AdvancedUsage.cs)** | Configuration, custom options, error handling, and spectrum analysis | Custom device settings, error handling, advanced processing |
+| **[IntegrationExample.cs](examples/IntegrationExample.cs)** | Integration with dependency injection and using multiple services together | ASP.NET Core DI, service registration, multi-service workflow |
+
+### Running the Examples
+
+Each example is a complete, standalone application with its own entry point. To run any example:
+
+```bash
+# Run Basic Usage example (simplest way to get started)
+dotnet run --project examples/BasicUsage.csproj
+
+# Run Advanced Usage example (custom settings and error handling)
+dotnet run --project examples/AdvancedUsage.csproj
+
+# Run Integration example (ASP.NET Core DI demonstration)
+dotnet run --project examples/IntegrationExample.csproj
+```
+
+Alternatively, navigate to the examples directory and run:
+
+```bash
+cd examples
+
+# Each example has its own Program.cs entry point
+# Run any example using its specific project file
+dotnet run --project BasicUsage.csproj
+```
+
+### Example Highlights
+
+**Basic Usage** demonstrates the minimal setup required to start capturing and visualizing audio:
+- Creating an `AudioCaptureService`
+- Initializing with default settings (device 0, 44.1kHz, stereo)
+- Subscribing to audio frame events
+- Starting and stopping audio recording
+
+**Advanced Usage** shows how to customize the library for your specific needs:
+- Using custom audio device settings (different sample rate, mono/stereo)
+- Implementing error handling around audio processing
+- Extending with additional audio analysis features
+
+**Integration Example** illustrates how to integrate NAudio Visualizer into larger applications:
+- Configuring dependency injection with `ServiceCollection`
+- Registering NAudio Visualizer services (`AudioCaptureService`, `SpectrumAnalyzer`, etc.)
+- Using multiple analyzer services together (spectrum, waveform, spectrogram)
+- Leveraging logging for diagnostics
+
+### When to Use Each Example
+
+- **Use BasicUsage** when you're just getting started or need a simple audio capture setup
+- **Use AdvancedUsage** when you need to customize audio parameters or add error handling
+- **Use IntegrationExample** when building a larger application or need to integrate with ASP.NET Core, WPF, or other frameworks
+
+For production applications, you'll typically use a combination of these patterns, especially the dependency injection approach from IntegrationExample combined with custom settings from AdvancedUsage.
+
 ## Code structure
 
 ```
