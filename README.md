@@ -165,6 +165,85 @@ dotnet test tests/naudio-visualizer.Tests/
 Covers: AudioBuffer read/write, CacheManager expiry/eviction, EventBus pub-sub,
 MathUtility (FFT helpers, RMS, dB conversion), ValidationUtility, StringUtility.
 
+## Docker Support
+
+Run the NAudio Visualizer in a Docker container using Windows containers for GUI support.
+
+### Prerequisites
+
+- Docker Desktop with Windows containers enabled
+- Windows 10/11 or Windows Server 2022+
+- At least 4GB RAM allocated to Docker
+
+### Quick Start
+
+```bash
+# Build the Docker image
+docker-compose build
+
+# Run the application in a container
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop the container
+docker-compose down
+```
+
+### Development Workflow
+
+```bash
+# Build and run in development mode
+# Note: For GUI applications, you may need to run interactively
+# docker run --rm -it naudio-visualizer:1.2.0
+
+# Build only
+docker-compose build
+
+# Rebuild if you make changes
+docker-compose build --no-cache
+```
+
+### Configuration
+
+Environment variables can be set in the `docker-compose.yml` file:
+
+```yaml
+environment:
+  - DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+  - LOG_LEVEL=Info
+```
+
+### Volumes
+
+The application uses volumes for persistent data:
+
+```yaml
+volumes:
+  - ./data:/app/data
+  - ./logs:/app/logs
+```
+
+### Audio Device Access
+
+For audio device access in containers, you need to configure audio device passthrough.
+This depends on your Docker setup and host operating system. Consult Docker documentation
+for your specific platform.
+
+### Advanced Usage
+
+```bash
+# View running containers
+docker ps
+
+# Access container shell for debugging
+# docker exec -it naudio-visualizer powershell
+
+# Build for production
+# docker-compose -f docker-compose.yml build --no-cache
+```
+
 ## License
 
 MIT - Copyright (c) 2026 Vladyslav Zaiets
