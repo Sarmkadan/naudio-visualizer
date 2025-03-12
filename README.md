@@ -193,42 +193,46 @@ MathUtility (FFT helpers, RMS, dB conversion), ValidationUtility, StringUtility.
 
 ## Docker Support
 
-Run the NAudio Visualizer in a Docker container using Windows containers for GUI support.
+Run the NAudio Visualizer in a Docker container for cross-platform deployment and testing.
 
 ### Prerequisites
 
-- Docker Desktop with Windows containers enabled
-- Windows 10/11 or Windows Server 2022+
-- At least 4GB RAM allocated to Docker
+- Docker Engine 20.10+ or Docker Desktop
+- Docker Compose v2+ (optional but recommended)
+- Linux or Windows host system
+- At least 2GB RAM allocated to Docker
 
 ### Quick Start
 
 ```bash
 # Build the Docker image
-docker-compose build
+docker compose build
 
 # Run the application in a container
-docker-compose up -d
+# Note: For GUI applications, you may need to configure display/X11 forwarding
+# For headless testing, the application will run and exit
+
+docker compose up -d
 
 # View logs
-docker-compose logs -f
+# docker compose logs -f
 
 # Stop the container
-docker-compose down
+docker compose down
 ```
 
 ### Development Workflow
 
 ```bash
 # Build and run in development mode
-# Note: For GUI applications, you may need to run interactively
-# docker run --rm -it naudio-visualizer:1.2.0
+# For interactive mode with GUI:
+# docker run --rm -it --device /dev/snd naudio-visualizer:1.0.0
 
 # Build only
-docker-compose build
+docker compose build
 
 # Rebuild if you make changes
-docker-compose build --no-cache
+docker compose build --no-cache
 ```
 
 ### Configuration
@@ -254,8 +258,13 @@ volumes:
 ### Audio Device Access
 
 For audio device access in containers, you need to configure audio device passthrough.
-This depends on your Docker setup and host operating system. Consult Docker documentation
-for your specific platform.
+
+**Linux hosts:** Use `--device /dev/snd` flag:
+```bash
+docker run --rm -it --device /dev/snd naudio-visualizer:1.0.0
+```
+
+**Windows hosts:** Configure audio device passthrough in Docker Desktop settings.
 
 ### Advanced Usage
 
@@ -264,10 +273,13 @@ for your specific platform.
 docker ps
 
 # Access container shell for debugging
-# docker exec -it naudio-visualizer powershell
+# docker exec -it naudio-visualizer sh
 
 # Build for production
-# docker-compose -f docker-compose.yml build --no-cache
+# docker compose build --no-cache
+
+# Check container health
+# docker inspect --format='{{json .State.Health}}' naudio-visualizer
 ```
 
 ## License
