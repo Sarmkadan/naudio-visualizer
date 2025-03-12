@@ -16,7 +16,7 @@ services:
       - ./data:/app/data
       - ./logs:/app/logs
     healthcheck:
-      test: ["CMD", "test", "-f", "/app/naudio-visualizer.dll"]
+      test: ["CMD", "powershell", "-Command", "Test-Path 'C:\\app\\naudio-visualizer.dll'"]
       interval: 30s
       timeout: 3s
       retries: 3
