@@ -26,10 +26,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0-windowsservercore-ltsc2022
 
 # Install required system dependencies for Windows Forms GUI applications
 RUN powershell -Command \
-    Install-WindowsFeature Web-Server \
-    && choco install -y --no-progress \
-    vc-redist-2015-2022 \
-    && rm -rf C:\ProgramData\chocolatey\choco.exe
+    Install-WindowsFeature Web-Server
 
 # Create application directory
 RUN mkdir C:\app\logs && \
