@@ -17,7 +17,7 @@ namespace NAudioVisualizer.Configuration;
 /// Manages application configuration settings with file persistence.
 /// Loads and saves settings to JSON configuration files.
 /// </summary>
-public class ConfigurationManager
+public sealed class ConfigurationManager
 {
     private readonly Logger _logger;
     private readonly string _configFilePath;
@@ -87,10 +87,7 @@ public class ConfigurationManager
     /// <summary>
     /// Checks if a configuration key exists.
     /// </summary>
-    public bool Contains(string key)
-    {
-        return !string.IsNullOrEmpty(key) && _settings.ContainsKey(key);
-    }
+    public bool Contains(string key) => !string.IsNullOrEmpty(key) && _settings.ContainsKey(key);
 
     /// <summary>
     /// Removes a configuration value.
@@ -106,10 +103,7 @@ public class ConfigurationManager
     /// <summary>
     /// Gets all configuration keys.
     /// </summary>
-    public IEnumerable<string> GetAllKeys()
-    {
-        return _settings.Keys;
-    }
+    public IEnumerable<string> GetAllKeys() => _settings.Keys;
 
     /// <summary>
     /// Loads settings from the configuration file.

@@ -30,10 +30,10 @@ namespace NAudioVisualizer.Services;
 /// // Called from the render loop:
 /// SpectrogramData? specto = analyzer.GetCurrentSpectrogram();
 /// if (specto is not null)
-///     analyzer.ApplyLogScaling(specto);
+/// analyzer.ApplyLogScaling(specto);
 /// </code>
 /// </example>
-public class SpectrogramAnalyzer
+public sealed class SpectrogramAnalyzer
 {
     private readonly SpectrumAnalyzer _spectrumAnalyzer;
     private readonly Queue<SpectrumData> _spectrumBuffer;
@@ -88,22 +88,23 @@ public class SpectrogramAnalyzer
             var spectrogramMatrix = new List<float[]>();
             int sampleRate = frames[0].SampleRate;
 
-            // Analyze each frame to get spectrum
             foreach (var frame in frames)
             {
                 var spectrum = _spectrumAnalyzer.AnalyzeSpectrum(frame, fftSize);
                 spectrogramMatrix.Add(spectrum.GetData());
             }
 
-            // Convert list to 2D array
             var matrix = spectrogramMatrix.ToArray();
 
-            var spectrogram = new SpectrogramData(matrix, sampleRate, fftSize, hopSize)
+            return new SpectrogramData(
+                matrix,
+                sampleRate,
+                fftSize,
+                hopSize
+            )
             {
                 SourceFrame = frames.Length > 0 ? frames[frames.Length - 1] : null
             };
-
-            return spectrogram;
         }
         catch (InvalidOperationException ex)
         {
@@ -164,14 +165,12 @@ public class SpectrogramAnalyzer
                 spectrogramMatrix[i] = frames[i].GetData();
             }
 
-            var spectrogram = new SpectrogramData(
+            return new SpectrogramData(
                 spectrogramMatrix,
                 frames[0].SampleRate,
                 frames[0].FftSize,
                 frames[0].FftSize / 2
             );
-
-            return spectrogram;
         }
         catch
         {
@@ -326,26 +325,29 @@ public class SpectrogramAnalyzer
 
         for (int t = 0; t < spectrogram.TimeFrames; t++)
         {
-            if (t == 0)
-            {
-                flux[t] = 0f;
-                continue;
-            }
-
-            var currentFrame = spectrogram.GetTimeFrame(t);
-            var previousFrame = spectrogram.GetTimeFrame(t - 1);
-
-            float difference = 0f;
-            for (int f = 0; f < Math.Min(currentFrame.Length, previousFrame.Length); f++)
-            {
-                float delta = currentFrame[f] - previousFrame[f];
-                difference += delta * delta;
-            }
-
-            flux[t] = (float)Math.Sqrt(difference);
+            flux[t] = t == 0
+                ? 0f
+                : CalculateFrameDifference(spectrogram, t);
         }
 
         return flux;
+    }
+
+    private float CalculateFrameDifference(SpectrogramData spectrogram, int timeIndex)
+    {
+        var currentFrame = spectrogram.GetTimeFrame(timeIndex);
+        var previousFrame = spectrogram.GetTimeFrame(timeIndex - 1);
+
+        float difference = 0f;
+        int binCount = Math.Min(currentFrame.Length, previousFrame.Length);
+
+        for (int f = 0; f < binCount; f++)
+        {
+            float delta = currentFrame[f] - previousFrame[f];
+            difference += delta * delta;
+        }
+
+        return (float)Math.Sqrt(difference);
     }
 
     /// <summary>
@@ -371,26 +373,35 @@ public class SpectrogramAnalyzer
         var transients = new List<int>();
         var flux = CalculateSpectralFlux(spectrogram);
 
-        float maxFlux = 0f;
-        foreach (var f in flux)
-        {
-            if (f > maxFlux)
-                maxFlux = f;
-        }
-
+        float maxFlux = CalculateMaxFlux(flux);
         float fluxThreshold = maxFlux * threshold;
 
         for (int i = 1; i < flux.Length - 1; i++)
         {
-            // Detect peaks in spectral flux
-            if (flux[i] > fluxThreshold &&
-                flux[i] > flux[i - 1] &&
-                flux[i] > flux[i + 1])
+            if (IsPeakAboveThreshold(flux, i, fluxThreshold))
             {
                 transients.Add(i);
             }
         }
 
         return transients;
+    }
+
+    private float CalculateMaxFlux(float[] flux)
+    {
+        float maxFlux = 0f;
+        foreach (var f in flux)
+        {
+            if (f > maxFlux)
+                maxFlux = f;
+        }
+        return maxFlux;
+    }
+
+    private bool IsPeakAboveThreshold(float[] flux, int index, float threshold)
+    {
+        return flux[index] > threshold &&
+               flux[index] > flux[index - 1] &&
+               flux[index] > flux[index + 1];
     }
 }

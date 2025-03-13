@@ -4,6 +4,7 @@
 // CTO & Software Architect
 // =============================================================================
 
+
 using System;
 using NAudioVisualizer.Constants;
 using NAudioVisualizer.Domain.Models;
@@ -24,7 +25,7 @@ namespace NAudioVisualizer.Services;
 /// float[]? peaks = analyzer.GetPeakHolds();
 /// </code>
 /// </example>
-public class SpectrumAnalyzer
+public sealed class SpectrumAnalyzer
 {
     /// <summary>
     /// Peak-hold magnitude values (in the same scale as the current spectrum data).
@@ -39,6 +40,7 @@ public class SpectrumAnalyzer
     /// or a higher value (e.g. 40–60 dB/s) for real-time speech analysis.
     /// </summary>
     public float PeakHoldDecayDbPerSecond { get; set; } = 20f;
+
     /// <summary>
     /// Generates a frequency magnitude spectrum from an audio frame using FFT.
     /// A Hann window is applied to the samples before transformation to reduce
@@ -69,26 +71,17 @@ public class SpectrumAnalyzer
 
         try
         {
-            // Validate FFT size
-            if (fftSize < AudioConstants.FFT_MINIMUM || fftSize > AudioConstants.FFT_MAXIMUM)
-                fftSize = AudioConstants.DEFAULT_FFT_SIZE;
+            fftSize = ValidateFftSize(fftSize);
 
-            // Apply window function to samples and prepare for FFT
-            var windowedAndPadded = ApplyHannWindow(frame.Samples, fftSize);
-
-            // Perform FFT and compute magnitude spectrum
+            var windowedAndPadded = ApplyWindowFunction(frame.Samples, fftSize);
             var magnitudes = ComputeMagnitudeSpectrum(windowedAndPadded);
-
-            // Generate frequency bins
             var frequencies = GenerateFrequencyBins(frame.SampleRate, fftSize);
 
-            var spectrum = new SpectrumData(magnitudes, frequencies, frame.SampleRate, fftSize)
+            return new SpectrumData(magnitudes, frequencies, frame.SampleRate, fftSize)
             {
                 SourceFrame = frame,
                 WindowType = WindowType.Hann
             };
-
-            return spectrum;
         }
         catch (InvalidOperationException ex)
         {
@@ -100,30 +93,44 @@ public class SpectrumAnalyzer
         }
     }
 
+    private int ValidateFftSize(int fftSize)
+    {
+        if (fftSize < AudioConstants.FFT_MINIMUM || fftSize > AudioConstants.FFT_MAXIMUM)
+            return AudioConstants.DEFAULT_FFT_SIZE;
+
+        return fftSize;
+    }
+
     /// <summary>
     /// Applies Hann window function to samples for better FFT results.
     /// </summary>
-    private NAudio.Dsp.Complex[] ApplyHannWindow(float[] samples, int fftSize)
+    private Complex[] ApplyWindowFunction(float[] samples, int fftSize)
     {
-        var windowed = new NAudio.Dsp.Complex[fftSize];
+        var windowed = new Complex[fftSize];
 
         for (int i = 0; i < fftSize; i++)
         {
             if (i < samples.Length)
             {
-                float window = 0.5f * (1 - (float)Math.Cos(2 * Math.PI * i / (fftSize - 1)));
+                float window = CalculateHannWindow(i, fftSize);
                 windowed[i].X = samples[i] * window;
                 windowed[i].Y = 0;
             }
-            // else: default(NAudio.Dsp.Complex) has X=0, Y=0 already
+            // else: default(Complex) has X=0, Y=0 already
         }
+
         return windowed;
+    }
+
+    private float CalculateHannWindow(int index, int windowSize)
+    {
+        return 0.5f * (1 - (float)Math.Cos(2 * Math.PI * index / (windowSize - 1)));
     }
 
     /// <summary>
     /// Computes magnitude spectrum using NAudio's Fast Fourier Transform.
     /// </summary>
-    private float[] ComputeMagnitudeSpectrum(NAudio.Dsp.Complex[] samples)
+    private float[] ComputeMagnitudeSpectrum(Complex[] samples)
     {
         FastFourierTransform.FFT(true, (int)Math.Log(samples.Length, 2), samples);
 
@@ -132,6 +139,7 @@ public class SpectrumAnalyzer
         {
             magnitudes[i] = (float)Math.Sqrt(samples[i].X * samples[i].X + samples[i].Y * samples[i].Y);
         }
+
         return magnitudes;
     }
 
@@ -222,6 +230,11 @@ public class SpectrumAnalyzer
         if (magnitudes.Length == 0 || frequencies.Length == 0)
             return 0f;
 
+        return CalculateCentroidFromData(magnitudes, frequencies);
+    }
+
+    private float CalculateCentroidFromData(float[] magnitudes, float[] frequencies)
+    {
         double weightedSum = 0;
         double magnitudeSum = 0;
 
@@ -236,7 +249,7 @@ public class SpectrumAnalyzer
 
     /// <summary>
     /// Partitions the spectrum into bass (0–250 Hz), mid (250–4000 Hz), and treble
-    /// (&gt;4000 Hz) bands and returns the normalized energy contribution of each.
+    /// (>4000 Hz) bands and returns the normalized energy contribution of each.
     /// The three <see cref="FrequencyBands"/> values always sum to 1.0 when total energy
     /// is non-zero.
     /// </summary>
@@ -255,7 +268,6 @@ public class SpectrumAnalyzer
         var frequencies = spectrum.GetFrequencies();
         var bands = new FrequencyBands();
 
-        // Define frequency ranges
         const float BASS_MAX = 250f;
         const float MID_MAX = 4000f;
         const float TREBLE_MIN = 4000f;
@@ -270,27 +282,28 @@ public class SpectrumAnalyzer
                 bands.TrebleEnergy += magnitude;
         }
 
-        // Normalize
+        NormalizeFrequencyBands(bands);
+        return bands;
+    }
+
+    private static IEnumerable<(float freq, float mag)> IterateFrequencyData(
+        float[] frequencies, float[] magnitudes)
+    {
+        int count = Math.Min(frequencies.Length, magnitudes.Length);
+        for (int i = 0; i < count; i++)
+        {
+            yield return (frequencies[i], magnitudes[i]);
+        }
+    }
+
+    private void NormalizeFrequencyBands(FrequencyBands bands)
+    {
         float totalEnergy = bands.BassEnergy + bands.MidEnergy + bands.TrebleEnergy;
         if (totalEnergy > 0)
         {
             bands.BassEnergy /= totalEnergy;
             bands.MidEnergy /= totalEnergy;
             bands.TrebleEnergy /= totalEnergy;
-        }
-
-        return bands;
-    }
-
-    /// <summary>
-    /// Helper to iterate through frequency-magnitude pairs.
-    /// </summary>
-    private static System.Collections.Generic.IEnumerable<(float freq, float mag)> IterateFrequencyData(
-        float[] frequencies, float[] magnitudes)
-    {
-        for (int i = 0; i < Math.Min(frequencies.Length, magnitudes.Length); i++)
-        {
-            yield return (frequencies[i], magnitudes[i]);
         }
     }
 
@@ -368,7 +381,7 @@ public class SpectrumAnalyzer
 /// <summary>
 /// Frequency band energy data.
 /// </summary>
-public class FrequencyBands
+public sealed class FrequencyBands
 {
     public float BassEnergy { get; set; }
     public float MidEnergy { get; set; }

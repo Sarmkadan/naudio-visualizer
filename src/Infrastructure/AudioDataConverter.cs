@@ -18,9 +18,7 @@ public static class AudioDataConverter
     /// Converts decibels to linear amplitude.
     /// </summary>
     public static float DbToLinear(float db, float referenceLevel = 1f)
-    {
-        return referenceLevel * (float)Math.Pow(10f, db / 20f);
-    }
+        => referenceLevel * (float)Math.Pow(10f, db / 20f);
 
     /// <summary>
     /// Converts linear amplitude to decibels.
@@ -37,32 +35,23 @@ public static class AudioDataConverter
     /// Formats a frequency value as a human-readable string.
     /// </summary>
     public static string FormatFrequency(float frequencyHz)
-    {
-        if (frequencyHz < 1000)
-            return $"{frequencyHz:F1} Hz";
-
-        return $"{frequencyHz / 1000:F2} kHz";
-    }
+        => frequencyHz < 1000
+            ? $"{frequencyHz:F1} Hz"
+            : $"{frequencyHz / 1000:F2} kHz";
 
     /// <summary>
     /// Formats a time duration as a human-readable string.
     /// </summary>
     public static string FormatDuration(double seconds)
-    {
-        if (seconds < 60)
-            return $"{seconds:F2}s";
-
-        var timespan = TimeSpan.FromSeconds(seconds);
-        return timespan.ToString(@"hh\:mm\:ss");
-    }
+        => seconds < 60
+            ? $"{seconds:F2}s"
+            : TimeSpan.FromSeconds(seconds).ToString(@"hh\:mm\:ss");
 
     /// <summary>
     /// Formats an audio level as a percentage string.
     /// </summary>
     public static string FormatAudioLevel(float level)
-    {
-        return $"{Math.Clamp(level * 100, 0, 100):F1}%";
-    }
+        => $"{Math.Clamp(level * 100, 0, 100):F1}%";
 
     /// <summary>
     /// Formats an audio level in decibels.
@@ -70,10 +59,9 @@ public static class AudioDataConverter
     public static string FormatAudioLevelDb(float linear)
     {
         float db = LinearToDb(linear);
-        if (float.IsNegativeInfinity(db))
-            return "-∞ dB";
-
-        return $"{db:F2} dB";
+        return float.IsNegativeInfinity(db)
+            ? "-∞ dB"
+            : $"{db:F2} dB";
     }
 
     /// <summary>

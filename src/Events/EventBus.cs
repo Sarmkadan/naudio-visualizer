@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace NAudioVisualizer.Events;
 
@@ -15,7 +14,7 @@ namespace NAudioVisualizer.Events;
 /// Decouples event publishers from subscribers for better architecture.
 /// Thread-safe implementation with weak event support to prevent memory leaks.
 /// </summary>
-public class EventBus : IDisposable
+public sealed class EventBus : IDisposable
 {
     private readonly Dictionary<Type, List<WeakEventSubscription>> _subscriptions;
     private readonly object _lockObject = new();
@@ -66,9 +65,7 @@ public class EventBus : IDisposable
 
         lock (_lockObject)
         {
-            var eventType = typeof(T);
-
-            if (!_subscriptions.TryGetValue(eventType, out var allHandlers))
+            if (!_subscriptions.TryGetValue(typeof(T), out var allHandlers))
                 return;
 
             handlers = new List<WeakEventSubscription>(allHandlers);
@@ -102,8 +99,7 @@ public class EventBus : IDisposable
         {
             lock (_lockObject)
             {
-                var eventType = typeof(T);
-                if (_subscriptions.TryGetValue(eventType, out var allHandlers))
+                if (_subscriptions.TryGetValue(typeof(T), out var allHandlers))
                 {
                     foreach (var dead in deadSubscriptions)
                     {
@@ -121,8 +117,7 @@ public class EventBus : IDisposable
     {
         lock (_lockObject)
         {
-            var eventType = typeof(T);
-            return _subscriptions.TryGetValue(eventType, out var handlers)
+            return _subscriptions.TryGetValue(typeof(T), out var handlers)
                 ? handlers.Count
                 : 0;
         }
@@ -135,8 +130,7 @@ public class EventBus : IDisposable
     {
         lock (_lockObject)
         {
-            var eventType = typeof(T);
-            _subscriptions.Remove(eventType);
+            _subscriptions.Remove(typeof(T));
         }
     }
 
@@ -151,10 +145,20 @@ public class EventBus : IDisposable
         }
     }
 
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        Clear();
+        _disposed = true;
+        GC.SuppressFinalize(this);
+    }
+
     /// <summary>
     /// Internal class for managing weak event subscriptions.
     /// </summary>
-    private class WeakEventSubscription : IDisposable
+    private sealed class WeakEventSubscription : IDisposable
     {
         private readonly WeakReference _handlerReference;
         private readonly EventBus _eventBus;
@@ -179,10 +183,7 @@ public class EventBus : IDisposable
             }
         }
 
-        public void Dispose()
-        {
-            _eventBus.Unsubscribe(this, _eventType);
-        }
+        public void Dispose() => _eventBus.Unsubscribe(this, _eventType);
     }
 
     /// <summary>
@@ -197,14 +198,5 @@ public class EventBus : IDisposable
                 handlers.Remove(subscription);
             }
         }
-    }
-
-    public void Dispose()
-    {
-        if (_disposed)
-            return;
-
-        Clear();
-        _disposed = true;
     }
 }

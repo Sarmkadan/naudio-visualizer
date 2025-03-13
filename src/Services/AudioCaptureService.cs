@@ -85,16 +85,13 @@ public sealed class AudioCaptureService : IDisposable
     private void ValidateInitializationParameters(int deviceIndex, int sampleRate, int channelCount)
     {
         if (deviceIndex < 0)
-            throw new ArgumentOutOfRangeException(nameof(deviceIndex), deviceIndex,
-                "Device index must be non-negative.");
+            throw new ArgumentOutOfRangeException(nameof(deviceIndex), deviceIndex, "Device index must be non-negative.");
 
         if (sampleRate <= 0)
-            throw new ArgumentOutOfRangeException(nameof(sampleRate), sampleRate,
-                "Sample rate must be a positive value.");
+            throw new ArgumentOutOfRangeException(nameof(sampleRate), sampleRate, "Sample rate must be a positive value.");
 
         if (channelCount < 1 || channelCount > 2)
-            throw new ArgumentOutOfRangeException(nameof(channelCount), channelCount,
-                "Channel count must be 1 (mono) or 2 (stereo).");
+            throw new ArgumentOutOfRangeException(nameof(channelCount), channelCount, "Channel count must be 1 (mono) or 2 (stereo).");
     }
 
     private void InitializeWaveInput(int deviceIndex, int sampleRate, int channelCount)
@@ -274,27 +271,7 @@ public sealed class AudioCaptureService : IDisposable
 
         try
         {
-            // Convert byte data to float samples
-            var samples = BytesToFloatSamples(e.Buffer, e.BytesRecorded);
-            _audioBuffer.Write(samples);
-
-            _currentMetadata.TotalSamplesCaptured += samples.Length;
-            _currentMetadata.TotalFramesProcessed++;
-            _currentMetadata.UpdateDuration();
-
-            // Calculate RMS level
-            float rmsLevel = CalculateRmsLevel(samples);
-            _currentMetadata.UpdateLevelMetrics(rmsLevel);
-
-            // Create and raise frame event
-            var frame = new AudioFrame(
-                samples,
-                _currentMetadata.ChannelCount,
-                _currentMetadata.SampleRate,
-                _currentMetadata.TotalFramesProcessed
-            );
-
-            FrameCaptured?.Invoke(this, new AudioFrameEventArgs { Frame = frame });
+            ProcessAudioData(e.Buffer, e.BytesRecorded);
         }
         catch (InvalidOperationException ex)
         {
@@ -302,12 +279,21 @@ public sealed class AudioCaptureService : IDisposable
         }
     }
 
-    private const float MaxSampleValue = 32768f;
+    private void ProcessAudioData(byte[] buffer, int bytesRecorded)
+    {
+        var samples = ConvertBytesToFloatSamples(buffer, bytesRecorded);
+        _audioBuffer.Write(samples);
 
-    /// <summary>
-    /// Converts raw byte buffer to float samples (-1.0 to 1.0).
-    /// </summary>
-    private float[] BytesToFloatSamples(byte[] buffer, int bytesRecorded)
+        UpdateAudioMetadata(samples.Length);
+
+        float rmsLevel = CalculateRmsLevel(samples);
+        _currentMetadata.UpdateLevelMetrics(rmsLevel);
+
+        var frame = CreateAudioFrame(samples);
+        FrameCaptured?.Invoke(this, new AudioFrameEventArgs { Frame = frame });
+    }
+
+    private float[] ConvertBytesToFloatSamples(byte[] buffer, int bytesRecorded)
     {
         int sampleCount = bytesRecorded / BytesPerSample;
         var samples = new float[sampleCount];
@@ -320,6 +306,25 @@ public sealed class AudioCaptureService : IDisposable
 
         return samples;
     }
+
+    private void UpdateAudioMetadata(int samplesAdded)
+    {
+        _currentMetadata.TotalSamplesCaptured += samplesAdded;
+        _currentMetadata.TotalFramesProcessed++;
+        _currentMetadata.UpdateDuration();
+    }
+
+    private AudioFrame CreateAudioFrame(float[] samples)
+    {
+        return new AudioFrame(
+            samples,
+            _currentMetadata.ChannelCount,
+            _currentMetadata.SampleRate,
+            _currentMetadata.TotalFramesProcessed
+        );
+    }
+
+    private const float MaxSampleValue = 32768f;
 
     /// <summary>
     /// Calculates RMS (Root Mean Square) level of audio samples.
@@ -402,9 +407,9 @@ public sealed class AudioCaptureService : IDisposable
             _waveInput?.StopRecording();
             _isRecording = false;
         }
-        
+
         _cancellationTokenSource?.Cancel();
-        
+
         Cleanup();
         _isDisposed = true;
         GC.SuppressFinalize(this);

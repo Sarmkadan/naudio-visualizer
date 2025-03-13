@@ -87,7 +87,8 @@ public sealed class MidiInputService : IDisposable
             throw new AudioDeviceException(
                 $"Failed to open MIDI device {deviceIndex}: {ex.Message}",
                 deviceIndex,
-                ex);
+                ex
+            );
         }
 
         await Task.CompletedTask;
@@ -106,30 +107,35 @@ public sealed class MidiInputService : IDisposable
     {
         try
         {
-            if (args.MidiEvent is not NoteEvent noteEvent)
-                return;
-
-            bool isNoteOn = noteEvent.CommandCode == MidiCommandCode.NoteOn
-                && noteEvent is NoteOnEvent { Velocity: > 0 };
-
-            var evt = new MidiNoteEvent
-            {
-                Channel = noteEvent.Channel,
-                NoteNumber = noteEvent.NoteNumber,
-                NoteName = MidiNoteEvent.GetNoteName(noteEvent.NoteNumber),
-                Velocity = noteEvent is NoteOnEvent on ? on.Velocity : 0,
-                IsNoteOn = isNoteOn,
-                Frequency = MidiNoteEvent.GetFrequency(noteEvent.NoteNumber),
-                DeviceIndex = _activeDeviceIndex
-            };
-
-            NoteReceived?.Invoke(this, new MidiNoteEventArgs { Note = evt });
-            EventPublisher.Instance.Publish(evt);
+            ProcessMidiMessage(args.MidiEvent);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Error processing MIDI message: {ex.Message}");
         }
+    }
+
+    private void ProcessMidiMessage(MidiEvent midiEvent)
+    {
+        if (midiEvent is not NoteEvent noteEvent)
+            return;
+
+        bool isNoteOn = noteEvent.CommandCode == MidiCommandCode.NoteOn
+            && noteEvent is NoteOnEvent { Velocity: > 0 };
+
+        var evt = new MidiNoteEvent
+        {
+            Channel = noteEvent.Channel,
+            NoteNumber = noteEvent.NoteNumber,
+            NoteName = MidiNoteEvent.GetNoteName(noteEvent.NoteNumber),
+            Velocity = noteEvent is NoteOnEvent on ? on.Velocity : 0,
+            IsNoteOn = isNoteOn,
+            Frequency = MidiNoteEvent.GetFrequency(noteEvent.NoteNumber),
+            DeviceIndex = _activeDeviceIndex
+        };
+
+        NoteReceived?.Invoke(this, new MidiNoteEventArgs { Note = evt });
+        EventPublisher.Instance.Publish(evt);
     }
 
     private void OnMidiErrorReceived(object? sender, MidiInMessageEventArgs args)
