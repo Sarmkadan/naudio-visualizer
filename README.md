@@ -193,7 +193,7 @@ MathUtility (FFT helpers, RMS, dB conversion), ValidationUtility, StringUtility.
 
 ## Docker Support
 
-Run the NAudio Visualizer in a Docker container for cross-platform deployment and testing.
+Run the NAudio Visualizer in a Docker container for cross-platform deployment and testing. This configuration has been verified.
 
 ### Prerequisites
 
