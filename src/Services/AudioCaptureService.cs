@@ -397,7 +397,14 @@ public sealed class AudioCaptureService : IDisposable
         if (_isDisposed)
             return;
 
-        StopRecordingAsync().Wait(TimeSpan.FromSeconds(5));
+        if (_isRecording)
+        {
+            _waveInput?.StopRecording();
+            _isRecording = false;
+        }
+        
+        _cancellationTokenSource?.Cancel();
+        
         Cleanup();
         _isDisposed = true;
         GC.SuppressFinalize(this);

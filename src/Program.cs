@@ -73,7 +73,7 @@ static class Program
 /// <summary>
 /// Main application window for audio visualization.
 /// </summary>
-public partial class MainForm : Form
+public sealed partial class MainForm : Form
 {
         private readonly ServiceContainer _serviceContainer;
         private readonly ApplicationSettings _settings;
