@@ -18,8 +18,12 @@ namespace NAudioVisualizer.Services;
 /// <summary>
 /// Service for capturing audio from input devices and managing the audio stream.
 /// </summary>
-public class AudioCaptureService : IDisposable
+public sealed class AudioCaptureService : IDisposable
 {
+    private const int DefaultBitDepth = 16;
+    private const int BytesPerSample = 2; // 16 bits = 2 bytes
+    private static readonly int[] CommonSampleRates = { 44100, 48000, 96000, 192000 };
+
     private WaveInEvent? _waveInput;
     private WaveFileWriter? _waveFileWriter;
     private AudioBuffer? _audioBuffer;
@@ -59,7 +63,27 @@ public class AudioCaptureService : IDisposable
     public void Initialize(int deviceIndex, int sampleRate, int channelCount)
     {
         ThrowIfDisposed();
+        ValidateInitializationParameters(deviceIndex, sampleRate, channelCount);
 
+        try
+        {
+            InitializeWaveInput(deviceIndex, sampleRate, channelCount);
+            InitializeAudioBuffer(sampleRate, channelCount);
+            InitializeMetadata(sampleRate, channelCount);
+        }
+        catch (InvalidOperationException ex)
+        {
+            Cleanup();
+            throw new AudioDeviceException(
+                $"Failed to initialize audio device {deviceIndex}: {ex.Message}",
+                deviceIndex,
+                ex
+            );
+        }
+    }
+
+    private void ValidateInitializationParameters(int deviceIndex, int sampleRate, int channelCount)
+    {
         if (deviceIndex < 0)
             throw new ArgumentOutOfRangeException(nameof(deviceIndex), deviceIndex,
                 "Device index must be non-negative.");
@@ -71,40 +95,35 @@ public class AudioCaptureService : IDisposable
         if (channelCount < 1 || channelCount > 2)
             throw new ArgumentOutOfRangeException(nameof(channelCount), channelCount,
                 "Channel count must be 1 (mono) or 2 (stereo).");
+    }
 
-        try
+    private void InitializeWaveInput(int deviceIndex, int sampleRate, int channelCount)
+    {
+        _waveInput = new WaveInEvent
         {
-            // Create wave input device
-            _waveInput = new WaveInEvent
-            {
-                DeviceNumber = deviceIndex,
-                WaveFormat = new WaveFormat(sampleRate, 16, channelCount)
-            };
+            DeviceNumber = deviceIndex,
+            WaveFormat = new WaveFormat(sampleRate, DefaultBitDepth, channelCount)
+        };
 
-            _waveInput.DataAvailable += OnDataAvailable;
-            _waveInput.RecordingStopped += OnRecordingStopped;
+        _waveInput.DataAvailable += OnDataAvailable;
+        _waveInput.RecordingStopped += OnRecordingStopped;
+    }
 
-            // Initialize audio buffer with 2 seconds of audio
-            int bufferSize = sampleRate * channelCount * 2;
-            _audioBuffer = new AudioBuffer(bufferSize, sampleRate, channelCount);
+    private void InitializeAudioBuffer(int sampleRate, int channelCount)
+    {
+        // Initialize audio buffer with 2 seconds of audio
+        int bufferSize = sampleRate * channelCount * BytesPerSample;
+        _audioBuffer = new AudioBuffer(bufferSize, sampleRate, channelCount);
+    }
 
-            // Initialize metadata
-            _currentMetadata = new AudioMetadata
-            {
-                SampleRate = sampleRate,
-                ChannelCount = channelCount,
-                BitDepth = 16
-            };
-        }
-        catch (InvalidOperationException ex)
+    private void InitializeMetadata(int sampleRate, int channelCount)
+    {
+        _currentMetadata = new AudioMetadata
         {
-            Cleanup();
-            throw new AudioDeviceException(
-                $"Failed to initialize audio device {deviceIndex}: {ex.Message}",
-                deviceIndex,
-                ex
-            );
-        }
+            SampleRate = sampleRate,
+            ChannelCount = channelCount,
+            BitDepth = DefaultBitDepth
+        };
     }
 
     /// <summary>
@@ -236,7 +255,7 @@ public class AudioCaptureService : IDisposable
             };
 
             // Add common sample rates
-            foreach (int rate in new[] { 44100, 48000, 96000, 192000 })
+            foreach (int rate in CommonSampleRates)
             {
                 device.AddSupportedSampleRate(rate);
             }
@@ -283,18 +302,20 @@ public class AudioCaptureService : IDisposable
         }
     }
 
+    private const float MaxSampleValue = 32768f;
+
     /// <summary>
     /// Converts raw byte buffer to float samples (-1.0 to 1.0).
     /// </summary>
     private float[] BytesToFloatSamples(byte[] buffer, int bytesRecorded)
     {
-        int sampleCount = bytesRecorded / 2;
+        int sampleCount = bytesRecorded / BytesPerSample;
         var samples = new float[sampleCount];
 
         for (int i = 0; i < sampleCount; i++)
         {
-            short sample = BitConverter.ToInt16(buffer, i * 2);
-            samples[i] = sample / 32768f;
+            short sample = BitConverter.ToInt16(buffer, i * BytesPerSample);
+            samples[i] = sample / MaxSampleValue;
         }
 
         return samples;
@@ -386,7 +407,7 @@ public class AudioCaptureService : IDisposable
 /// <summary>
 /// Event args for audio frame captured event.
 /// </summary>
-public class AudioFrameEventArgs : EventArgs
+public sealed class AudioFrameEventArgs : EventArgs
 {
     public AudioFrame? Frame { get; set; }
 }
@@ -394,7 +415,7 @@ public class AudioFrameEventArgs : EventArgs
 /// <summary>
 /// Event args for audio device status changed event.
 /// </summary>
-public class AudioDeviceEventArgs : EventArgs
+public sealed class AudioDeviceEventArgs : EventArgs
 {
     public bool IsAvailable { get; set; }
     public Exception? Exception { get; set; }
