@@ -16,7 +16,7 @@ namespace NAudioVisualizer.Infrastructure;
 public sealed class Logger : IDisposable
 {
     private readonly string _logFilePath;
-    private readonly StreamWriter? _writer;
+    private StreamWriter? _writer;
     private readonly bool _writeToConsole;
     private bool _isDisposed;
 
