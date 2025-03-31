@@ -10,15 +10,24 @@ using System;
 
 namespace NAudioVisualizer.Tests;
 
+/// <summary>
+/// Tests for the WaveformService class.
+/// </summary>
 public class WaveformServiceTests
 {
     private readonly WaveformService _service;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="WaveformServiceTests"/> class.
+    /// </summary>
     public WaveformServiceTests()
     {
         _service = new WaveformService();
     }
 
+    /// <summary>
+    /// Verifies that DownsampleSamples returns the correct length and averages.
+    /// </summary>
     [Fact]
     public void DownsampleSamples_ReturnsCorrectLengthAndAverages()
     {
@@ -35,6 +44,9 @@ public class WaveformServiceTests
         result[1].Should().BeApproximately(0.35f, 0.0001f); // (0.3+0.4)/2
     }
 
+    /// <summary>
+    /// Verifies that CalculatePeakValues returns the correct peaks.
+    /// </summary>
     [Fact]
     public void CalculatePeakValues_ReturnsCorrectPeaks()
     {
@@ -51,6 +63,9 @@ public class WaveformServiceTests
         result[1].Should().Be(0.5f); // Max of {0.2, 0.5}
     }
 
+    /// <summary>
+    /// Verifies that CalculatePeakValues throws an ArgumentException when the peak count is invalid.
+    /// </summary>
     [Fact]
     public void CalculatePeakValues_InvalidPeakCount_ThrowsArgumentException()
     {
@@ -66,6 +81,9 @@ public class WaveformServiceTests
            .WithMessage("*Peak count must be positive*");
     }
 
+    /// <summary>
+    /// Verifies that ApplySmoothingFilter smooths the signal.
+    /// </summary>
     [Fact]
     public void ApplySmoothingFilter_SmoothesSignal()
     {
@@ -86,6 +104,9 @@ public class WaveformServiceTests
         result[2].Should().BeApproximately(0.5f, 0.001f);
     }
 
+    /// <summary>
+    /// Verifies that CalculateFrameEnergy returns the correct RMS.
+    /// </summary>
     [Fact]
     public void CalculateFrameEnergy_ReturnsCorrectRms()
     {
@@ -103,6 +124,9 @@ public class WaveformServiceTests
         result[1].Should().BeApproximately(0.5f, 0.0001f);
     }
 
+    /// <summary>
+    /// Verifies that CountZeroCrossings returns the correct count.
+    /// </summary>
     [Fact]
     public void CountZeroCrossings_ReturnsCorrectCount()
     {
