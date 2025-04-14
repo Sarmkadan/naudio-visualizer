@@ -22,17 +22,18 @@ public static class LoggerExtensions
     /// <param name="logger">The logger instance.</param>
     /// <param name="message">Format string.</param>
     /// <param name="args">Format arguments.</param>
-    public static void Debug(this Logger logger, string message, params object?[] args)
+    /// <exception cref="ArgumentNullException"><paramref name="logger"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="message"/> is <see langword="null"/>.</exception>
+    public static void Debug(this Logger logger, string message, params object?[]? args)
     {
-        if (logger is null)
-            throw new ArgumentNullException(nameof(logger));
-
-        if (message is null)
-            throw new ArgumentNullException(nameof(message));
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(message);
 
         if (logger.MinimumLevel <= LogLevel.Debug)
         {
-            string formattedMessage = string.Format(message, args);
+            string formattedMessage = args is null || args.Length == 0
+                ? message
+                : string.Format(message, args);
             logger.Debug(formattedMessage);
         }
     }
@@ -43,17 +44,18 @@ public static class LoggerExtensions
     /// <param name="logger">The logger instance.</param>
     /// <param name="message">Format string.</param>
     /// <param name="args">Format arguments.</param>
-    public static void Info(this Logger logger, string message, params object?[] args)
+    /// <exception cref="ArgumentNullException"><paramref name="logger"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="message"/> is <see langword="null"/>.</exception>
+    public static void Info(this Logger logger, string message, params object?[]? args)
     {
-        if (logger is null)
-            throw new ArgumentNullException(nameof(logger));
-
-        if (message is null)
-            throw new ArgumentNullException(nameof(message));
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(message);
 
         if (logger.MinimumLevel <= LogLevel.Info)
         {
-            string formattedMessage = string.Format(message, args);
+            string formattedMessage = args is null || args.Length == 0
+                ? message
+                : string.Format(message, args);
             logger.Info(formattedMessage);
         }
     }
@@ -64,17 +66,18 @@ public static class LoggerExtensions
     /// <param name="logger">The logger instance.</param>
     /// <param name="message">Format string.</param>
     /// <param name="args">Format arguments.</param>
-    public static void Warn(this Logger logger, string message, params object?[] args)
+    /// <exception cref="ArgumentNullException"><paramref name="logger"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="message"/> is <see langword="null"/>.</exception>
+    public static void Warn(this Logger logger, string message, params object?[]? args)
     {
-        if (logger is null)
-            throw new ArgumentNullException(nameof(logger));
-
-        if (message is null)
-            throw new ArgumentNullException(nameof(message));
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(message);
 
         if (logger.MinimumLevel <= LogLevel.Warn)
         {
-            string formattedMessage = string.Format(message, args);
+            string formattedMessage = args is null || args.Length == 0
+                ? message
+                : string.Format(message, args);
             logger.Warn(formattedMessage);
         }
     }
@@ -86,17 +89,18 @@ public static class LoggerExtensions
     /// <param name="message">Format string.</param>
     /// <param name="exception">Optional exception to include.</param>
     /// <param name="args">Format arguments.</param>
-    public static void Error(this Logger logger, string message, Exception? exception = null, params object?[] args)
+    /// <exception cref="ArgumentNullException"><paramref name="logger"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="message"/> is <see langword="null"/>.</exception>
+    public static void Error(this Logger logger, string message, Exception? exception = null, params object?[]? args)
     {
-        if (logger is null)
-            throw new ArgumentNullException(nameof(logger));
-
-        if (message is null)
-            throw new ArgumentNullException(nameof(message));
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(message);
 
         if (logger.MinimumLevel <= LogLevel.Error)
         {
-            string formattedMessage = string.Format(message, args);
+            string formattedMessage = args is null || args.Length == 0
+                ? message
+                : string.Format(message, args);
             logger.Error(formattedMessage, exception);
         }
     }
@@ -108,17 +112,18 @@ public static class LoggerExtensions
     /// <param name="message">Format string.</param>
     /// <param name="exception">Optional exception to include.</param>
     /// <param name="args">Format arguments.</param>
-    public static void Critical(this Logger logger, string message, Exception? exception = null, params object?[] args)
+    /// <exception cref="ArgumentNullException"><paramref name="logger"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="message"/> is <see langword="null"/>.</exception>
+    public static void Critical(this Logger logger, string message, Exception? exception = null, params object?[]? args)
     {
-        if (logger is null)
-            throw new ArgumentNullException(nameof(logger));
-
-        if (message is null)
-            throw new ArgumentNullException(nameof(message));
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(message);
 
         if (logger.MinimumLevel <= LogLevel.Critical)
         {
-            string formattedMessage = string.Format(message, args);
+            string formattedMessage = args is null || args.Length == 0
+                ? message
+                : string.Format(message, args);
             logger.Critical(formattedMessage, exception);
         }
     }
@@ -129,10 +134,10 @@ public static class LoggerExtensions
     /// <param name="logger">The logger instance.</param>
     /// <param name="methodName">Name of the calling method (automatically populated).</param>
     /// <returns>An <see cref="IDisposable"/> that logs method exit when disposed.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="logger"/> is <see langword="null"/>.</exception>
     public static IDisposable MethodScope(this Logger logger, [CallerMemberName] string methodName = "")
     {
-        if (logger is null)
-            throw new ArgumentNullException(nameof(logger));
+        ArgumentNullException.ThrowIfNull(logger);
 
         logger.Info("Entering method: {MethodName}", methodName);
         var stopwatch = Stopwatch.StartNew();
@@ -148,24 +153,22 @@ public static class LoggerExtensions
     /// <param name="action">Action to execute and time.</param>
     /// <param name="args">Format arguments for operation name.</param>
     /// <returns>Time taken for the operation in milliseconds.</returns>
-    public static long Time(this Logger logger, string operationName, Action action, params object?[] args)
+    /// <exception cref="ArgumentNullException"><paramref name="logger"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="operationName"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="action"/> is <see langword="null"/>.</exception>
+    public static long Time(this Logger logger, string operationName, Action action, params object?[]? args)
     {
-        if (logger is null)
-            throw new ArgumentNullException(nameof(logger));
-
-        if (action is null)
-            throw new ArgumentNullException(nameof(action));
-
-        if (string.IsNullOrEmpty(operationName))
-            throw new ArgumentException("Operation name cannot be null or empty", nameof(operationName));
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(operationName);
+        ArgumentNullException.ThrowIfNull(action);
 
         var stopwatch = Stopwatch.StartNew();
         action();
         stopwatch.Stop();
 
-        string formattedOperation = args.Length > 0
-            ? string.Format(operationName, args)
-            : operationName;
+        string formattedOperation = args is null || args.Length == 0
+            ? operationName
+            : string.Format(operationName, args);
 
         logger.Info("Operation '{Operation}' completed in {Elapsed}ms", formattedOperation, stopwatch.ElapsedMilliseconds);
 
@@ -180,17 +183,18 @@ public static class LoggerExtensions
     /// <param name="message">Message to log if condition is true.</param>
     /// <param name="args">Format arguments.</param>
     /// <returns>True if message was logged, false otherwise.</returns>
-    public static bool If(this Logger logger, bool condition, string message, params object?[] args)
+    /// <exception cref="ArgumentNullException"><paramref name="logger"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="message"/> is <see langword="null"/>.</exception>
+    public static bool If(this Logger logger, bool condition, string message, params object?[]? args)
     {
-        if (logger is null)
-            throw new ArgumentNullException(nameof(logger));
-
-        if (message is null)
-            throw new ArgumentNullException(nameof(message));
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(message);
 
         if (condition && logger.MinimumLevel <= LogLevel.Info)
         {
-            string formattedMessage = string.Format(message, args);
+            string formattedMessage = args is null || args.Length == 0
+                ? message
+                : string.Format(message, args);
             logger.Info(formattedMessage);
             return true;
         }
