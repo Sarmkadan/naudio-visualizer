@@ -19,5 +19,17 @@ float[] normalizedSamples = AudioDataConverter.NormalizeSamples(samples);
 // Apply gain
 float[] gainedSamples = AudioDataConverter.ApplyGain(normalizedSamples, 2.0f);
 ```
+## VisualizationException
+The `VisualizationException` is thrown when an error occurs during the rendering or processing of a visualization. It carries an optional `VisualizationType` property that indicates which visualization component caused the failure, allowing callers to handle different visualizers separately.
 
-// ... rest of the file content ...
+```csharp
+try
+{
+    // Simulate a failure in a specific visualization
+    throw new VisualizationException("Failed to render waveform");
+}
+catch (VisualizationException ex)
+{
+    Console.WriteLine($"Error in {ex.VisualizationType ?? "unknown"}: {ex.Message}");
+}
+```
