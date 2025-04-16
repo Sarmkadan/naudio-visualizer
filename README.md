@@ -86,3 +86,23 @@ bus.Clear();
 // Dispose the bus when done
 bus.Dispose();
 ```
+
+## EventPublisher
+`EventPublisher` is a static helper that publishes a wide range of audio and visualization events to the global `EventBus`. It exposes strongly‑typed publish methods such as `PublishAudioCaptureStarted`, `PublishWaveformGenerated`, and `PublishVisualizationError`, along with a generic `Subscribe<T>` method for consuming those events. The `Reset` method clears all internal state and subscriptions, allowing a clean slate for new event streams.
+
+### Usage Example
+
+```csharp
+using Events;
+
+var audioStarted = EventPublisher.Subscribe<string>(msg => Console.WriteLine($"Audio started: {msg}"));
+var waveformGenerated = EventPublisher.Subscribe<string>(msg => Console.WriteLine($"Waveform: {msg}"));
+
+EventPublisher.PublishAudioCaptureStarted();
+EventPublisher.PublishWaveformGenerated();
+
+audioStarted.Dispose();
+waveformGenerated.Dispose();
+
+EventPublisher.Reset();
+```
