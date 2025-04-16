@@ -26,20 +26,20 @@ The `AudioDeviceException` is thrown when an audio device is not found or inacce
 ```csharp
 try
 {
-// Attempt to use audio device with index 2
-using (var audioClient = new WasapiAudioClient(2))
-{
-// ... audio processing ...
-}
+    // Attempt to use audio device with index 2
+    using (var audioClient = new WasapiAudioClient(2))
+    {
+        // ... audio processing ...
+    }
 }
 catch (AudioDeviceException ex) when (ex.DeviceIndex.HasValue)
 {
-Console.WriteLine($"Audio device {ex.DeviceIndex} is not available: {ex.Message}");
-// Attempt fallback to default device
+    Console.WriteLine($"Audio device {ex.DeviceIndex} is not available: {ex.Message}");
+    // Attempt fallback to default device
 }
 catch (AudioDeviceException ex)
 {
-Console.WriteLine($"Audio device error: {ex.Message}");
+    Console.WriteLine($"Audio device error: {ex.Message}");
 }
 ```
 
@@ -56,4 +56,33 @@ catch (VisualizationException ex)
 {
     Console.WriteLine($"Error in {ex.VisualizationType ?? "unknown"}: {ex.Message}");
 }
+```
+
+## EventBus
+`EventBus` is a lightweight publish/subscribe system that allows components to communicate without tight coupling. It supports generic event types, keeps track of subscriber counts, and can clean up all subscriptions when needed.
+
+### Usage Example
+
+```csharp
+using Events; // adjust namespace as needed
+
+var bus = new EventBus();
+
+// Subscribe to a string event
+var subscription = bus.Subscribe<string>(msg => Console.WriteLine($"Received: {msg}"));
+
+// Publish an event
+bus.Publish("Hello, world!");
+
+// Check how many subscribers are listening to string events
+Console.WriteLine($"Subscribers: {bus.GetSubscriberCount<string>()}");
+
+// Unsubscribe all string listeners
+bus.UnsubscribeAll<string>();
+
+// Clear all remaining subscriptions
+bus.Clear();
+
+// Dispose the bus when done
+bus.Dispose();
 ```
