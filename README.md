@@ -1,25 +1,31 @@
 // src/README.md
 // ... rest of the file content ...
-## AudioCaptureStartedEvent
-The `AudioCaptureStartedEvent` is published when audio capture begins. It provides detailed information about the capture process, including the device ID, sample rate, channel count, and start time.
+## MidiNoteEvent
+The `MidiNoteEvent` type represents a single MIDI note event, providing information about the note's channel, note number, velocity, and timestamp. It also includes methods to retrieve the note's name and frequency.
 
 ### Usage Example
 
 ```csharp
-using Events; // adjust namespace as needed
+using Domain.Models;
 
-var eventPublisher = EventPublisher.Subscribe<AudioCaptureStartedEvent>(event =>
+// Create a new MidiNoteEvent
+var event = new MidiNoteEvent
 {
-    Console.WriteLine($"Audio capture started on device {event.DeviceId} at {event.StartTime}");
-    Console.WriteLine($"Sample rate: {event.SampleRate} Hz, Channel count: {event.ChannelCount}");
-    Console.WriteLine($"Total samples captured: {event.TotalSamplesCaptured}, Duration: {event.Duration}");
-    Console.WriteLine($"Frame sequence number: {event.FrameSequenceNumber}, Elapsed time: {event.ElapsedTime}");
-    Console.WriteLine($"Waveform: {event.Waveform}");
-    Console.WriteLine($"Spectrum: {event.Spectrum}");
-    Console.WriteLine($"Spectrogram: {event.Spectrogram}");
-});
+    Channel = 0,
+    NoteNumber = 60,
+    Velocity = 100,
+    IsNoteOn = true,
+    Frequency = MidiNoteEvent.GetFrequency(60),
+    Timestamp = DateTime.Now,
+    DeviceIndex = 0
+};
 
-EventPublisher.PublishAudioCaptureStarted();
+// Inspect the event
+Console.WriteLine($"Note: {event.NoteName}, Channel: {event.Channel}, Note Number: {event.NoteNumber}, Velocity: {event.Velocity}");
+Console.WriteLine($"Frequency: {event.Frequency}, Timestamp: {event.Timestamp}, Device Index: {event.DeviceIndex}");
+
+// Check if the event is valid
+Console.WriteLine($"Is valid: {event.IsValid}");
 ```
 
 ## EventBus
