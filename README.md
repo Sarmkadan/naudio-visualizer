@@ -21,7 +21,7 @@ var settings = new VisualizationSettings
     {
         MaxFrequencyDisplay = 20000f
     },
-    SpectrogramSettings = new SpectrogramRenderingSettings
+    SpectrogramSettings = new SpectrogramSettings
     {
         DownsamplingFactor = 4
     },
@@ -38,8 +38,7 @@ var settings = new VisualizationSettings
     LineColor = 0xFF0000FF, // Blue
     LineThickness = 2f,
     ShowStereoSeparate = true,
-    AmplitudeZoom = 1f,
-    DownsamplingFactor = 4
+    AmplitudeZoom = 1f
 };
 
 // Inspect the settings
@@ -61,7 +60,6 @@ Console.WriteLine($"Line Color: 0x{settings.LineColor:X8}");
 Console.WriteLine($"Line Thickness: {settings.LineThickness}");
 Console.WriteLine($"Show Stereo Separate: {settings.ShowStereoSeparate}");
 Console.WriteLine($"Amplitude Zoom: {settings.AmplitudeZoom}");
-Console.WriteLine($"Downsampling Factor: {settings.DownsamplingFactor}");
+Console.WriteLine($"Downsampling Factor: {settings.SpectrogramSettings.DownsamplingFactor}");
 ```
-
 ```
