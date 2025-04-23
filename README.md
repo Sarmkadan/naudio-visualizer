@@ -211,4 +211,50 @@ foreach (var param in pluginInfo.Parameters)
     Console.WriteLine($"  Category: {param.Category}, Automated: {param.IsAutomated}");
 }
 ```
+
+## SpectrumData
+
+`SpectrumData` represents a single frame of audio spectrum data, including its sample rate, FFT size, window type, and frequency resolution. It also provides access to the raw frequency data and various calculated metrics such as peak frequency and magnitude.
+
+### Usage Example
+
+```csharp
+using Domain.Models;
+
+// Create a new SpectrumData instance
+var spectrumData = new SpectrumData
+{
+    SampleRate = 44100,
+    FftSize = 1024,
+    WindowType = WindowType.Hamming,
+    IsLogScale = true,
+    FrequencyResolution = 10f,
+    PeakFrequency = 200f,
+    PeakMagnitude = 0.5f
+};
+
+// Access the raw frequency data
+var frequencies = spectrumData.GetFrequencies();
+
+// Calculate the peak frequency and magnitude
+var peakFrequency = spectrumData.PeakFrequency;
+var peakMagnitude = spectrumData.PeakMagnitude;
+
+// Convert the spectrum data to log scale
+spectrumData.ConvertToLogScale();
+
+// Smooth the spectrum data
+spectrumData.SmoothSpectrum();
+
+// Check if the spectrum data is valid
+var isValid = spectrumData.IsValid();
+
+Console.WriteLine($"Sample Rate: {spectrumData.SampleRate}");
+Console.WriteLine($"FFT Size: {spectrumData.FftSize}");
+Console.WriteLine($"Window Type: {spectrumData.WindowType}");
+Console.WriteLine($"Is Log Scale: {spectrumData.IsLogScale}");
+Console.WriteLine($"Frequency Resolution: {spectrumData.FrequencyResolution}");
+Console.WriteLine($"Peak Frequency: {spectrumData.PeakFrequency}");
+Console.WriteLine($"Peak Magnitude: {spectrumData.PeakMagnitude}");
+Console.WriteLine($"Is Valid: {spectrumData.IsValid()}");
 ```
