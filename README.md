@@ -49,6 +49,50 @@ Console.WriteLine($"Colormap Type: {spectrogramData.ColormapType}");
 Console.WriteLine($"Is Valid: {spectrogramData.IsValid()}");
 ```
 
+## AudioDevice
+
+`AudioDevice` represents an audio input device (microphone, line-in, etc.) with comprehensive device information including supported sample rates, channel configuration, and real-time status tracking. It provides methods for validating device configuration, checking sample rate support, and updating device availability.
+
+### Usage Example
+
+```csharp
+using Domain.Models;
+
+// Create a new audio device instance
+var audioDevice = new AudioDevice("USB Audio Device", 2, 2)
+{
+    Manufacturer = "Focusrite",
+    BitDepth = 24,
+    IsDefault = false,
+    Capabilities = AudioDevice.DeviceCapabilities.Microphone | AudioDevice.DeviceCapabilities.Stereo
+};
+
+// Add supported sample rates
+foreach (var rate in new[] { 44100, 48000, 96000 })
+{
+    audioDevice.AddSupportedSampleRate(rate);
+}
+
+// Check if a sample rate is supported
+bool supports48k = audioDevice.SupportsSampleRate(48000); // true
+bool supports192k = audioDevice.SupportsSampleRate(192000); // false
+
+// Validate device configuration
+bool isValid = audioDevice.IsValid(); // true
+
+// Update device status
+bool deviceConnected = true;
+audioDevice.UpdateStatus(deviceConnected);
+
+// Get device information
+Console.WriteLine($"Device: {audioDevice.Name}");
+Console.WriteLine($"Channels: {audioDevice.ChannelCount}");
+Console.WriteLine($"Supported Rates: {string.Join(", ", audioDevice.SupportedSampleRates)}");
+Console.WriteLine($"Capabilities: {audioDevice.Capabilities}");
+Console.WriteLine($"Status: {(audioDevice.IsAvailable ? "Available" : "Unavailable")}");
+Console.WriteLine(audioDevice.ToString());
+```
+
 ## AudioBuffer
 
 `AudioBuffer` is a circular buffer that stores interleaved audio samples for real‑time processing. It supports writing, reading, peeking, and querying buffer state, making it suitable for audio streaming and analysis.
