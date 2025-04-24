@@ -2,16 +2,19 @@
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
-// =============================================================================
+// =====================================================================
 
 using System.Text.Json;
-using NAudioVisualizer.Domain.Models;
 
 namespace NAudioVisualizer.Infrastructure;
 
 /// <summary>
-/// Provides System.Text.Json serialization extensions for AudioDataConverter.
+/// Provides System.Text.Json serialization extensions for audio data types.
 /// </summary>
+/// <remarks>
+/// AudioDataConverter is a static utility class and cannot be meaningfully serialized.
+/// This class provides generic JSON serialization/deserialization helpers for other audio-related types.
+/// </remarks>
 public static class AudioDataConverterJsonExtensions
 {
     private static readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web)
@@ -21,46 +24,46 @@ public static class AudioDataConverterJsonExtensions
     };
 
     /// <summary>
-    /// Serializes the AudioDataConverter instance to a JSON string.
+    /// Serializes an object to a JSON string using camelCase property naming.
     /// </summary>
-    /// <param name="value">The AudioDataConverter instance to serialize.</param>
+    /// <typeparam name="T">The type of object to serialize.</typeparam>
+    /// <param name="value">The object instance to serialize.</param>
     /// <param name="indented">Whether to format the JSON with indentation for readability.</param>
-    /// <returns>A JSON string representation of the AudioDataConverter.</returns>
-    public static string ToJson(this AudioDataConverter value, bool indented = false)
+    /// <returns>A JSON string representation of the object.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="value"/> is null.</exception>
+    public static string ToJson<T>(this T value, bool indented = false) where T : notnull
     {
-        if (value is null)
-            throw new ArgumentNullException(nameof(value));
+        ArgumentNullException.ThrowIfNull(value);
 
         var options = indented
-            ? new JsonSerializerOptions(_jsonOptions)
-            {
-                WriteIndented = true
-            }
+            ? new JsonSerializerOptions(_jsonOptions) { WriteIndented = true }
             : _jsonOptions;
 
         return JsonSerializer.Serialize(value, options);
     }
 
     /// <summary>
-    /// Deserializes a JSON string to an AudioDataConverter instance.
+    /// Deserializes a JSON string to an object of the specified type.
     /// </summary>
+    /// <typeparam name="T">The type to deserialize to.</typeparam>
     /// <param name="json">The JSON string to deserialize.</param>
-    /// <returns>An AudioDataConverter instance, or null if the JSON is null or empty.</returns>
-    public static AudioDataConverter? FromJson(string json)
+    /// <returns>An instance of type T, or null if the JSON is null or empty.</returns>
+    public static T? FromJson<T>(string? json) where T : class
     {
         if (string.IsNullOrWhiteSpace(json))
             return null;
 
-        return JsonSerializer.Deserialize<AudioDataConverter>(json, _jsonOptions);
+        return JsonSerializer.Deserialize<T>(json, _jsonOptions);
     }
 
     /// <summary>
-    /// Attempts to deserialize a JSON string to an AudioDataConverter instance.
+    /// Attempts to deserialize a JSON string to an object of the specified type.
     /// </summary>
+    /// <typeparam name="T">The type to deserialize to.</typeparam>
     /// <param name="json">The JSON string to deserialize.</param>
-    /// <param name="value">Receives the deserialized AudioDataConverter instance, or null if deserialization fails.</param>
+    /// <param name="value">Receives the deserialized object instance, or null if deserialization fails.</param>
     /// <returns>True if deserialization succeeded; otherwise, false.</returns>
-    public static bool TryFromJson(string json, out AudioDataConverter? value)
+    public static bool TryFromJson<T>(string? json, out T? value) where T : class
     {
         value = null;
 
@@ -69,8 +72,8 @@ public static class AudioDataConverterJsonExtensions
 
         try
         {
-            value = JsonSerializer.Deserialize<AudioDataConverter>(json, _jsonOptions);
-            return true;
+            value = JsonSerializer.Deserialize<T>(json, _jsonOptions);
+            return value is not null;
         }
         catch (JsonException)
         {
