@@ -93,6 +93,35 @@ Console.WriteLine($"Status: {(audioDevice.IsAvailable ? "Available" : "Unavailab
 Console.WriteLine(audioDevice.ToString());
 ```
 
+## ColorScheme
+
+`ColorScheme` provides predefined color scheme presets for audio visualization. Each preset bundles a `VisualizerTheme` with a descriptive name and a suggested background style hint, making it easy to apply consistent theming across different visualization components.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Themes;
+
+// Apply a dark theme with blue-to-white gradient
+var darkScheme = ColorScheme.Dark;
+Console.WriteLine($"Scheme: {darkScheme.Name}");
+Console.WriteLine($"Theme: {darkScheme.Theme.Name}");
+Console.WriteLine($"Background: {darkScheme.Theme.BackgroundColor:X}");
+
+// Apply a light theme with gray-to-blue gradient
+var lightScheme = ColorScheme.Light;
+Console.WriteLine($"Scheme: {lightScheme.Name}");
+Console.WriteLine($"Theme: {lightScheme.Theme.Name}");
+
+// Apply a neon VU meter style
+var neonScheme = ColorScheme.Neon;
+Console.WriteLine($"Scheme: {neonScheme.Name}");
+
+// Apply a grayscale theme optimized for print and screenshots
+var grayscaleScheme = ColorScheme.Grayscale;
+Console.WriteLine($"Scheme: {grayscaleScheme.Name}");
+```
+
 ## AudioBuffer
 
 `AudioBuffer` is a circular buffer that stores interleaved audio samples for real‑time processing. It supports writing, reading, peeking, and querying buffer state, making it suitable for audio streaming and analysis.
