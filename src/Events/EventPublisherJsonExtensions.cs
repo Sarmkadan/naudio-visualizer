@@ -63,10 +63,7 @@ public static class EventPublisherJsonExtensions
         };
 
         var options = indented
-            ? new JsonSerializerOptions(_jsonSerializerOptions)
-            {
-                WriteIndented = true
-            }
+            ? new JsonSerializerOptions(_jsonSerializerOptions) { WriteIndented = true }
             : _jsonSerializerOptions;
 
         return JsonSerializer.Serialize(state, options);
@@ -75,10 +72,13 @@ public static class EventPublisherJsonExtensions
     /// <summary>
     /// Deserializes a JSON string to an EventPublisher representation.
     /// </summary>
-    /// <param name="json">The JSON string to deserialize</param>
-    /// <returns>The deserialized EventPublisher representation, or null if parsing fails</returns>
+    /// <param name="json">The JSON string to deserialize. Must not be null or empty.</param>
+    /// <returns>The deserialized EventPublisher representation, or null if parsing fails.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="json"/> is null.</exception>
     public static object? FromJson(string json)
     {
+        ArgumentNullException.ThrowIfNull(json);
+
         try
         {
             var state = JsonSerializer.Deserialize<EventPublisherState>(json, _jsonSerializerOptions);
@@ -91,8 +91,9 @@ public static class EventPublisherJsonExtensions
             }
             return EventPublisher.Instance;
         }
-        catch (JsonException)
+        catch (JsonException ex)
         {
+            System.Diagnostics.Debug.WriteLine($"Failed to deserialize EventPublisher state: {ex.Message}");
             return null;
         }
     }
@@ -100,18 +101,22 @@ public static class EventPublisherJsonExtensions
     /// <summary>
     /// Attempts to deserialize a JSON string to an EventPublisher representation.
     /// </summary>
-    /// <param name="json">The JSON string to deserialize</param>
+    /// <param name="json">The JSON string to deserialize. Must not be null or empty.</param>
     /// <param name="value">Output parameter for the deserialized EventPublisher</param>
     /// <returns>True if deserialization succeeded, false otherwise</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="json"/> is null.</exception>
     public static bool TryFromJson(string json, out object? value)
     {
+        ArgumentNullException.ThrowIfNull(json);
+
         try
         {
             value = FromJson(json);
             return true;
         }
-        catch (JsonException)
+        catch (JsonException ex)
         {
+            System.Diagnostics.Debug.WriteLine($"Failed to deserialize EventPublisher state: {ex.Message}");
             value = null;
             return false;
         }
