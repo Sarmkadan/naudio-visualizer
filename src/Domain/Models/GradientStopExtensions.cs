@@ -22,6 +22,7 @@ public static class GradientStopExtensions
     /// <param name="stop">The gradient stop to modify.</param>
     /// <param name="newColor">The new ARGB color value (0xAARRGGBB).</param>
     /// <returns>A new <see cref="GradientStop"/> instance with the updated color.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="stop"/> is null.</exception>
     public static GradientStop WithColor(this GradientStop stop, uint newColor)
     {
         ArgumentNullException.ThrowIfNull(stop);
@@ -34,6 +35,7 @@ public static class GradientStopExtensions
     /// <param name="stop">The gradient stop to modify.</param>
     /// <param name="newPosition">The new normalized position in [0, 1].</param>
     /// <returns>A new <see cref="GradientStop"/> instance with the updated position.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="stop"/> is null.</exception>
     public static GradientStop WithPosition(this GradientStop stop, float newPosition)
     {
         ArgumentNullException.ThrowIfNull(stop);
@@ -48,6 +50,7 @@ public static class GradientStopExtensions
     /// <param name="red">The red component (0-255).</param>
     /// <param name="green">The green component (0-255).</param>
     /// <param name="blue">The blue component (0-255).</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="stop"/> is null.</exception>
     public static void GetArgbComponents(this GradientStop stop,
         out byte alpha, out byte red, out byte green, out byte blue)
     {
@@ -64,6 +67,7 @@ public static class GradientStopExtensions
     /// <param name="stop">The gradient stop to modify.</param>
     /// <param name="alpha">The new alpha value (0-255).</param>
     /// <returns>A new <see cref="GradientStop"/> with the updated alpha.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="stop"/> is null.</exception>
     public static GradientStop WithAlpha(this GradientStop stop, byte alpha)
     {
         ArgumentNullException.ThrowIfNull(stop);
@@ -78,6 +82,8 @@ public static class GradientStopExtensions
     /// <param name="stop">The gradient stop to modify.</param>
     /// <param name="brightnessFactor">Brightness multiplier (0.0 to 2.0). Values &gt; 1.0 increase brightness, &lt; 1.0 decrease.</param>
     /// <returns>A new <see cref="GradientStop"/> with adjusted brightness.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="stop"/> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="brightnessFactor"/> is less than 0.0.</exception>
     public static GradientStop AdjustBrightness(this GradientStop stop, float brightnessFactor)
     {
         ArgumentNullException.ThrowIfNull(stop);
@@ -105,6 +111,8 @@ public static class GradientStopExtensions
     /// <param name="stop">The gradient stop to modify.</param>
     /// <param name="contrastFactor">Contrast multiplier (0.0 to 2.0). Values &gt; 1.0 increase contrast, &lt; 1.0 decrease.</param>
     /// <returns>A new <see cref="GradientStop"/> with adjusted contrast.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="stop"/> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="contrastFactor"/> is less than 0.0.</exception>
     public static GradientStop AdjustContrast(this GradientStop stop, float contrastFactor)
     {
         ArgumentNullException.ThrowIfNull(stop);
@@ -132,6 +140,7 @@ public static class GradientStopExtensions
     /// <param name="stop">The gradient stop.</param>
     /// <param name="stops">The collection of gradient stops.</param>
     /// <returns>The zero-based index of the stop, or -1 if not found.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="stop"/> or <paramref name="stops"/> is null.</exception>
     public static int IndexIn(this GradientStop stop, IReadOnlyList<GradientStop> stops)
     {
         ArgumentNullException.ThrowIfNull(stop);
@@ -152,6 +161,7 @@ public static class GradientStopExtensions
     /// <param name="stop">The gradient stop.</param>
     /// <param name="stops">The collection of gradient stops.</param>
     /// <returns>True if this is the first stop; otherwise, false.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="stop"/> or <paramref name="stops"/> is null.</exception>
     public static bool IsFirst(this GradientStop stop, IReadOnlyList<GradientStop> stops)
     {
         ArgumentNullException.ThrowIfNull(stop);
@@ -165,6 +175,7 @@ public static class GradientStopExtensions
     /// <param name="stop">The gradient stop.</param>
     /// <param name="stops">The collection of gradient stops.</param>
     /// <returns>True if this is the last stop; otherwise, false.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="stop"/> or <paramref name="stops"/> is null.</exception>
     public static bool IsLast(this GradientStop stop, IReadOnlyList<GradientStop> stops)
     {
         ArgumentNullException.ThrowIfNull(stop);
@@ -178,6 +189,7 @@ public static class GradientStopExtensions
     /// <param name="stop">The gradient stop.</param>
     /// <param name="stops">The collection of gradient stops.</param>
     /// <returns>The next stop, or null if this is the last.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="stop"/> or <paramref name="stops"/> is null.</exception>
     public static GradientStop? Next(this GradientStop stop, IReadOnlyList<GradientStop> stops)
     {
         ArgumentNullException.ThrowIfNull(stop);
@@ -193,6 +205,7 @@ public static class GradientStopExtensions
     /// <param name="stop">The gradient stop.</param>
     /// <param name="stops">The collection of gradient stops.</param>
     /// <returns>The previous stop, or null if this is the first.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="stop"/> or <paramref name="stops"/> is null.</exception>
     public static GradientStop? Previous(this GradientStop stop, IReadOnlyList<GradientStop> stops)
     {
         ArgumentNullException.ThrowIfNull(stop);
@@ -209,6 +222,8 @@ public static class GradientStopExtensions
     /// <param name="other">The second gradient stop (at position 1 of interpolation).</param>
     /// <param name="t">Interpolation factor (0.0 to 1.0).</param>
     /// <returns>A new gradient stop with interpolated color.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="stop"/> or <paramref name="other"/> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="t"/> is outside [0, 1] range.</exception>
     public static GradientStop Interpolate(this GradientStop stop, GradientStop other, float t)
     {
         ArgumentNullException.ThrowIfNull(stop);
@@ -235,6 +250,7 @@ public static class GradientStopExtensions
     /// <param name="stop">The first gradient stop.</param>
     /// <param name="other">The second gradient stop.</param>
     /// <returns>True if colors are equal; otherwise, false.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="stop"/> or <paramref name="other"/> is null.</exception>
     public static bool HasSameColor(this GradientStop stop, GradientStop other)
     {
         ArgumentNullException.ThrowIfNull(stop);
@@ -248,6 +264,7 @@ public static class GradientStopExtensions
     /// <param name="stop">The first gradient stop.</param>
     /// <param name="other">The second gradient stop.</param>
     /// <returns>True if positions are equal; otherwise, false.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="stop"/> or <paramref name="other"/> is null.</exception>
     public static bool HasSamePosition(this GradientStop stop, GradientStop other)
     {
         ArgumentNullException.ThrowIfNull(stop);
@@ -261,6 +278,7 @@ public static class GradientStopExtensions
     /// </summary>
     /// <param name="stop">The gradient stop.</param>
     /// <returns>The perceived brightness value.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="stop"/> is null.</exception>
     public static byte GetBrightness(this GradientStop stop)
     {
         ArgumentNullException.ThrowIfNull(stop);
@@ -273,8 +291,10 @@ public static class GradientStopExtensions
     /// </summary>
     /// <param name="stop">The gradient stop.</param>
     /// <returns>True if the color is dark; otherwise, false.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="stop"/> is null.</exception>
     public static bool IsDark(this GradientStop stop)
     {
+        ArgumentNullException.ThrowIfNull(stop);
         return GetBrightness(stop) < 128;
     }
 
@@ -283,8 +303,10 @@ public static class GradientStopExtensions
     /// </summary>
     /// <param name="stop">The gradient stop.</param>
     /// <returns>True if the color is light; otherwise, false.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="stop"/> is null.</exception>
     public static bool IsLight(this GradientStop stop)
     {
+        ArgumentNullException.ThrowIfNull(stop);
         return GetBrightness(stop) >= 128;
     }
 }
