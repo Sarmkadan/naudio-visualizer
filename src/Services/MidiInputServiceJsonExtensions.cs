@@ -6,9 +6,17 @@
 // =============================================================================
 
 using System.Text.Json;
-using NAudioVisualizer.Services;
+using NAudioVisualizer.Domain.Models;
+using NAudioVisualizer.Events;
 
 namespace NAudioVisualizer.Services;
+
+/// <summary>
+/// Represents the serializable state of a <see cref="MidiInputService"/> instance.
+/// </summary>
+/// <param name="IsDisposed">Indicates whether the service has been disposed.</param>
+/// <param name="ActiveDeviceIndex">The index of the currently active MIDI device, or -1 if none.</param>
+internal sealed record MidiInputServiceState(bool IsDisposed, int ActiveDeviceIndex);
 
 /// <summary>
 /// Provides System.Text.Json serialization extensions for <see cref="MidiInputService"/>.
@@ -27,21 +35,14 @@ public static class MidiInputServiceJsonExtensions
     /// <param name="value">The service instance to serialize.</param>
     /// <param name="indented">Whether to format the JSON with indentation for readability.</param>
     /// <returns>A JSON representation of the service state.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="value"/> is null.</exception>
     public static string ToJson(this MidiInputService value, bool indented = false)
     {
-        if (value is null)
-        {
-            return "{}";
-        }
+        ArgumentNullException.ThrowIfNull(value);
 
-        // Note: MidiInputService contains disposable resources and event handlers,
-        // so we serialize only the essential state that can be meaningfully represented.
-        // In a real scenario, you might want to add state tracking properties.
-        var state = new
-        {
-            IsDisposed = value.GetType().GetField("_isDisposed", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(value) as bool? ?? false,
-            ActiveDeviceIndex = value.GetType().GetField("_activeDeviceIndex", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(value) as int? ?? -1
-        };
+        // Serialize only the essential state that can be meaningfully represented.
+        // MidiInputService contains disposable resources and event handlers that cannot be serialized.
+        var state = new MidiInputServiceState(value.IsDisposed, value.ActiveDeviceIndex);
 
         var options = indented ? new JsonSerializerOptions(_jsonOptions) { WriteIndented = true } : _jsonOptions;
         return JsonSerializer.Serialize(state, options);
@@ -50,23 +51,31 @@ public static class MidiInputServiceJsonExtensions
     /// <summary>
     /// Deserializes a JSON string to a <see cref="MidiInputService"/> instance.
     /// </summary>
+    /// <remarks>
+    /// Note: <see cref="MidiInputService"/> contains disposable resources and event handlers that cannot be deserialized.
+    /// This method creates a new instance regardless of the JSON content.
+    /// </remarks>
     /// <param name="json">The JSON string to deserialize.</param>
     /// <returns>The deserialized service instance, or null if deserialization fails.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="json"/> is null.</exception>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="json"/> is empty or whitespace.</exception>
     public static MidiInputService? FromJson(string json)
     {
+        ArgumentNullException.ThrowIfNull(json);
+
         if (string.IsNullOrWhiteSpace(json))
         {
-            return null;
+            throw new ArgumentException("JSON string cannot be empty or whitespace.", nameof(json));
         }
 
         try
         {
-            // Note: MidiInputService is not meant to be fully deserialized from JSON
-            // as it contains disposable resources. This method creates a new instance.
-            // In a real scenario, you would need additional context to properly reconstruct the service.
+            // MidiInputService is not meant to be fully deserialized from JSON
+            // as it contains disposable resources and event handlers.
+            // This method creates a new instance regardless of JSON content.
             return new MidiInputService();
         }
-        catch (JsonException)
+        catch
         {
             return null;
         }
@@ -75,17 +84,24 @@ public static class MidiInputServiceJsonExtensions
     /// <summary>
     /// Attempts to deserialize a JSON string to a <see cref="MidiInputService"/> instance.
     /// </summary>
+    /// <remarks>
+    /// Note: <see cref="MidiInputService"/> contains disposable resources and event handlers that cannot be serialized.
+    /// This method creates a new instance regardless of the JSON content.
+    /// </remarks>
     /// <param name="json">The JSON string to deserialize.</param>
     /// <param name="value">The deserialized service instance, or null if deserialization fails.</param>
     /// <returns>True if deserialization succeeds; otherwise, false.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="json"/> is null.</exception>
     public static bool TryFromJson(string json, out MidiInputService? value)
     {
+        ArgumentNullException.ThrowIfNull(json);
+
         try
         {
             value = FromJson(json);
             return value is not null;
         }
-        catch (JsonException)
+        catch
         {
             value = null;
             return false;

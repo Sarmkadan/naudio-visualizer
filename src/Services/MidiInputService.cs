@@ -26,6 +26,16 @@ public sealed class MidiInputService : IDisposable
     private CancellationTokenSource? _cts;
     private bool _isDisposed;
 
+    /// <summary>
+    /// Gets a value indicating whether this service has been disposed.
+    /// </summary>
+    public bool IsDisposed => _isDisposed;
+
+    /// <summary>
+    /// Gets the index of the currently active MIDI device, or -1 if none.
+    /// </summary>
+    public int ActiveDeviceIndex => _activeDeviceIndex;
+
     /// <summary>Raised on a thread-pool thread each time a MIDI note event is received from the active device.</summary>
     public event EventHandler<MidiNoteEventArgs>? NoteReceived;
 
