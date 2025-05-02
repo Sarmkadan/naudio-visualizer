@@ -20,32 +20,12 @@ public static class ConfigurationManagerValidation
     /// </summary>
     /// <param name="value">The configuration manager to validate.</param>
     /// <returns>List of validation problems; empty if valid.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="value"/> is null.</exception>
     public static IReadOnlyList<string> Validate(this ConfigurationManager value)
     {
-        if (value == null)
-            return new List<string> { "ConfigurationManager instance is null." };
+        ArgumentNullException.ThrowIfNull(value);
 
         var problems = new List<string>();
-
-        // Validate that we can get and set values without issues
-        try
-        {
-            // Test basic operations to ensure the manager is functional
-            var testKey = "validation.test";
-            var testValue = "test";
-
-            value.SetValue(testKey, testValue);
-            var retrievedValue = value.GetValue<string>(testKey);
-
-            if (retrievedValue != testValue)
-                problems.Add("ConfigurationManager failed to retrieve previously set values correctly.");
-
-            value.Remove(testKey);
-        }
-        catch (Exception ex)
-        {
-            problems.Add($"ConfigurationManager operations failed: {ex.Message}");
-        }
 
         // Validate configuration keys and values based on known default settings
         var allKeys = value.GetAllKeys().ToList();
@@ -90,26 +70,23 @@ public static class ConfigurationManagerValidation
     /// </summary>
     /// <param name="value">The configuration manager to check.</param>
     /// <returns>True if valid; false otherwise.</returns>
-    public static bool IsValid(this ConfigurationManager value)
-    {
-        return value?.Validate().Count == 0;
-    }
+    public static bool IsValid(this ConfigurationManager value) => value?.Validate().Count == 0;
 
     /// <summary>
     /// Ensures the configuration manager is valid, throwing an exception if not.
     /// </summary>
     /// <param name="value">The configuration manager to validate.</param>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="value"/> is null.</exception>
     /// <exception cref="ArgumentException">Thrown if the configuration is invalid.</exception>
     public static void EnsureValid(this ConfigurationManager value)
     {
-        if (value == null)
-            throw new ArgumentException("ConfigurationManager instance is null.", nameof(value));
+        ArgumentNullException.ThrowIfNull(value);
 
         var problems = value.Validate();
 
         if (problems.Count > 0)
         {
-            var errorMessage = "Configuration validation failed:\n" + string.Join("\n", problems.Select((p, i) => $"  {i + 1}. {p}"));
+            var errorMessage = "Configuration validation failed:\n" + string.Join("\n", problems.Select((p, i) => $" {i + 1}. {p}"));
             throw new ArgumentException(errorMessage, nameof(value));
         }
     }
@@ -118,15 +95,15 @@ public static class ConfigurationManagerValidation
     {
         try
         {
+            if (!config.Contains(key))
+            {
+                problems.Add($"Configuration key '{key}' is missing.");
+                return;
+            }
+
             var value = config.GetValue<double>(key);
 
-            if (value == default(double))
-            {
-                // Check if this is a default value that might be acceptable
-                if (!config.Contains(key))
-                    problems.Add($"Configuration key '{key}' is missing.");
-            }
-            else if (value < min || value > max)
+            if (value < min || value > max)
             {
                 problems.Add($"Configuration key '{key}' has value {value} which is out of range [{min}, {max}] for this setting.");
             }
@@ -142,10 +119,10 @@ public static class ConfigurationManagerValidation
     {
         try
         {
-            var value = config.GetValue<bool>(key);
-            // Boolean values are always valid, just check if key exists
             if (!config.Contains(key))
+            {
                 problems.Add($"Configuration key '{key}' is missing.");
+            }
         }
         catch
         {
@@ -157,6 +134,12 @@ public static class ConfigurationManagerValidation
     {
         try
         {
+            if (!config.Contains(key))
+            {
+                problems.Add($"Configuration key '{key}' is missing.");
+                return;
+            }
+
             var value = config.GetValue<string>(key);
 
             if (value == null)
