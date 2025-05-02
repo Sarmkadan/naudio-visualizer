@@ -5,6 +5,7 @@
 // CTO & Software Architect
 // =============================================================================
 
+using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -15,7 +16,7 @@ namespace NAudioVisualizer.Utilities;
 /// </summary>
 public static class MathUtilityJsonExtensions
 {
-    private static readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
+    private static readonly JsonSerializerOptions _jsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
@@ -27,49 +28,46 @@ public static class MathUtilityJsonExtensions
     /// </summary>
     /// <param name="indented">Whether to format the JSON with indentation.</param>
     /// <returns>A JSON string representation of the MathUtility type.</returns>
-    public static string ToJson(bool indented = false)
-    {
-        var options = indented
-            ? new JsonSerializerOptions(_jsonOptions)
+    public static string ToJson(bool indented = false) =>
+        JsonSerializer.Serialize(
+            new
             {
-                WriteIndented = true
-            }
-            : _jsonOptions;
-
-        var typeInfo = new
-        {
-            Type = "MathUtility",
-            Methods = new[]
-            {
-                new { Name = "FrequencyToMidiNote", Signature = "(float frequency) -> int" },
-                new { Name = "MidiNoteToFrequency", Signature = "(int midiNote) -> float" },
-                new { Name = "AmplitudeToDb", Signature = "(float amplitude) -> float" },
-                new { Name = "DbToAmplitude", Signature = "(float db) -> float" },
-                new { Name = "CalculateRms", Signature = "(float[] signal) -> float" },
-                new { Name = "CalculatePeak", Signature = "(float[] signal) -> float" },
-                new { Name = "LogScale", Signature = "(float value, float minValue = 1) -> float" },
-                new { Name = "PowerScale", Signature = "(float value, float gamma = 2) -> float" },
-                new { Name = "ApplyHannWindow", Signature = "(float[] signal) -> void" },
-                new { Name = "ApplyHammingWindow", Signature = "(float[] signal) -> void" },
-                new { Name = "NextPowerOf2", Signature = "(int n) -> int" },
-                new { Name = "IsPowerOf2", Signature = "(int n) -> bool" },
-                new { Name = "Lerp", Signature = "(float a, float b, float t) -> float" },
-                new { Name = "MapRange", Signature = "(float value, float fromMin, float fromMax, float toMin, float toMax) -> float" },
-                new { Name = "Distance", Signature = "(float x1, float y1, float x2, float y2) -> float" }
-            }
-        };
-
-        return JsonSerializer.Serialize(typeInfo, options);
-    }
+                Type = "MathUtility",
+                Methods = new[]
+                {
+                    new { Name = "FrequencyToMidiNote", Signature = "(float frequency) -> int" },
+                    new { Name = "MidiNoteToFrequency", Signature = "(int midiNote) -> float" },
+                    new { Name = "AmplitudeToDb", Signature = "(float amplitude) -> float" },
+                    new { Name = "DbToAmplitude", Signature = "(float db) -> float" },
+                    new { Name = "CalculateRms", Signature = "(float[] signal) -> float" },
+                    new { Name = "CalculatePeak", Signature = "(float[] signal) -> float" },
+                    new { Name = "LogScale", Signature = "(float value, float minValue = 1) -> float" },
+                    new { Name = "PowerScale", Signature = "(float value, float gamma = 2) -> float" },
+                    new { Name = "ApplyHannWindow", Signature = "(float[] signal) -> void" },
+                    new { Name = "ApplyHammingWindow", Signature = "(float[] signal) -> void" },
+                    new { Name = "NextPowerOf2", Signature = "(int n) -> int" },
+                    new { Name = "IsPowerOf2", Signature = "(int n) -> bool" },
+                    new { Name = "Lerp", Signature = "(float a, float b, float t) -> float" },
+                    new { Name = "MapRange", Signature = "(float value, float fromMin, float fromMax, float toMin, float toMax) -> float" },
+                    new { Name = "Distance", Signature = "(float x1, float y1, float x2, float y2) -> float" }
+                }
+            },
+            indented
+                ? new JsonSerializerOptions(_jsonOptions) { WriteIndented = true }
+                : _jsonOptions
+        );
 
     /// <summary>
     /// Deserializes a JSON string to validate MathUtility type information.
     /// Since MathUtility is a static class, this validates JSON and returns a success indicator.
     /// </summary>
     /// <param name="json">The JSON string to deserialize.</param>
-    /// <returns>A success indicator string if deserialization succeeds; otherwise, null.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="json"/> is <see langword="null"/>.</exception>
+    /// <returns>A success indicator string if deserialization succeeds; otherwise, <see langword="null"/>.</returns>
     public static string? FromJson(string json)
     {
+        ArgumentNullException.ThrowIfNull(json);
+
         if (string.IsNullOrWhiteSpace(json) || json == "null")
             return null;
 
@@ -91,9 +89,11 @@ public static class MathUtilityJsonExtensions
     /// </summary>
     /// <param name="json">The JSON string to deserialize.</param>
     /// <param name="value">The resulting value if deserialization succeeds.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="json"/> is <see langword="null"/>.</exception>
     /// <returns>True if JSON is valid; otherwise, false.</returns>
     public static bool TryFromJson(string json, out string? value)
     {
+        ArgumentNullException.ThrowIfNull(json);
         value = null;
 
         if (string.IsNullOrWhiteSpace(json) || json == "null")
