@@ -2,90 +2,53 @@
 
 // ... existing content ...
 
-## AudioCaptureService
+## LoggerExtensions
 
-`AudioCaptureService` is a service responsible for managing audio capture operations, including device selection, initialization, and recording. It provides a simple and asynchronous API for capturing audio data from available devices.
-
-### Usage Example
-
-```csharp
-using Domain.Services;
-
-// Create an instance of AudioCaptureService
-var audioCaptureService = new AudioCaptureService();
-
-// Get available audio devices
-var devices = audioCaptureService.GetAvailableDevices;
-
-// Initialize the service with the selected device
-await audioCaptureService.Initialize(devices[0]);
-
-// Start recording audio
-await audioCaptureService.StartRecordingAsync();
-
-// Get the current audio metadata
-var metadata = audioCaptureService.GetCurrentMetadata;
-
-// Get the buffered audio data
-var audioData = audioCaptureService.GetBufferedAudio;
-
-// Get the current audio frame
-var frame = audioCaptureService.Frame;
-
-// Check if the service is available
-var isAvailable = audioCaptureService.IsAvailable;
-
-// Stop recording audio
-await audioCaptureService.StopRecordingAsync();
-
-// Clear the audio buffer
-audioCaptureService.ClearBuffer();
-
-// Dispose of the service
-audioCaptureService.Dispose();
-```
-
-## SpectrumAnalyzer
-
-`SpectrumAnalyzer` is a service for performing FFT-based frequency spectrum analysis on audio data. It converts raw audio frames into frequency domain representations, enabling visualization of audio characteristics such as spectral content, dominant frequencies, and energy distribution across frequency bands. The analyzer supports peak-hold functionality for transient detection and provides various post-processing operations like logarithmic scaling, smoothing, and band energy extraction.
-
+`LoggerExtensions` provides a set of extension methods for logging and timing operations. It offers a simple way to log messages at different levels, measure execution time, and create a disposable scope for logging method execution.
 
 ### Usage Example
 
 ```csharp
-using NAudioVisualizer.Services;
-using NAudioVisualizer.Domain.Models;
+using Infrastructure;
 
-// Create analyzer with custom peak decay rate
-var analyzer = new SpectrumAnalyzer { PeakHoldDecayDbPerSecond = 15f };
+// Create a logger instance
+var logger = new Logger();
 
-// Analyze audio frame (2048-sample FFT window)
-var frame = new AudioFrame(sampleRate: 44100, samples: audioSamples);
-SpectrumData spectrum = analyzer.AnalyzeSpectrum(frame, fftSize: 2048);
+// Log a debug message
+LoggerExtensions.Debug(logger, "This is a debug message");
 
-// Convert to logarithmic dB scale for visualization
-analyzer.ConvertToLogScale(spectrum);
+// Log an info message
+LoggerExtensions.Info(logger, "This is an info message");
 
-// Apply smoothing to reduce visual noise
-analyzer.SmoothSpectrum(spectrum, windowSize: 5);
+// Log a warning message
+LoggerExtensions.Warn(logger, "This is a warning message");
 
-// Update peak holds for transient detection
-analyzer.UpdatePeakHolds(spectrum, elapsedSeconds: 1.0 / 60);
+// Log an error message
+LoggerExtensions.Error(logger, "This is an error message");
 
-// Get peak hold values
-float[]? peaks = analyzer.GetPeakHolds();
+// Log a critical message
+LoggerExtensions.Critical(logger, "This is a critical message");
 
-// Extract frequency band energies
-var bands = analyzer.ExtractFrequencyBands(spectrum);
-Console.WriteLine($"Bass: {bands.BassEnergy:P0}, Mid: {bands.MidEnergy:P0}, Treble: {bands.TrebleEnergy:P0}");
+// Measure execution time
+var startTime = LoggerExtensions.Time();
+// ... some code ...
+var endTime = LoggerExtensions.Time();
+logger.Info($"Execution time: {endTime - startTime} ms");
 
-// Find dominant frequency
-float dominantFreq = analyzer.FindDominantFrequency(spectrum);
-Console.WriteLine($"Dominant frequency: {dominantFreq:F1} Hz");
+// Create a disposable scope for logging method execution
+using var scope = LoggerExtensions.MethodScope(logger);
+// ... some code ...
+logger.Info("Method executed successfully");
 
-// Calculate spectral centroid (brightness measure)
-float centroid = analyzer.CalculateSpectralCentroid(spectrum);
-Console.WriteLine($"Spectral centroid: {centroid:F1} Hz");
+// Use the If method to log a message only if a condition is true
+if (LoggerExtensions.If(logger, true))
+{
+    logger.Info("Condition is true");
+}
+else
+{
+    logger.Warn("Condition is false");
+}
 ```
 
 // ... existing content ...
