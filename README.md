@@ -49,6 +49,37 @@ else
 {
     logger.Warn("Condition is false");
 }
+## AudioStreamExceptionExtensions
+
+`AudioStreamExceptionExtensions` provides a set of extension methods for working with `AudioStreamException` instances. These methods allow you to get detailed error messages, determine if an exception is recoverable or fatal, and create new exceptions with custom messages.
+
+### Usage Example
+
+```csharp
+try
+{
+    // ... code that might throw an AudioStreamException ...
+}
+catch (AudioStreamException ex)
+{
+    string detailedErrorMessage = AudioStreamExceptionExtensions.GetDetailedErrorMessage(ex);
+    bool isRecoverable = AudioStreamExceptionExtensions.IsRecoverable(ex);
+    bool isFatal = AudioStreamExceptionExtensions.IsFatal(ex);
+
+    if (isRecoverable)
+    {
+        // Attempt to recover from the exception
+    }
+    else
+    {
+        // Handle the fatal exception
+        var newException = AudioStreamExceptionExtensions.WithMessage(ex, "Custom error message");
+        // ... handle or rethrow the new exception ...
+    }
+
+    string userFriendlyMessage = AudioStreamExceptionExtensions.GetUserFriendlyMessage(ex);
+    // ... log or display the user-friendly message ...
+}
 ```
 
 // ... existing content ...
