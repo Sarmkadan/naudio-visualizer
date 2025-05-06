@@ -102,4 +102,44 @@ var oldestEntryDate = visualizationDataRepository.OldestEntry;
 var newestEntryDate = visualizationDataRepository.NewestEntry;
 ```
 
+## ServiceContainerJsonExtensions
+
+`ServiceContainerJsonExtensions` provides helper methods for converting a `ServiceContainer` to and from JSON. It also exposes the lists of service and factory type names that have been registered, making it easy to inspect the container’s configuration.
+
+### Usage Example
+
+```csharp
+using Configuration;
+
+// Assume we have a ServiceContainer instance that has been populated
+var container = new ServiceContainer();
+container.Register<MyService>();
+container.RegisterFactory<IMyFactory, MyFactory>();
+
+// Serialize the container to a JSON string
+string json = ServiceContainerJsonExtensions.ToJson(container);
+Console.WriteLine($"Serialized container: {json}");
+
+// Deserialize a container from JSON (may return null if the JSON is invalid)
+ServiceContainer? deserialized = ServiceContainerJsonExtensions.FromJson(json);
+if (deserialized != null)
+{
+    // Use the deserialized container
+    Console.WriteLine("Container deserialized successfully.");
+}
+
+// Safely attempt to deserialize, receiving a bool result
+if (ServiceContainerJsonExtensions.TryFromJson(json, out var safeContainer))
+{
+    Console.WriteLine("TryFromJson succeeded.");
+}
+
+// Inspect the registered service and factory type names
+List<string>? serviceTypes = ServiceContainerJsonExtensions.RegisteredServiceTypes;
+List<string>? factoryTypes = ServiceContainerJsonExtensions.RegisteredFactoryTypes;
+
+Console.WriteLine($"Registered services: {string.Join(", ", serviceTypes ?? new List<string>())}");
+Console.WriteLine($"Registered factories: {string.Join(", ", factoryTypes ?? new List<string>())}");
+```
+
 // ... existing content ...
