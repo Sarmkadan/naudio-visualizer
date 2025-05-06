@@ -67,4 +67,51 @@ Console.WriteLine($"Waveform line: {waveform}");
 Console.WriteLine($"Spectrum bar: {spectrum}");
 ```
 
+## MidiInputService
+
+`MidiInputService` captures real-time MIDI input from a connected MIDI device and raises structured `MidiNoteEvent` notifications for downstream visualization. It wraps the NAudio `MidiIn` API and bridges incoming MIDI messages into the application event bus so that visualizers can subscribe without coupling to NAudio directly.
+
+### Usage Example
+
+
+```csharp
+using NAudioVisualizer.Services;
+using NAudioVisualizer.Domain.Models;
+
+// Create the MIDI input service
+var midiService = new MidiInputService();
+
+// List available MIDI devices
+var devices = await midiService.GetAvailableDevicesAsync();
+Console.WriteLine($"Found {devices.Count} MIDI devices:");
+foreach (var device in devices)
+{
+    Console.WriteLine($"  {device.Index}: {device.ProductName}");
+}
+
+// Start listening to a specific device (e.g., device index 0)
+try
+{
+    await midiService.StartAsync(0);
+    Console.WriteLine("MIDI input started. Listening for note events...");
+    
+    // Subscribe to note events
+    midiService.NoteReceived += (sender, args) =>
+    {
+        var note = args.Note;
+        Console.WriteLine($"MIDI Note: {note.NoteName} (Channel: {note.Channel}, " +
+                        $"Velocity: {note.Velocity}, Frequency: {note.Frequency:F2}Hz)");
+    };
+    
+    // Keep listening for a while...
+    await Task.Delay(30000); // Listen for 30 seconds
+}
+finally
+{
+    // Stop listening and clean up
+    await midiService.StopAsync();
+    midiService.Dispose();
+}
+```
+
 // ... existing content ...
