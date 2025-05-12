@@ -2,6 +2,24 @@
 
 // ... existing content ...
 
+## ServiceContainer
+
+`ServiceContainer` is a utility class for managing dependencies and services in the application. It provides methods for registering services, resolving instances, and checking registration status.
+
+### Usage Example
+
+```csharp
+using Configuration;
+
+var container = new ServiceContainer();
+container.Register<AudioBufferStats>();
+container.RegisterFactory<AudioFrame>();
+var stats = container.Resolve<AudioBufferStats>();
+var frame = container.Resolve<AudioFrame>();
+Console.WriteLine($"Stats: {stats}");
+Console.WriteLine($"Frame: {frame}");
+```
+
 ## PathUtilityValidation
 
 `PathUtilityValidation` is a utility class for validating and normalizing file paths. It provides static methods for common path operations with built-in validation, returning results as `IReadOnlyList<string>` for batch operations and exposing `IsValid`/`EnsureValid` for validation state checks.
@@ -49,3 +67,4 @@ repository.EndSession(session.Id);
 
 ```csharp
 // src/README.md
+```
