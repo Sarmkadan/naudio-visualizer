@@ -1,0 +1,47 @@
+# Docker build context exclusion list
+
+# Build output directories
+bin/
+obj/
+
+# Version control
+.git/
+.gitignore
+
+# Test files
+**/tests/
+*.Tests.csproj
+
+# Documentation
+*.md
+CHANGELOG.md
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+SECURITY.md
+
+# IDE files
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+
+# Build artifacts
+*.cache
+*.bak
+*.tmp
+
+# Temporary files
+.DS_Store
+Thumbs.db
+
+# Docker
+.dockerignore
+Dockerfile*
+
+# Package cache
+packages/
+
+# Logs and data
+logs/
+data/
