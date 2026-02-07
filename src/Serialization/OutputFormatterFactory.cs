@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -52,7 +53,7 @@ public class OutputFormatterFactory
         if (string.IsNullOrWhiteSpace(format))
             throw new ArgumentException("Format cannot be null or empty.", nameof(format));
 
-        if (factory == null)
+        if (factory is null)
             throw new ArgumentNullException(nameof(factory));
 
         _formatters[format.ToLower()] = factory;
@@ -66,7 +67,7 @@ public class OutputFormatterFactory
         if (string.IsNullOrWhiteSpace(format))
             throw new ArgumentException("Format cannot be null or empty.", nameof(format));
 
-        if (formatter == null)
+        if (formatter is null)
             throw new ArgumentNullException(nameof(formatter));
 
         _formatters[format.ToLower()] = () => formatter;

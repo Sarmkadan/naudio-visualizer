@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -25,7 +26,7 @@ public class AudioSessionRepository
     /// </summary>
     public AudioSessionData CreateSession(AudioMetadata metadata)
     {
-        if (metadata == null)
+        if (metadata is null)
             throw new ArgumentNullException(nameof(metadata));
 
         lock (_lock)
@@ -73,7 +74,7 @@ public class AudioSessionRepository
     /// </summary>
     public void AddFrameToSession(Guid sessionId, AudioFrame frame)
     {
-        if (frame == null)
+        if (frame is null)
             throw new ArgumentNullException(nameof(frame));
 
         lock (_lock)
@@ -241,8 +242,8 @@ public class AudioSessionRepository
             {
                 TotalSessionCount = _sessions.Count,
                 TotalFrameCount = _frameStore.Values.Sum(f => f.Count),
-                ActiveSessionCount = _sessions.Values.Count(s => s.EndTime == null),
-                CompletedSessionCount = _sessions.Values.Count(s => s.EndTime != null),
+                ActiveSessionCount = _sessions.Values.Count(s => s.EndTime is null),
+                CompletedSessionCount = _sessions.Values.Count(s => s.EndTime is not null),
                 MaxFramesPerSession = _maxFramesPerSession
             };
 

@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -104,7 +105,7 @@ public class WebhookPublisher
         lock (_lockObject)
         {
             var subscription = _subscriptions.Find(s => s.WebhookUrl == webhookUrl);
-            if (subscription != null)
+            if (subscription is not null)
             {
                 subscription.IsActive = false;
                 _subscriptions.Remove(subscription);

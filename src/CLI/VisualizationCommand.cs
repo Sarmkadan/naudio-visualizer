@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -30,7 +31,7 @@ public class VisualizationCommand
     /// </summary>
     public async Task<int> ExecuteAsync(CommandLineParser parser)
     {
-        if (parser == null)
+        if (parser is null)
             throw new ArgumentNullException(nameof(parser));
 
         try
@@ -138,7 +139,7 @@ public class CaptureCommand
     /// </summary>
     public async Task<int> ExecuteAsync(CommandLineParser parser)
     {
-        if (parser == null)
+        if (parser is null)
             throw new ArgumentNullException(nameof(parser));
 
         try
