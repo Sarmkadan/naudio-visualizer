@@ -9,7 +9,7 @@
     <RepositoryUrl>https://github.com/sarmkadan/naudio-visualizer</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageId>Zaiets.naudio.visualizer</PackageId>
-    <Version>2.0.0</Version>
+    <Version>2.0.2</Version>
     <Description>Real-time audio visualization with NAudio and SkiaSharp - waveform, spectrum, spectrogram</Description>
     <PackageTags>audio naudio visualization skia skiasharp waveform spectrum spectrogram</PackageTags>
     <PackageProjectUrl>https://github.com/sarmkadan/naudio-visualizer</PackageProjectUrl>
