@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -68,7 +69,7 @@ public class DataExportWorker : IDisposable
             _cancellationTokenSource?.Cancel();
         }
 
-        if (_workerTask != null)
+        if (_workerTask is not null)
         {
             try
             {
@@ -181,7 +182,7 @@ public class DataExportWorker : IDisposable
                     job = _exportQueue.Dequeue();
             }
 
-            if (job != null)
+            if (job is not null)
             {
                 try
                 {

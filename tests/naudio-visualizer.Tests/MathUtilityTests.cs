@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -61,7 +62,7 @@ public class MathUtilityTests
     [Fact]
     public void CalculateRms_EmptyArray_ReturnsZero()
     {
-        var result = MathUtility.CalculateRms(Array.Empty<float>());
+        var result = MathUtility.CalculateRms([]);
 
         result.Should().Be(0f);
     }

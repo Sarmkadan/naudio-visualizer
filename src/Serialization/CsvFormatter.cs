@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -25,7 +26,7 @@ public class CsvFormatter : IOutputFormatter
     /// </summary>
     public string Format(WaveformData waveform)
     {
-        if (waveform == null)
+        if (waveform is null)
             throw new ArgumentNullException(nameof(waveform));
 
         var sb = new StringBuilder();
@@ -49,7 +50,7 @@ public class CsvFormatter : IOutputFormatter
     /// </summary>
     public string Format(SpectrumData spectrum)
     {
-        if (spectrum == null)
+        if (spectrum is null)
             throw new ArgumentNullException(nameof(spectrum));
 
         var sb = new StringBuilder();
@@ -76,7 +77,7 @@ public class CsvFormatter : IOutputFormatter
     /// </summary>
     public string Format(SpectrogramData spectrogram)
     {
-        if (spectrogram == null)
+        if (spectrogram is null)
             throw new ArgumentNullException(nameof(spectrogram));
 
         var sb = new StringBuilder();
@@ -104,7 +105,7 @@ public class CsvFormatter : IOutputFormatter
     /// </summary>
     public string FormatCollection<T>(IEnumerable<T> items) where T : VisualizationData
     {
-        if (items == null)
+        if (items is null)
             throw new ArgumentNullException(nameof(items));
 
         var sb = new StringBuilder();
@@ -124,7 +125,7 @@ public class CsvFormatter : IOutputFormatter
     /// </summary>
     public string FormatMetadata(Dictionary<string, string> metadata)
     {
-        if (metadata == null)
+        if (metadata is null)
             throw new ArgumentNullException(nameof(metadata));
 
         var sb = new StringBuilder();

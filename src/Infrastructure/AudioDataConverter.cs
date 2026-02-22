@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -80,7 +81,7 @@ public static class AudioDataConverter
     /// </summary>
     public static byte[] FloatToInt16Pcm(float[] samples)
     {
-        if (samples == null)
+        if (samples is null)
             throw new ArgumentNullException(nameof(samples));
 
         var bytes = new byte[samples.Length * 2];
@@ -106,7 +107,7 @@ public static class AudioDataConverter
     /// </summary>
     public static float[] Int16PcmToFloat(byte[] bytes)
     {
-        if (bytes == null)
+        if (bytes is null)
             throw new ArgumentNullException(nameof(bytes));
 
         int sampleCount = bytes.Length / 2;
@@ -129,7 +130,7 @@ public static class AudioDataConverter
     /// </summary>
     public static float[] ExtractChannel(float[] interleavedSamples, int channelIndex, int channelCount)
     {
-        if (interleavedSamples == null)
+        if (interleavedSamples is null)
             throw new ArgumentNullException(nameof(interleavedSamples));
 
         if (channelIndex < 0 || channelIndex >= channelCount)
@@ -151,7 +152,7 @@ public static class AudioDataConverter
     /// </summary>
     public static float[] InterleaveChannels(float[][] channels)
     {
-        if (channels == null || channels.Length == 0)
+        if (channels is null || channels.Length == 0)
             throw new ArgumentException("Channels array cannot be null or empty", nameof(channels));
 
         int samplesPerChannel = channels[0].Length;
@@ -174,7 +175,7 @@ public static class AudioDataConverter
     /// </summary>
     public static float CalculateRmsLevel(float[] samples)
     {
-        if (samples == null || samples.Length == 0)
+        if (samples is null || samples.Length == 0)
             return 0f;
 
         double sumSquares = 0;
@@ -191,7 +192,7 @@ public static class AudioDataConverter
     /// </summary>
     public static float CalculatePeakLevel(float[] samples)
     {
-        if (samples == null || samples.Length == 0)
+        if (samples is null || samples.Length == 0)
             return 0f;
 
         float peak = 0f;
@@ -210,7 +211,7 @@ public static class AudioDataConverter
     /// </summary>
     public static float[] NormalizeSamples(float[] samples)
     {
-        if (samples == null || samples.Length == 0)
+        if (samples is null || samples.Length == 0)
             return samples;
 
         float peak = CalculatePeakLevel(samples);
@@ -231,7 +232,7 @@ public static class AudioDataConverter
     /// </summary>
     public static float[] ApplyGain(float[] samples, float gainDb)
     {
-        if (samples == null || samples.Length == 0)
+        if (samples is null || samples.Length == 0)
             return samples;
 
         float gainLinear = DbToLinear(gainDb);

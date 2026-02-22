@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -40,7 +41,7 @@ public class CommandExecutor
         if (string.IsNullOrWhiteSpace(commandName))
             throw new ArgumentException("Command name cannot be null or empty.", nameof(commandName));
 
-        if (handler == null)
+        if (handler is null)
             throw new ArgumentNullException(nameof(handler));
 
         _commandHandlers[commandName.ToLower()] = handler;
@@ -52,7 +53,7 @@ public class CommandExecutor
     /// </summary>
     public int Execute(CommandLineParser parser)
     {
-        if (parser == null)
+        if (parser is null)
             throw new ArgumentNullException(nameof(parser));
 
         try
@@ -93,7 +94,7 @@ public class CommandExecutor
         catch (Exception ex)
         {
             _logger.Error($"Command execution failed: {ex.Message}");
-            if (ex.InnerException != null)
+            if (ex.InnerException is not null)
                 _logger.Error($"Inner exception: {ex.InnerException.Message}");
             return ExitCodeFailure;
         }

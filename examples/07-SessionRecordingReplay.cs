@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -68,7 +69,7 @@ public class SessionRecordingReplayExample
             Console.WriteLine("Replay Phase: Retrieving and analyzing session data...\n");
 
             var session = sessionRepo.GetSession(sessionId);
-            if (session == null)
+            if (session is null)
             {
                 Console.WriteLine("Session not found!");
                 return;

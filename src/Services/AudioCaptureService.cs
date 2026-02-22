@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -89,7 +90,7 @@ public class AudioCaptureService : IDisposable
     {
         ThrowIfDisposed();
 
-        if (_waveInput == null)
+        if (_waveInput is null)
             throw new InvalidOperationException("Audio device not initialized. Call Initialize() first.");
 
         if (_waveInput.RecordingState == RecordingState.Recording)
@@ -109,7 +110,7 @@ public class AudioCaptureService : IDisposable
                 }
             }, _cancellationTokenSource.Token);
 
-            if (_currentMetadata != null)
+            if (_currentMetadata is not null)
             {
                 _currentMetadata.IsCapturing = true;
             }
@@ -133,7 +134,7 @@ public class AudioCaptureService : IDisposable
     {
         ThrowIfDisposed();
 
-        if (_waveInput == null || _waveInput.RecordingState != RecordingState.Recording)
+        if (_waveInput is null || _waveInput.RecordingState != RecordingState.Recording)
             return;
 
         try
@@ -141,12 +142,12 @@ public class AudioCaptureService : IDisposable
             _waveInput.StopRecording();
             _cancellationTokenSource?.Cancel();
 
-            if (_captureTask != null)
+            if (_captureTask is not null)
             {
                 await _captureTask;
             }
 
-            if (_currentMetadata != null)
+            if (_currentMetadata is not null)
             {
                 _currentMetadata.IsCapturing = false;
             }
@@ -224,7 +225,7 @@ public class AudioCaptureService : IDisposable
     /// </summary>
     private void OnDataAvailable(object? sender, WaveInEventArgs e)
     {
-        if (_audioBuffer == null || _currentMetadata == null || e.BytesRecorded == 0)
+        if (_audioBuffer is null || _currentMetadata is null || e.BytesRecorded == 0)
             return;
 
         try
@@ -296,12 +297,12 @@ public class AudioCaptureService : IDisposable
     /// </summary>
     private void OnRecordingStopped(object? sender, StoppedEventArgs e)
     {
-        if (e.Exception != null)
+        if (e.Exception is not null)
         {
             OnRecordingError(e.Exception);
         }
 
-        if (_currentMetadata != null)
+        if (_currentMetadata is not null)
         {
             _currentMetadata.IsCapturing = false;
         }

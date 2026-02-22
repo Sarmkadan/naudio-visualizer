@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -78,7 +79,7 @@ public class Logger : IDisposable
     public void Error(string message, Exception? exception = null)
     {
         var sb = new StringBuilder(message);
-        if (exception != null)
+        if (exception is not null)
         {
             sb.AppendLine();
             sb.Append("Exception: ").AppendLine(exception.GetType().Name);
@@ -95,7 +96,7 @@ public class Logger : IDisposable
     public void Critical(string message, Exception? exception = null)
     {
         var sb = new StringBuilder(message);
-        if (exception != null)
+        if (exception is not null)
         {
             sb.AppendLine();
             sb.Append("Exception: ").AppendLine(exception.GetType().Name);

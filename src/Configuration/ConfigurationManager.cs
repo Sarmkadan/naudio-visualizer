@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -129,7 +130,7 @@ public class ConfigurationManager
             string json = File.ReadAllText(_configFilePath);
             var loadedSettings = JsonSerializer.Deserialize<Dictionary<string, object>>(json, _jsonOptions);
 
-            if (loadedSettings != null)
+            if (loadedSettings is not null)
             {
                 foreach (var kvp in loadedSettings)
                 {
@@ -266,7 +267,7 @@ public class ConfigurationManager
             string json = File.ReadAllText(filePath);
             var importedSettings = JsonSerializer.Deserialize<Dictionary<string, object>>(json, _jsonOptions);
 
-            if (importedSettings != null)
+            if (importedSettings is not null)
             {
                 _settings.Clear();
                 foreach (var kvp in importedSettings)

@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -24,7 +25,7 @@ public class VisualizationDataRepository
     /// </summary>
     public void Store(VisualizationData data)
     {
-        if (data == null)
+        if (data is null)
             throw new ArgumentNullException(nameof(data));
 
         lock (_lock)
@@ -32,7 +33,7 @@ public class VisualizationDataRepository
             _store[data.Id] = data;
 
             // Index by session if source frame exists
-            if (data.SourceFrame != null)
+            if (data.SourceFrame is not null)
             {
                 var sessionId = data.SourceFrame.Id;
                 if (!_sessionIndex.ContainsKey(sessionId))
@@ -122,7 +123,7 @@ public class VisualizationDataRepository
                 _store.Remove(id);
 
                 // Remove from session index
-                if (data.SourceFrame != null)
+                if (data.SourceFrame is not null)
                 {
                     var sessionId = data.SourceFrame.Id;
                     if (_sessionIndex.ContainsKey(sessionId))
