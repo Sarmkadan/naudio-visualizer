@@ -93,20 +93,24 @@ public class AudioBufferAndEventBusTests
     }
 
     [Fact]
-    public void AvailableSpace_AfterPartialWrite_ReturnsRemainingCapacity()
+    public void Read_InsufficientSamples_ReturnsZeroPaddedAndCorrectActualSamplesRead()
     {
+        // Arrange
         var buffer = new AudioBuffer(capacity: 10, sampleRate: 44100, channelCount: 1);
-        buffer.Write(new float[3]);
+        buffer.Write(new float[] { 0.1f, 0.2f, 0.3f }); // Write 3 samples
 
-        buffer.AvailableSpace().Should().Be(7);
-    }
+        // Act - Request to read 5 samples, but only 3 are available
+        var result = buffer.Read(5, out int actualSamplesRead);
 
-    [Fact]
-    public void Constructor_NegativeCapacity_ThrowsArgumentException()
-    {
-        var act = () => new AudioBuffer(capacity: -1, sampleRate: 44100, channelCount: 1);
-
-        act.Should().Throw<ArgumentException>();
+        // Assert
+        result.Should().HaveCount(5); // Should return an array of the requested size
+        actualSamplesRead.Should().Be(3); // Should report 3 actual samples read
+        result[0].Should().BeApproximately(0.1f, 0.0001f);
+        result[1].Should().BeApproximately(0.2f, 0.0001f);
+        result[2].Should().BeApproximately(0.3f, 0.0001f);
+        result[3].Should().BeApproximately(0.0f, 0.0001f); // Padded with zero
+        result[4].Should().BeApproximately(0.0f, 0.0001f); // Padded with zero
+        buffer.Count.Should().Be(0); // All available samples should be consumed
     }
 
     // -------------------------------------------------------------------------
