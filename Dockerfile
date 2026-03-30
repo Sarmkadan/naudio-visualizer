@@ -1,65 +1,64 @@
 # NAudio Visualizer - Multi-stage Docker build
-# Author: Vladyslav Zaiets | https://sarmkadan.com
-# CTO & Software Architect
+# Optimized for minimal size and proper layer caching
 
-# Build stage
-FROM mcr.microsoft.com/dotnet/sdk:10.0 as builder
+# Build stage using Alpine-based .NET SDK image
+FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS builder
 
 WORKDIR /build
+
+# Copy project files and restore dependencies
+COPY *.csproj ./
+COPY naudio-visualizer.slnx ./
+RUN dotnet restore --locked-mode
+
+# Copy remaining source code
 COPY . .
 
-# Restore and publish
-RUN dotnet restore
+# Build the application
 RUN dotnet publish -c Release \
-    --self-contained \
+    --self-contained false \
     --runtime linux-x64 \
-    --output /app
+    -o /app/publish
 
-# Runtime stage
-FROM ubuntu:24.04
+# Runtime stage using Alpine-based ASP.NET image
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine
 
-LABEL maintainer="Vladyslav Zaiets <rutova2@gmail.com>"
-LABEL org.opencontainers.image.title="NAudio Visualizer"
-LABEL org.opencontainers.image.description="Real-time audio visualization with NAudio and SkiaSharp"
-LABEL org.opencontainers.image.version="1.2.0"
-LABEL org.opencontainers.image.source="https://github.com/Sarmkadan/naudio-visualizer"
-
-# Install runtime dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Install required system dependencies for GUI applications
+RUN apk add --no-cache \
     ca-certificates \
-    curl \
-    libx11-6 \
-    libxrandr2 \
-    libxinerama1 \
-    libxcursor1 \
-    libxext6 \
-    libxfixes3 \
-    libxi6 \
-    libxdamage1 \
-    libxcomposite1 \
-    libxrender1 \
-    libasound2 \
-    libudev1 \
-    libssl3 \
-    && rm -rf /var/lib/apt/lists/*
+    ttf-dejavu \
+    libgdiplus \
+    libx11 \
+    libxext \
+    libxi \
+    libxtst \
+    alsa-lib \
+    ttf-freefont
+
+# Create non-root user for security
+RUN adduser -D -u 1001 appuser
+
+# Create necessary directories
+RUN mkdir -p /app/logs /app/data /app/config
+RUN chown appuser:appuser /app/logs /app/data /app/config
 
 WORKDIR /app
 
-# Copy compiled application from builder
-COPY --from=builder /app .
-
-# Create necessary directories
-RUN mkdir -p /app/logs /app/data
+# Copy published application from builder
+COPY --from=builder --chown=appuser:appuser /app/publish .
 
 # Set environment variables
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
-ENV DISPLAY=:0
-ENV PATH="/app:${PATH}"
+ENV DOTNET_PRINT_TELEMETRY_MESSAGE=false
+ENV DOTNET_ROOT=/usr/share/dotnet
+ENV PATH="${DOTNET_ROOT}:${PATH}"
 
-# Health check
+# Health check configuration
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:5000/api/health || exit 1
+    CMD ["dotnet", "/app/NAudioVisualizer.dll", "--health"]
 
-# Default command
-ENTRYPOINT ["./naudio-visualizer"]
-CMD ["--help"]
+# Switch to non-root user
+USER appuser
+
+# Set entry point
+ENTRYPOINT ["dotnet", "/app/NAudioVisualizer.dll"]
