@@ -5,6 +5,23 @@ All notable changes to NAudio Visualizer are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-01-14
+
+### Added
+- Add VST plugin host with parameter automation and preset management
+- Docker support with multi-stage builds
+- Health check endpoints (/health, /health/ready)
+- Integration test suite with xUnit
+- Migration guide from v1.x
+
+### Changed
+- Upgraded to .NET 10.0
+- Modern C# features (records, primary constructors)
+- Improved API consistency
+
+### Fixed
+- Various edge cases found through testing
+
 ## [1.0.0] - 2025-11-14
 
 ### Added
