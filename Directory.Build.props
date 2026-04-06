@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Authors>Vladyslav Zaiets</Authors>
+    <PackageProjectUrl>https://github.com/sarmkadan/naudio-visualizer</PackageProjectUrl>
+  </PropertyGroup>
+
+</Project>
