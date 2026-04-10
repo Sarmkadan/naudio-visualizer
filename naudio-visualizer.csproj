@@ -2,9 +2,10 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <UseWPF>false</UseWPF>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <RepositoryUrl>https://github.com/sarmkadan/naudio-visualizer</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageId>Zaiets.naudio.visualizer</PackageId>
