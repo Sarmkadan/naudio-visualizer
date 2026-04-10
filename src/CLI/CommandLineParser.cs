@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -35,7 +36,7 @@ public class CommandLineParser
     /// </summary>
     public void Parse(string[] args)
     {
-        if (args == null || args.Length == 0)
+        if (args is null || args.Length == 0)
             return;
 
         for (int i = 0; i < args.Length; i++)

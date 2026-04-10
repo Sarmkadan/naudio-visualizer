@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -24,7 +25,7 @@ public class XmlFormatter : IOutputFormatter
     /// </summary>
     public string Format(WaveformData waveform)
     {
-        if (waveform == null)
+        if (waveform is null)
             throw new ArgumentNullException(nameof(waveform));
 
         var root = new XElement("Waveform",
@@ -45,7 +46,7 @@ public class XmlFormatter : IOutputFormatter
     /// </summary>
     public string Format(SpectrumData spectrum)
     {
-        if (spectrum == null)
+        if (spectrum is null)
             throw new ArgumentNullException(nameof(spectrum));
 
         var root = new XElement("Spectrum",
@@ -67,7 +68,7 @@ public class XmlFormatter : IOutputFormatter
     /// </summary>
     public string Format(SpectrogramData spectrogram)
     {
-        if (spectrogram == null)
+        if (spectrogram is null)
             throw new ArgumentNullException(nameof(spectrogram));
 
         var root = new XElement("Spectrogram",
@@ -93,7 +94,7 @@ public class XmlFormatter : IOutputFormatter
     /// </summary>
     public string FormatCollection<T>(IEnumerable<T> items) where T : VisualizationData
     {
-        if (items == null)
+        if (items is null)
             throw new ArgumentNullException(nameof(items));
 
         var elements = new List<XElement>();
@@ -116,7 +117,7 @@ public class XmlFormatter : IOutputFormatter
     /// </summary>
     public string FormatMetadata(Dictionary<string, string> metadata)
     {
-        if (metadata == null)
+        if (metadata is null)
             throw new ArgumentNullException(nameof(metadata));
 
         var elements = new List<XElement>();

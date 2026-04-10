@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -23,7 +24,7 @@ public class ServiceContainer
     /// </summary>
     public void Register<T>(T instance) where T : class
     {
-        if (instance == null)
+        if (instance is null)
             throw new ArgumentNullException(nameof(instance));
 
         _services[typeof(T)] = instance;
@@ -34,7 +35,7 @@ public class ServiceContainer
     /// </summary>
     public void RegisterFactory<T>(Func<ServiceContainer, T> factory) where T : class
     {
-        if (factory == null)
+        if (factory is null)
             throw new ArgumentNullException(nameof(factory));
 
         _factories[typeof(T)] = container => factory(container)!;

@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -20,7 +21,7 @@ public class WaveformService
     /// </summary>
     public WaveformData GenerateWaveform(AudioFrame frame, int downsamplingFactor = AudioConstants.DEFAULT_WAVEFORM_DOWNSAMPLING)
     {
-        if (frame == null)
+        if (frame is null)
             throw new ArgumentNullException(nameof(frame));
 
         if (!frame.IsValid())
@@ -68,7 +69,7 @@ public class WaveformService
     /// </summary>
     public float[] DownsampleSamples(float[] samples, int factor)
     {
-        if (samples == null)
+        if (samples is null)
             throw new ArgumentNullException(nameof(samples));
 
         if (factor <= 1)
@@ -104,7 +105,7 @@ public class WaveformService
     /// </summary>
     public void NormalizeWaveform(WaveformData waveform)
     {
-        if (waveform == null)
+        if (waveform is null)
             throw new ArgumentNullException(nameof(waveform));
 
         waveform.Normalize();
@@ -115,7 +116,7 @@ public class WaveformService
     /// </summary>
     public float[] CalculatePeakValues(float[] samples, int peakCount)
     {
-        if (samples == null)
+        if (samples is null)
             throw new ArgumentNullException(nameof(samples));
 
         if (peakCount <= 0)
@@ -151,7 +152,7 @@ public class WaveformService
     /// </summary>
     public float[] ApplySmoothingFilter(float[] samples, int windowSize = 3)
     {
-        if (samples == null)
+        if (samples is null)
             throw new ArgumentNullException(nameof(samples));
 
         if (windowSize < 1)
@@ -186,7 +187,7 @@ public class WaveformService
     /// </summary>
     public float[] CalculateFrameEnergy(float[] samples, int frameCount)
     {
-        if (samples == null)
+        if (samples is null)
             throw new ArgumentNullException(nameof(samples));
 
         if (frameCount <= 0)
@@ -218,7 +219,7 @@ public class WaveformService
     /// </summary>
     public int CountZeroCrossings(float[] samples)
     {
-        if (samples == null || samples.Length < 2)
+        if (samples is null || samples.Length < 2)
             return 0;
 
         int crossingCount = 0;

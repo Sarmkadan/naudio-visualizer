@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -20,7 +21,7 @@ public class SpectrumAnalyzer
     /// </summary>
     public SpectrumData AnalyzeSpectrum(AudioFrame frame, int fftSize = AudioConstants.DEFAULT_FFT_SIZE)
     {
-        if (frame == null)
+        if (frame is null)
             throw new ArgumentNullException(nameof(frame));
 
         if (!frame.IsValid())
@@ -131,7 +132,7 @@ public class SpectrumAnalyzer
     /// </summary>
     public void ConvertToLogScale(SpectrumData spectrum, float referenceValue = 1f)
     {
-        if (spectrum == null)
+        if (spectrum is null)
             throw new ArgumentNullException(nameof(spectrum));
 
         spectrum.ConvertToLogScale(referenceValue);
@@ -142,7 +143,7 @@ public class SpectrumAnalyzer
     /// </summary>
     public void SmoothSpectrum(SpectrumData spectrum, int windowSize = 3)
     {
-        if (spectrum == null)
+        if (spectrum is null)
             throw new ArgumentNullException(nameof(spectrum));
 
         spectrum.SmoothSpectrum(windowSize);
@@ -153,7 +154,7 @@ public class SpectrumAnalyzer
     /// </summary>
     public float FindDominantFrequency(SpectrumData spectrum)
     {
-        if (spectrum == null)
+        if (spectrum is null)
             throw new ArgumentNullException(nameof(spectrum));
 
         return spectrum.PeakFrequency;
@@ -164,7 +165,7 @@ public class SpectrumAnalyzer
     /// </summary>
     public float CalculateSpectralCentroid(SpectrumData spectrum)
     {
-        if (spectrum == null)
+        if (spectrum is null)
             throw new ArgumentNullException(nameof(spectrum));
 
         var magnitudes = spectrum.GetData();
@@ -190,7 +191,7 @@ public class SpectrumAnalyzer
     /// </summary>
     public FrequencyBands ExtractFrequencyBands(SpectrumData spectrum)
     {
-        if (spectrum == null)
+        if (spectrum is null)
             throw new ArgumentNullException(nameof(spectrum));
 
         var magnitudes = spectrum.GetData();
@@ -242,7 +243,7 @@ public class SpectrumAnalyzer
     /// </summary>
     public void NormalizeSpectrum(SpectrumData spectrum)
     {
-        if (spectrum == null)
+        if (spectrum is null)
             throw new ArgumentNullException(nameof(spectrum));
 
         spectrum.Normalize();

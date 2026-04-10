@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -38,7 +39,7 @@ public class JsonFormatter : IOutputFormatter
     /// </summary>
     public string Format(WaveformData waveform)
     {
-        if (waveform == null)
+        if (waveform is null)
             throw new ArgumentNullException(nameof(waveform));
 
         var json = new Dictionary<string, object>
@@ -59,7 +60,7 @@ public class JsonFormatter : IOutputFormatter
     /// </summary>
     public string Format(SpectrumData spectrum)
     {
-        if (spectrum == null)
+        if (spectrum is null)
             throw new ArgumentNullException(nameof(spectrum));
 
         var json = new Dictionary<string, object>
@@ -81,7 +82,7 @@ public class JsonFormatter : IOutputFormatter
     /// </summary>
     public string Format(SpectrogramData spectrogram)
     {
-        if (spectrogram == null)
+        if (spectrogram is null)
             throw new ArgumentNullException(nameof(spectrogram));
 
         var json = new Dictionary<string, object>
@@ -104,7 +105,7 @@ public class JsonFormatter : IOutputFormatter
     /// </summary>
     public string FormatCollection<T>(IEnumerable<T> items) where T : VisualizationData
     {
-        if (items == null)
+        if (items is null)
             throw new ArgumentNullException(nameof(items));
 
         var array = new List<object>();
