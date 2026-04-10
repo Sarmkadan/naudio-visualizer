@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -35,7 +36,7 @@ public class SpectrogramAnalyzer
         int fftSize = AudioConstants.DEFAULT_FFT_SIZE,
         int hopSize = 512)
     {
-        if (frames == null || frames.Length == 0)
+        if (frames is null || frames.Length == 0)
             throw new ArgumentException("Frames collection cannot be null or empty", nameof(frames));
 
         try
@@ -75,7 +76,7 @@ public class SpectrogramAnalyzer
     /// </summary>
     public void AddSpectrumFrame(SpectrumData spectrum)
     {
-        if (spectrum == null)
+        if (spectrum is null)
             throw new ArgumentNullException(nameof(spectrum));
 
         _spectrumBuffer.Enqueue(spectrum);
@@ -157,7 +158,7 @@ public class SpectrogramAnalyzer
     /// </summary>
     public void ApplyLogScaling(SpectrogramData spectrogram)
     {
-        if (spectrogram == null)
+        if (spectrogram is null)
             throw new ArgumentNullException(nameof(spectrogram));
 
         spectrogram.ApplyLogScale();
@@ -168,7 +169,7 @@ public class SpectrogramAnalyzer
     /// </summary>
     public void NormalizeSpectrogram(SpectrogramData spectrogram)
     {
-        if (spectrogram == null)
+        if (spectrogram is null)
             throw new ArgumentNullException(nameof(spectrogram));
 
         spectrogram.Normalize();
@@ -179,7 +180,7 @@ public class SpectrogramAnalyzer
     /// </summary>
     public float[] GetFrequencySlice(SpectrogramData spectrogram, float frequencyHz)
     {
-        if (spectrogram == null)
+        if (spectrogram is null)
             throw new ArgumentNullException(nameof(spectrogram));
 
         float frequencyResolution = (float)spectrogram.SampleRate / spectrogram.FftSize;
@@ -196,7 +197,7 @@ public class SpectrogramAnalyzer
     /// </summary>
     public float[] GetTimeSlice(SpectrogramData spectrogram, double timeSeconds)
     {
-        if (spectrogram == null)
+        if (spectrogram is null)
             throw new ArgumentNullException(nameof(spectrogram));
 
         int timeIndex = (int)(timeSeconds / spectrogram.TimePerFrame);
@@ -212,7 +213,7 @@ public class SpectrogramAnalyzer
     /// </summary>
     public float[] CalculateSpectralFlux(SpectrogramData spectrogram)
     {
-        if (spectrogram == null)
+        if (spectrogram is null)
             throw new ArgumentNullException(nameof(spectrogram));
 
         var flux = new float[spectrogram.TimeFrames];
@@ -246,7 +247,7 @@ public class SpectrogramAnalyzer
     /// </summary>
     public List<int> DetectTransients(SpectrogramData spectrogram, float threshold = 0.5f)
     {
-        if (spectrogram == null)
+        if (spectrogram is null)
             throw new ArgumentNullException(nameof(spectrogram));
 
         var transients = new List<int>();

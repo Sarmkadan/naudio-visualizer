@@ -1,3 +1,4 @@
+#nullable enable
 // =============================================================================
 // Author: Vladyslav Zaiets | https://sarmkadan.com
 // CTO & Software Architect
@@ -33,7 +34,7 @@ public class EventBus : IDisposable
     /// </summary>
     public IDisposable Subscribe<T>(Action<T> handler) where T : class
     {
-        if (handler == null)
+        if (handler is null)
             throw new ArgumentNullException(nameof(handler));
 
         lock (_lockObject)
@@ -58,7 +59,7 @@ public class EventBus : IDisposable
     /// </summary>
     public void Publish<T>(T eventData) where T : class
     {
-        if (eventData == null)
+        if (eventData is null)
             throw new ArgumentNullException(nameof(eventData));
 
         List<WeakEventSubscription>? handlers;
