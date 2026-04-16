@@ -111,13 +111,13 @@ public class VisualizationApiConfiguration
         try
         {
             if (_audioWorker is not null)
-                await _audioWorker.StopAsync();
+                await _audioWorker.StopAsync().ConfigureAwait(false);
 
             if (_exportWorker is not null)
-                await _exportWorker.StopAsync();
+                await _exportWorker.StopAsync().ConfigureAwait(false);
 
             if (_taskRunner is not null)
-                await _taskRunner.StopAsync();
+                await _taskRunner.StopAsync().ConfigureAwait(false);
 
             _logger.Info("API workers stopped.");
         }

@@ -190,7 +190,7 @@ public class ScheduledTaskRunner : IDisposable
                             continue;
                     }
 
-                    await ExecuteTaskAsync(task, cancellationToken);
+                    await ExecuteTaskAsync(task, cancellationToken).ConfigureAwait(false);
 
                     lock (_lockObject)
                     {
@@ -204,7 +204,7 @@ public class ScheduledTaskRunner : IDisposable
             }
 
             // Sleep briefly to avoid busy waiting
-            await Task.Delay(100, cancellationToken);
+            await Task.Delay(100, cancellationToken).ConfigureAwait(false);
         }
     }
 
@@ -217,7 +217,7 @@ public class ScheduledTaskRunner : IDisposable
 
         try
         {
-            await task.TaskDelegate(cancellationToken);
+            await task.TaskDelegate(cancellationToken).ConfigureAwait(false);
             stopwatch.Stop();
 
             task.LastRunTime = DateTime.UtcNow;

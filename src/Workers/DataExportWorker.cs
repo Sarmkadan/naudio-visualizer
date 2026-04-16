@@ -186,7 +186,7 @@ public class DataExportWorker : IDisposable
             {
                 try
                 {
-                    await ExecuteExportJobAsync(job, cancellationToken);
+                    await ExecuteExportJobAsync(job, cancellationToken).ConfigureAwait(false);
                 }
                 catch (OperationCanceledException)
                 {
@@ -200,7 +200,7 @@ public class DataExportWorker : IDisposable
             else
             {
                 // No jobs, sleep briefly
-                await Task.Delay(100, cancellationToken);
+                await Task.Delay(100, cancellationToken).ConfigureAwait(false);
             }
         }
     }
@@ -218,17 +218,17 @@ public class DataExportWorker : IDisposable
             {
                 case ExportType.Waveform:
                     if (job.Data is Domain.Models.WaveformData waveform)
-                        await _exportService.ExportWaveformAsync(waveform, job.FilePath, job.Format);
+                        await _exportService.ExportWaveformAsync(waveform, job.FilePath, job.Format).ConfigureAwait(false);
                     break;
 
                 case ExportType.Spectrum:
                     if (job.Data is Domain.Models.SpectrumData spectrum)
-                        await _exportService.ExportSpectrumAsync(spectrum, job.FilePath, job.Format);
+                        await _exportService.ExportSpectrumAsync(spectrum, job.FilePath, job.Format).ConfigureAwait(false);
                     break;
 
                 case ExportType.Spectrogram:
                     if (job.Data is Domain.Models.SpectrogramData spectrogram)
-                        await _exportService.ExportSpectrogramAsync(spectrogram, job.FilePath, job.Format);
+                        await _exportService.ExportSpectrogramAsync(spectrogram, job.FilePath, job.Format).ConfigureAwait(false);
                     break;
             }
 
