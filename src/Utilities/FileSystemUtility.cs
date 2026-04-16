@@ -169,7 +169,7 @@ public static class FileSystemUtility
         try
         {
             EnsureDirectoryExists(Path.GetDirectoryName(filePath) ?? ".");
-            await File.WriteAllTextAsync(filePath, content);
+            await File.WriteAllTextAsync(filePath, content).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -187,7 +187,7 @@ public static class FileSystemUtility
 
         try
         {
-            return await File.ReadAllTextAsync(filePath);
+            return await File.ReadAllTextAsync(filePath).ConfigureAwait(false);
         }
         catch (Exception ex)
         {

@@ -134,11 +134,11 @@ public class AdvancedConfigurationExample
         {
             Console.WriteLine("Starting audio capture with advanced configuration...\n");
             audioService.Initialize(deviceIndex: 0);
-            await audioService.StartRecordingAsync();
+            await audioService.StartRecordingAsync().ConfigureAwait(false);
 
-            await Task.Delay(TimeSpan.FromSeconds(10));
+            await Task.Delay(TimeSpan.FromSeconds(10)).ConfigureAwait(false);
 
-            await audioService.StopRecordingAsync();
+            await audioService.StopRecordingAsync().ConfigureAwait(false);
             Console.WriteLine($"\nCapture completed: {frameCount} frames processed");
         }
         catch (Exception ex)

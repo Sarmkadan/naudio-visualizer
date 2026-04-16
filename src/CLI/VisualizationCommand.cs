@@ -81,7 +81,7 @@ public class VisualizationCommand
             _logger.Info($"FFT Size: {fftSize}, Target FPS: {fps}");
 
             // TODO: Implement actual visualization startup
-            await SimulateVisualizationAsync();
+            await SimulateVisualizationAsync().ConfigureAwait(false);
 
             return 0;
         }
@@ -99,13 +99,13 @@ public class VisualizationCommand
     private async Task SimulateVisualizationAsync()
     {
         _logger.Debug("Simulation: Audio capture initialized");
-        await Task.Delay(100);
+        await Task.Delay(100).ConfigureAwait(false);
 
         _logger.Debug("Simulation: FFT analysis started");
-        await Task.Delay(100);
+        await Task.Delay(100).ConfigureAwait(false);
 
         _logger.Debug("Simulation: Visualization rendering begun");
-        await Task.Delay(100);
+        await Task.Delay(100).ConfigureAwait(false);
 
         _logger.Info("Visualization is ready. Press Ctrl+C to stop.");
     }
@@ -167,7 +167,7 @@ public class CaptureCommand
             _logger.Info($"Device: {deviceId}, Duration: {durationSeconds}s, Sample Rate: {sampleRate} Hz");
 
             // TODO: Implement actual audio capture
-            await SimulateCaptureAsync(durationSeconds);
+            await SimulateCaptureAsync(durationSeconds).ConfigureAwait(false);
 
             return 0;
         }
@@ -188,7 +188,7 @@ public class CaptureCommand
         for (int i = 0; i < durationSeconds; i += progressInterval)
         {
             _logger.Debug($"Recording progress: {Math.Min(i + progressInterval, durationSeconds)}/{durationSeconds} seconds");
-            await Task.Delay(progressInterval * 100);
+            await Task.Delay(progressInterval * 100).ConfigureAwait(false);
         }
 
         _logger.Info("Audio capture completed successfully");
