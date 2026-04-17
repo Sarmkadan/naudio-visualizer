@@ -1,8 +1,6 @@
-# Build results
+## Build results
 [Dd]ebug/
-[Dd]ebugPublic/
 [Rr]elease/
-[Rr]eleases/
 x64/
 x86/
 [Ww][Ii][Nn]32/
@@ -11,58 +9,57 @@ x86/
 bld/
 [Bb]in/
 [Oo]bj/
+[Oo]ut/
 [Ll]og/
 [Ll]ogs/
+msbuild.log
+msbuild.err
+msbuild.wrn
 
-# Visual Studio cache/options
+## NuGet
+*.nupkg
+*.snupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+*.nuget.props
+*.nuget.targets
+project.lock.json
+project.fragment.lock.json
+
+## Visual Studio
 .vs/
-.vscode/
 *.suo
 *.user
 *.userosscache
 *.sln.docstates
+*.userprefs
+*.rsuser
+[Tt]est[Rr]esult*/
+[Dd]ebugPublic/
+[Rr]eleases/
+BenchmarkDotNet.Artifacts/
+artifacts/
 
-# Visual Studio Code
+## Rider
+.idea/
+*.sln.iml
+
+## VS Code
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+*.code-workspace
 
-# User-specific files
-*.rsuser
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
-
-# Rider
-.idea/
-*.sln.iml
-
-# NuGet
-*.nupkg
-*.snupkg
-.nuget/
-nuget.config
-packages/
-
-# Test Results
-TestResults/
-*.trx
-
-# Rider
-.idea/
-*.sln.iml
-riderModule.iml
-
-# macOS
-.DS_Store
-
-# Environment variables
-.env
-.env.local
-appsettings.Development.json
-
-# ReSharper
+## User-specific
 *.DotSettings.user
+
+## OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+## dotnet tool
+.dotnet/
