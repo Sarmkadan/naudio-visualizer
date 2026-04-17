@@ -77,7 +77,7 @@ public sealed class VstPresetManager : IVstPresetProvider, IDisposable
         _presetDirectory = presetDirectory;
         FileSystemUtility.EnsureDirectoryExists(presetDirectory);
 
-        await ScanAndLoadDirectoryAsync(presetDirectory);
+        await ScanAndLoadDirectoryAsync(presetDirectory).ConfigureAwait(false);
 
         _logger.Info(
             $"VST preset manager initialised: {_cache.Count} preset(s) loaded from '{presetDirectory}'.");
@@ -107,7 +107,7 @@ public sealed class VstPresetManager : IVstPresetProvider, IDisposable
         {
             string path = BuildFilePath(preset);
             string json = JsonSerializer.Serialize(preset, JsonOptions);
-            await FileSystemUtility.WriteFileAsync(path, json);
+            await FileSystemUtility.WriteFileAsync(path, json).ConfigureAwait(false);
         }
 
         _logger.Info($"Preset saved: '{preset.Name}' ({preset.Id})");
@@ -132,7 +132,7 @@ public sealed class VstPresetManager : IVstPresetProvider, IDisposable
         var matches = Directory.GetFiles(_presetDirectory, $"*{presetId}*.vstpreset");
         if (matches.Length == 0) return null;
 
-        var loaded = await DeserializePresetFileAsync(matches[0]);
+        var loaded = await DeserializePresetFileAsync(matches[0]).ConfigureAwait(false);
         if (loaded is not null) _cache[loaded.Id] = loaded;
         return loaded;
     }
@@ -324,7 +324,7 @@ public sealed class VstPresetManager : IVstPresetProvider, IDisposable
                 nameof(VstPresetManager));
 
         string json = JsonSerializer.Serialize(preset, JsonOptions);
-        await FileSystemUtility.WriteFileAsync(outputPath, json);
+        await FileSystemUtility.WriteFileAsync(outputPath, json).ConfigureAwait(false);
         _logger.Info($"Preset '{preset.Name}' exported to '{outputPath}'.");
     }
 
@@ -337,7 +337,7 @@ public sealed class VstPresetManager : IVstPresetProvider, IDisposable
         {
             try
             {
-                var preset = await DeserializePresetFileAsync(file);
+                var preset = await DeserializePresetFileAsync(file).ConfigureAwait(false);
                 if (preset is not null)
                     _cache[preset.Id] = preset;
             }
@@ -350,7 +350,7 @@ public sealed class VstPresetManager : IVstPresetProvider, IDisposable
 
     private static async Task<VstPreset?> DeserializePresetFileAsync(string filePath)
     {
-        string json = await File.ReadAllTextAsync(filePath);
+        string json = await File.ReadAllTextAsync(filePath).ConfigureAwait(false);
         return JsonSerializer.Deserialize<VstPreset>(json, JsonOptions);
     }
 

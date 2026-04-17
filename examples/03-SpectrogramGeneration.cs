@@ -61,11 +61,11 @@ public class SpectrogramGenerationExample
             audioService.Initialize(deviceIndex: 0);
 
             Console.WriteLine("Capturing audio for 15 seconds...");
-            await audioService.StartRecordingAsync();
+            await audioService.StartRecordingAsync().ConfigureAwait(false);
 
-            await Task.Delay(TimeSpan.FromSeconds(15));
+            await Task.Delay(TimeSpan.FromSeconds(15)).ConfigureAwait(false);
 
-            await audioService.StopRecordingAsync();
+            await audioService.StopRecordingAsync().ConfigureAwait(false);
 
             Console.WriteLine($"\nCaptured {capturedFrames.Count} frames total");
             Console.WriteLine("Building spectrogram...");
@@ -87,7 +87,7 @@ public class SpectrogramGenerationExample
 
             Console.WriteLine("\nExporting spectrogram to JSON...");
             var outputPath = "spectrogram_export.json";
-            await exportService.ExportToJsonAsync(spectrogram, outputPath);
+            await exportService.ExportToJsonAsync(spectrogram, outputPath).ConfigureAwait(false);
 
             Console.WriteLine($"Spectrogram exported to: {outputPath}");
             Console.WriteLine("Done!");

@@ -57,7 +57,7 @@ public class WebhookPublisher
             _logger.Info($"Registered webhook for {typeof(T).Name}: {webhookUrl}");
 
             // Subscribe to the event
-            EventPublisher.Subscribe<T>(async e => await PublishWebhookAsync(webhookUrl, e, secret));
+            EventPublisher.Subscribe<T>(async e => await PublishWebhookAsync(webhookUrl, e, secret)).ConfigureAwait(false);
         }
     }
 
@@ -85,7 +85,7 @@ public class WebhookPublisher
                 // Note: In real implementation, add this as X-Webhook-Signature header
             }
 
-            await _httpRequester.PostJsonAsync(webhookUrl, json);
+            await _httpRequester.PostJsonAsync(webhookUrl, json).ConfigureAwait(false);
             _logger.Debug($"Webhook published successfully to {webhookUrl}");
         }
         catch (Exception ex)
