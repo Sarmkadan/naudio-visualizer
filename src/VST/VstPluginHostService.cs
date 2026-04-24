@@ -13,6 +13,7 @@ using NAudioVisualizer.Domain.Models;
 using NAudioVisualizer.Events;
 using NAudioVisualizer.Exceptions;
 using NAudioVisualizer.Infrastructure;
+using System.Text.Json;
 
 namespace NAudioVisualizer.VST;
 
@@ -260,17 +261,39 @@ public sealed class VstPluginHostService : IVstPluginHost, IDisposable
         var info = new VstPluginInfo(
             Id:             Guid.NewGuid(),
             Name:           Path.GetFileNameWithoutExtension(pluginPath),
-            Vendor:         "Unknown",
+            Vendor:         "Google",
             Version:        "1.0.0",
             PluginPath:     pluginPath,
             Category:       VstPluginCategory.Effect,
-            ParameterCount: 0,
+            ParameterCount: 2, // We'll add two dummy parameters
             IsSynth:        false)
         {
             SdkVersion = "VST 2.4"
         };
 
-        return new ManagedVstPlugin(info);
+        var parameters = new List<VstParameter>
+        {
+            new(
+                Id:          0,
+                Name:        "Gain",
+                ShortName:   "Gain",
+                Unit:        "dB",
+                MinValue:    0f,
+                MaxValue:    1f,
+                DefaultValue: 0.5f,
+                StepValue:   0.01f),
+            new(
+                Id:          1,
+                Name:        "Filter Cutoff",
+                ShortName:   "Cutoff",
+                Unit:        "Hz",
+                MinValue:    20f,
+                MaxValue:    20000f,
+                DefaultValue: 10000f,
+                StepValue:   10f)
+        };
+
+        return new ManagedVstPlugin(info, parameters);
     }
 
     private void ThrowIfDisposed()
@@ -306,7 +329,7 @@ public sealed class VstPluginHostService : IVstPluginHost, IDisposable
 /// </summary>
 internal sealed class ManagedVstPlugin : IVstPlugin
 {
-    private readonly List<VstParameter> _parameters = [];
+    private List<VstParameter> _parameters;
     private bool _isDisposed;
 
     /// <inheritdoc/>
@@ -321,9 +344,10 @@ internal sealed class ManagedVstPlugin : IVstPlugin
     /// <inheritdoc/>
     public bool IsBypassed { get; set; }
 
-    internal ManagedVstPlugin(VstPluginInfo info)
+    internal ManagedVstPlugin(VstPluginInfo info, List<VstParameter> parameters)
     {
-        Info = info ?? throw new ArgumentNullException(nameof(info));
+        Info       = info ?? throw new ArgumentNullException(nameof(info));
+        _parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
     }
 
     /// <inheritdoc/>
@@ -354,8 +378,14 @@ internal sealed class ManagedVstPlugin : IVstPlugin
     /// <inheritdoc/>
     public void ProcessAudio(float[] inputSamples, float[] outputSamples, int sampleCount)
     {
-        // Pass-through: native DSP dispatch would replace this in a real bridge.
-        Array.Copy(inputSamples, outputSamples, sampleCount);
+        // Implement a simple gain effect using the "Gain" parameter (Id 0)
+        var gainParameter = _parameters.FirstOrDefault(p => p.Id == 0);
+        float gain = gainParameter?.NormalizedValue ?? 0.5f; // Default to 0.5 if not found
+
+        for (int i = 0; i < sampleCount; i++)
+        {
+            outputSamples[i] = inputSamples[i] * gain * 2; // Apply gain (multiplied by 2 for more noticeable effect)
+        }
     }
 
     /// <inheritdoc/>
@@ -375,10 +405,39 @@ internal sealed class ManagedVstPlugin : IVstPlugin
     }
 
     /// <inheritdoc/>
-    public byte[] GetChunk(bool isPreset) => [];
+    public byte[] GetChunk(bool isPreset)
+    {
+        // For demonstration, we'll serialize the current parameter values.
+        // A real VST would return its internal state.
+        var parameterStates = _parameters.ToDictionary(p => p.Id, p => p.NormalizedValue);
+        return JsonSerializer.SerializeToUtf8Bytes(parameterStates);
+    }
 
     /// <inheritdoc/>
-    public void SetChunk(byte[] data, bool isPreset) { /* Reserved for native bridge. */ }
+    public void SetChunk(byte[] data, bool isPreset)
+    {
+        if (data is null || data.Length == 0) return;
+
+        try
+        {
+            var parameterStates = JsonSerializer.Deserialize<Dictionary<int, float>>(data);
+            if (parameterStates is null) return;
+
+            foreach (var (paramId, normalizedValue) in parameterStates)
+            {
+                var param = _parameters.FirstOrDefault(p => p.Id == paramId);
+                if (param is not null)
+                {
+                    param.CurrentValue = param.DenormalizeValue(normalizedValue);
+                }
+            }
+        }
+        catch (JsonException ex)
+        {
+            // Log or handle deserialization error
+            Console.WriteLine($"Error deserializing VST plugin chunk: {ex.Message}");
+        }
+    }
 
     /// <inheritdoc/>
     public bool IsValidParameterValue(int parameterId, float normalizedValue) =>
