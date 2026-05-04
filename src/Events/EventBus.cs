@@ -163,7 +163,6 @@ public sealed class EventBus : IDisposable
         private readonly WeakReference _handlerReference;
         private readonly EventBus _eventBus;
         private readonly Type _eventType;
-        private readonly Delegate _delegate;
 
         public bool IsAlive => _handlerReference.IsAlive;
 
@@ -172,7 +171,6 @@ public sealed class EventBus : IDisposable
             _handlerReference = new WeakReference(handler);
             _eventBus = eventBus;
             _eventType = eventType;
-            _delegate = handler;
         }
 
         public void Handle(object eventData)

@@ -6,6 +6,7 @@
 
 using System;
 using System.Drawing;
+using System.Globalization;
 
 namespace NAudioVisualizer.Utilities;
 
@@ -243,13 +244,15 @@ public static class ColorUtility
     /// </summary>
     public static Color HexToColor(string hex)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(hex);
+
         hex = hex.TrimStart('#');
         if (hex.Length != 6)
             throw new ArgumentException("Hex color must be 6 characters long.");
 
-        int r = int.Parse(hex.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
-        int g = int.Parse(hex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
-        int b = int.Parse(hex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
+        int r = int.Parse(hex.AsSpan(0, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        int g = int.Parse(hex.AsSpan(2, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        int b = int.Parse(hex.AsSpan(4, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
 
         return Color.FromArgb(r, g, b);
     }

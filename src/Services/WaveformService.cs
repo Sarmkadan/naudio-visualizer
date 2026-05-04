@@ -182,17 +182,17 @@ public sealed class WaveformService
 
         for (int i = 0; i < peakCount; i++)
         {
-            peaks[i] = CalculatePeakForSegment(samples, i, samplesPerPeak);
+            peaks[i] = CalculatePeakForSegment(samples, i, samplesPerPeak, peakCount);
         }
 
         return peaks;
     }
 
-    private float CalculatePeakForSegment(float[] samples, int segmentIndex, int samplesPerPeak)
+    private float CalculatePeakForSegment(float[] samples, int segmentIndex, int samplesPerPeak, int peakCount)
     {
         float maxPeak = 0f;
         int startIdx = segmentIndex * samplesPerPeak;
-        int endIdx = segmentIndex == samples.Length / samplesPerPeak - 1
+        int endIdx = segmentIndex == peakCount - 1
             ? samples.Length
             : startIdx + samplesPerPeak;
 
@@ -278,17 +278,17 @@ public sealed class WaveformService
 
         for (int i = 0; i < frameCount; i++)
         {
-            energyFrames[i] = CalculateEnergyForFrame(samples, i, samplesPerFrame);
+            energyFrames[i] = CalculateEnergyForFrame(samples, i, samplesPerFrame, frameCount);
         }
 
         return energyFrames;
     }
 
-    private float CalculateEnergyForFrame(float[] samples, int frameIndex, int samplesPerFrame)
+    private float CalculateEnergyForFrame(float[] samples, int frameIndex, int samplesPerFrame, int frameCount)
     {
         double sumSquares = 0;
         int startIdx = frameIndex * samplesPerFrame;
-        int endIdx = frameIndex == samplesPerFrame - 1
+        int endIdx = frameIndex == frameCount - 1
             ? samples.Length
             : startIdx + samplesPerFrame;
         int sampleCount = endIdx - startIdx;
