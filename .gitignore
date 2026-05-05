@@ -45,6 +45,7 @@ bld/
 *.snupkg
 .nuget/
 nuget.config
+packages/
 
 # Test Results
 TestResults/
@@ -61,3 +62,7 @@ riderModule.iml
 # Environment variables
 .env
 .env.local
+appsettings.Development.json
+
+# ReSharper
+*.DotSettings.user
