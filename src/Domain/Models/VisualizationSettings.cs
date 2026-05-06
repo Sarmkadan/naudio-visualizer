@@ -14,6 +14,16 @@ namespace NAudioVisualizer.Domain.Models;
 public class VisualizationSettings
 {
     /// <summary>
+    /// Color theme applied to waveform and spectrogram views.
+    /// Defaults to <see cref="VisualizerTheme.Presets.Classic"/>.
+    /// Assign any <see cref="VisualizerTheme"/> instance—including the
+    /// built-in <see cref="VisualizerTheme.Presets.Accessible"/> or
+    /// <see cref="VisualizerTheme.Presets.Monochrome"/> presets—to change
+    /// the gradient colors used during rendering.
+    /// </summary>
+    public VisualizerTheme Theme { get; set; } = VisualizerTheme.Presets.Classic;
+
+    /// <summary>
     /// Unique settings identifier.
     /// </summary>
     public Guid Id { get; set; } = Guid.NewGuid();
