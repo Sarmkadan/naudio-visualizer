@@ -95,7 +95,7 @@ public class AudioCaptureService : IDisposable
                 BitDepth = 16
             };
         }
-        catch (Exception ex)
+        catch (InvalidOperationException ex)
         {
             Cleanup();
             throw new AudioDeviceException(
@@ -140,7 +140,7 @@ public class AudioCaptureService : IDisposable
 
             await Task.CompletedTask;
         }
-        catch (Exception ex)
+        catch (InvalidOperationException ex)
         {
             throw new AudioStreamException(
                 $"Failed to start recording: {ex.Message}",
@@ -175,7 +175,7 @@ public class AudioCaptureService : IDisposable
                 _currentMetadata.IsCapturing = false;
             }
         }
-        catch (Exception ex)
+        catch (InvalidOperationException ex)
         {
             throw new AudioStreamException(
                 $"Failed to stop recording: {ex.Message}",
@@ -275,7 +275,7 @@ public class AudioCaptureService : IDisposable
 
             FrameCaptured?.Invoke(this, new AudioFrameEventArgs { Frame = frame });
         }
-        catch (Exception ex)
+        catch (InvalidOperationException ex)
         {
             OnRecordingError(ex);
         }

@@ -67,7 +67,7 @@ public class AudioFileLoader
             {
                 await ExtractAudioPropertiesAsync(metadata).ConfigureAwait(false);
             }
-            catch (Exception ex)
+            catch (InvalidOperationException ex)
             {
                 _logger.Warn($"Could not extract extended audio properties: {ex.Message}");
             }
@@ -76,7 +76,7 @@ public class AudioFileLoader
 
             return metadata;
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             _logger.Error($"Failed to load audio file '{filePath}': {ex.Message}");
             throw;
