@@ -14,11 +14,32 @@ namespace NAudioVisualizer.Services;
 /// <summary>
 /// Service for generating waveform visualization data from audio frames.
 /// </summary>
+/// <example>
+/// <code>
+/// var service = new WaveformService();
+/// var waveform = service.GenerateWaveform(audioFrame, downsamplingFactor: 4);
+/// float[] peaks = service.CalculatePeakValues(waveform.GetData(), peakCount: 512);
+/// </code>
+/// </example>
 public class WaveformService
 {
     /// <summary>
     /// Generates waveform visualization from an audio frame.
     /// </summary>
+    /// <param name="frame">
+    /// The captured audio frame containing interleaved PCM samples in the [-1, 1] range.
+    /// </param>
+    /// <param name="downsamplingFactor">
+    /// Ratio by which the sample count is reduced for rendering performance.
+    /// For example, a value of 4 averages every 4 input samples into one output sample.
+    /// Valid range: 1 (no downsampling) to any positive integer. Defaults to
+    /// <see cref="AudioConstants.DEFAULT_WAVEFORM_DOWNSAMPLING"/> (4).
+    /// </param>
+    /// <returns>A <see cref="WaveformData"/> instance ready for rendering.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="frame"/> is null.</exception>
+    /// <exception cref="VisualizationException">
+    /// Thrown when <paramref name="frame"/> fails validation or sample processing fails.
+    /// </exception>
     public WaveformData GenerateWaveform(AudioFrame frame, int downsamplingFactor = AudioConstants.DEFAULT_WAVEFORM_DOWNSAMPLING)
     {
         if (frame is null)
@@ -65,8 +86,16 @@ public class WaveformService
     }
 
     /// <summary>
-    /// Downsamples audio samples by a given factor.
+    /// Downsamples audio samples by averaging groups of <paramref name="factor"/> consecutive
+    /// samples, reducing the array length by approximately that factor.
     /// </summary>
+    /// <param name="samples">Source PCM samples in the [-1, 1] range.</param>
+    /// <param name="factor">
+    /// Number of input samples to average into each output sample.
+    /// A value of 1 returns a clone of the input unchanged.
+    /// </param>
+    /// <returns>A new array whose length is approximately <c>samples.Length / factor</c>.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="samples"/> is null.</exception>
     public float[] DownsampleSamples(float[] samples, int factor)
     {
         if (samples is null)
@@ -101,8 +130,10 @@ public class WaveformService
     }
 
     /// <summary>
-    /// Applies normalization to waveform data.
+    /// Applies normalization to waveform data, scaling all amplitude values to the [-1, 1] range.
     /// </summary>
+    /// <param name="waveform">The waveform data to normalize in place.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="waveform"/> is null.</exception>
     public void NormalizeWaveform(WaveformData waveform)
     {
         if (waveform is null)
@@ -112,8 +143,22 @@ public class WaveformService
     }
 
     /// <summary>
-    /// Calculates peak values for each section of the waveform.
+    /// Calculates the peak absolute amplitude within each of <paramref name="peakCount"/>
+    /// equally-sized segments of <paramref name="samples"/>.
+    /// Useful for drawing a compact bar representation of a long waveform.
     /// </summary>
+    /// <param name="samples">Input PCM samples.</param>
+    /// <param name="peakCount">
+    /// Number of output peak values (i.e. the number of bars in the rendered waveform).
+    /// Must be greater than zero.
+    /// </param>
+    /// <returns>
+    /// An array of <paramref name="peakCount"/> non-negative peak values,
+    /// or a clone of <paramref name="samples"/> when it is shorter than
+    /// <paramref name="peakCount"/>.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="samples"/> is null.</exception>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="peakCount"/> is not positive.</exception>
     public float[] CalculatePeakValues(float[] samples, int peakCount)
     {
         if (samples is null)
@@ -148,8 +193,15 @@ public class WaveformService
     }
 
     /// <summary>
-    /// Applies smoothing filter to reduce visual noise.
+    /// Applies a moving-average smoothing filter to reduce high-frequency visual noise.
     /// </summary>
+    /// <param name="samples">Input PCM samples to smooth.</param>
+    /// <param name="windowSize">
+    /// Number of samples in the averaging window. Must be ≥ 1.
+    /// Larger values produce a smoother but more latent result. Defaults to 3.
+    /// </param>
+    /// <returns>A new array of the same length with smoothed values.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="samples"/> is null.</exception>
     public float[] ApplySmoothingFilter(float[] samples, int windowSize = 3)
     {
         if (samples is null)
@@ -183,8 +235,19 @@ public class WaveformService
     }
 
     /// <summary>
-    /// Calculates RMS energy per frame segment.
+    /// Calculates the RMS (Root Mean Square) energy level for each of
+    /// <paramref name="frameCount"/> equally-sized segments of <paramref name="samples"/>.
+    /// RMS energy correlates with perceived loudness and is suitable for loudness meters.
     /// </summary>
+    /// <param name="samples">Input PCM samples in the [-1, 1] range.</param>
+    /// <param name="frameCount">
+    /// Number of segments to divide the samples into. Must be greater than zero.
+    /// </param>
+    /// <returns>
+    /// An array of <paramref name="frameCount"/> non-negative RMS values in the [0, 1] range.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="samples"/> is null.</exception>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="frameCount"/> is not positive.</exception>
     public float[] CalculateFrameEnergy(float[] samples, int frameCount)
     {
         if (samples is null)
@@ -215,8 +278,12 @@ public class WaveformService
     }
 
     /// <summary>
-    /// Detects zero crossings in audio signal (indicates frequency content).
+    /// Counts zero-crossings in <paramref name="samples"/>, i.e. positions where the signal
+    /// transitions from positive to negative or vice versa. The zero-crossing rate is a
+    /// simple proxy for the fundamental frequency content of the signal.
     /// </summary>
+    /// <param name="samples">Input PCM samples. Requires at least two elements for any crossings to be detected.</param>
+    /// <returns>Number of zero crossings found, or 0 when fewer than two samples are provided.</returns>
     public int CountZeroCrossings(float[] samples)
     {
         if (samples is null || samples.Length < 2)

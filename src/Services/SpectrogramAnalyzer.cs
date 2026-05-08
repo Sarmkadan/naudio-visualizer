@@ -15,7 +15,24 @@ namespace NAudioVisualizer.Services;
 
 /// <summary>
 /// Service for generating spectrogram visualization (time-frequency representation).
+/// Frames are queued in a thread-safe rolling buffer so that high-rate audio capture
+/// callbacks (e.g. 192 kHz interfaces) cannot starve or deadlock the render thread.
 /// </summary>
+/// <example>
+/// <code>
+/// var analyzer = new SpectrogramAnalyzer();
+/// analyzer.SetBufferSize(200);
+///
+/// // Called from the audio capture callback:
+/// var spectrum = spectrumAnalyzer.AnalyzeSpectrum(audioFrame);
+/// analyzer.AddSpectrumFrame(spectrum);
+///
+/// // Called from the render loop:
+/// SpectrogramData? specto = analyzer.GetCurrentSpectrogram();
+/// if (specto is not null)
+///     analyzer.ApplyLogScaling(specto);
+/// </code>
+/// </example>
 public class SpectrogramAnalyzer
 {
     private readonly SpectrumAnalyzer _spectrumAnalyzer;
@@ -35,8 +52,29 @@ public class SpectrogramAnalyzer
     }
 
     /// <summary>
-    /// Builds a spectrogram from multiple audio frames using a rolling analysis window.
+    /// Builds a spectrogram from an ordered collection of audio frames using a rolling
+    /// analysis window. Each frame is individually transformed with FFT and the results
+    /// are assembled into a 2-D time × frequency matrix.
     /// </summary>
+    /// <param name="frames">
+    /// Non-empty ordered array of audio frames. All frames should share the same
+    /// sample rate and channel layout.
+    /// </param>
+    /// <param name="fftSize">
+    /// FFT window size in samples (power of two). Defaults to
+    /// <see cref="AudioConstants.DEFAULT_FFT_SIZE"/> (2048).
+    /// Larger values increase frequency resolution but reduce time resolution.
+    /// </param>
+    /// <param name="hopSize">
+    /// Number of samples between consecutive FFT windows (overlap stride).
+    /// Defaults to 512. Smaller values increase time resolution at higher CPU cost.
+    /// </param>
+    /// <returns>
+    /// A <see cref="SpectrogramData"/> whose matrix has dimensions
+    /// [<c>frames.Length</c>][<c>fftSize / 2</c>].
+    /// </returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="frames"/> is null or empty.</exception>
+    /// <exception cref="VisualizationException">Thrown when FFT processing fails on any frame.</exception>
     public SpectrogramData BuildSpectrogram(
         AudioFrame[] frames,
         int fftSize = AudioConstants.DEFAULT_FFT_SIZE,
@@ -153,8 +191,12 @@ public class SpectrogramAnalyzer
     }
 
     /// <summary>
-    /// Sets the maximum number of frames to keep in the buffer.
+    /// Sets the maximum number of spectrum frames retained in the rolling buffer.
+    /// Frames beyond this limit are silently dropped (oldest first) to prevent
+    /// memory growth at high audio sample rates.
     /// </summary>
+    /// <param name="maxFrames">Maximum frame count. Must be greater than zero.</param>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="maxFrames"/> is not positive.</exception>
     public void SetBufferSize(int maxFrames)
     {
         if (maxFrames <= 0)
@@ -183,8 +225,12 @@ public class SpectrogramAnalyzer
     }
 
     /// <summary>
-    /// Applies logarithmic scaling to spectrogram magnitude values.
+    /// Applies logarithmic dB scaling to every magnitude value in the spectrogram matrix
+    /// using the formula <c>20 × log₁₀(|magnitude| / referenceValue)</c>.
+    /// Call this before rendering to map linear FFT magnitudes to perceptual loudness.
     /// </summary>
+    /// <param name="spectrogram">The spectrogram data to modify in place.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="spectrogram"/> is null.</exception>
     public void ApplyLogScaling(SpectrogramData spectrogram)
     {
         if (spectrogram is null)
@@ -194,8 +240,11 @@ public class SpectrogramAnalyzer
     }
 
     /// <summary>
-    /// Normalizes spectrogram to 0-1 range.
+    /// Normalizes all spectrogram magnitude values to the [0, 1] range.
+    /// After normalization the values can be mapped directly to a color palette.
     /// </summary>
+    /// <param name="spectrogram">The spectrogram data to normalize in place.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="spectrogram"/> is null.</exception>
     public void NormalizeSpectrogram(SpectrogramData spectrogram)
     {
         if (spectrogram is null)
@@ -205,8 +254,18 @@ public class SpectrogramAnalyzer
     }
 
     /// <summary>
-    /// Extracts a frequency slice across time.
+    /// Returns a time-series of the magnitude at a specific frequency across all frames.
     /// </summary>
+    /// <param name="spectrogram">The source spectrogram.</param>
+    /// <param name="frequencyHz">
+    /// Target frequency in Hz. Must be within [0, SampleRate / 2].
+    /// </param>
+    /// <returns>
+    /// Array of length <see cref="SpectrogramData.TimeFrames"/> containing the magnitude
+    /// at the nearest frequency bin for each time frame.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="spectrogram"/> is null.</exception>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="frequencyHz"/> maps to an out-of-range bin.</exception>
     public float[] GetFrequencySlice(SpectrogramData spectrogram, float frequencyHz)
     {
         if (spectrogram is null)
@@ -222,8 +281,19 @@ public class SpectrogramAnalyzer
     }
 
     /// <summary>
-    /// Extracts a time slice at a specific time point.
+    /// Returns the full frequency spectrum at a specific point in time.
     /// </summary>
+    /// <param name="spectrogram">The source spectrogram.</param>
+    /// <param name="timeSeconds">
+    /// Offset from the start of the spectrogram in seconds.
+    /// Must be in the range [0, TimeFrames × TimePerFrame).
+    /// </param>
+    /// <returns>
+    /// Array of length <see cref="SpectrogramData.FrequencyBins"/> containing the
+    /// magnitude at every frequency bin for the nearest time frame.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="spectrogram"/> is null.</exception>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="timeSeconds"/> maps to an out-of-range frame.</exception>
     public float[] GetTimeSlice(SpectrogramData spectrogram, double timeSeconds)
     {
         if (spectrogram is null)
@@ -238,8 +308,15 @@ public class SpectrogramAnalyzer
     }
 
     /// <summary>
-    /// Calculates spectral flux (change between consecutive frames).
+    /// Calculates spectral flux—the Euclidean distance between consecutive time frames—
+    /// which is commonly used as an onset strength signal for beat/transient detection.
     /// </summary>
+    /// <param name="spectrogram">The source spectrogram.</param>
+    /// <returns>
+    /// Array of length <see cref="SpectrogramData.TimeFrames"/> where index 0 is always 0
+    /// and subsequent values represent the per-frame magnitude change.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="spectrogram"/> is null.</exception>
     public float[] CalculateSpectralFlux(SpectrogramData spectrogram)
     {
         if (spectrogram is null)
@@ -272,8 +349,20 @@ public class SpectrogramAnalyzer
     }
 
     /// <summary>
-    /// Detects attack transients in the spectrogram using spectral flux.
+    /// Detects attack transients by finding local maxima in the spectral flux curve
+    /// that exceed a fraction of the peak flux.
     /// </summary>
+    /// <param name="spectrogram">The source spectrogram.</param>
+    /// <param name="threshold">
+    /// Fraction of the maximum spectral flux value used as the detection threshold.
+    /// Must be in (0, 1]. Defaults to 0.5 (50 % of peak flux).
+    /// Lower values are more sensitive; higher values require stronger onsets.
+    /// </param>
+    /// <returns>
+    /// List of time-frame indices at which transient onsets were detected.
+    /// An empty list is returned when no onsets exceed the threshold.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="spectrogram"/> is null.</exception>
     public List<int> DetectTransients(SpectrogramData spectrogram, float threshold = 0.5f)
     {
         if (spectrogram is null)
