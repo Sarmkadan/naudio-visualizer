@@ -71,7 +71,7 @@ public class ExportService
 
             return true;
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             _logger.Error($"Failed to export waveform: {ex.Message}");
             EventPublisher.PublishDataExportCompleted(filePath, format, 0, 0, success: false);
@@ -112,7 +112,7 @@ public class ExportService
 
             return true;
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             _logger.Error($"Failed to export spectrum: {ex.Message}");
             EventPublisher.PublishDataExportCompleted(filePath, format, 0, 0, success: false);
@@ -153,7 +153,7 @@ public class ExportService
 
             return true;
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             _logger.Error($"Failed to export spectrogram: {ex.Message}");
             EventPublisher.PublishDataExportCompleted(filePath, format, 0, 0, success: false);
@@ -194,7 +194,7 @@ public class ExportService
 
             return true;
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             _logger.Error($"Failed to export metadata: {ex.Message}");
             EventPublisher.PublishDataExportCompleted(filePath, format, 0, 0, success: false);

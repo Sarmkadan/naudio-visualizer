@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Xml;
 using System.Xml.Linq;
 using NAudioVisualizer.Domain.Models;
 
@@ -184,15 +185,14 @@ public class XmlFormatter : IOutputFormatter
 
             return waveform;
         }
-        catch (Exception ex)
+        catch (XmlException ex)
         {
             throw new FormatException("Failed to parse waveform XML.", ex);
         }
-    }
-
-    /// <summary>
-    /// Parses XML string back to a spectrum object.
-    /// </summary>
+        catch (FormatException ex)
+        {
+            throw new FormatException("Failed to parse waveform XML.", ex);
+        }
     public SpectrumData? ParseSpectrum(string xml)
     {
         try
@@ -206,9 +206,11 @@ public class XmlFormatter : IOutputFormatter
 
             return spectrum;
         }
-        catch (Exception ex)
+        catch (XmlException ex)
         {
             throw new FormatException("Failed to parse spectrum XML.", ex);
         }
-    }
-}
+        catch (FormatException ex)
+        {
+            throw new FormatException("Failed to parse spectrum XML.", ex);
+        }
