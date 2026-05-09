@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="naudio-visualizer.csproj" />
+  <Project Path="tests/naudio-visualizer.Tests/naudio-visualizer.Tests.csproj" />
 </Solution>
