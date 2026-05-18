@@ -1,47 +1,93 @@
 # Contributing to naudio-visualizer
 
-First off, thank you for considering contributing to naudio-visualizer! It's people like you that make naudio-visualizer such a great tool.
+Thank you for considering contributing to naudio-visualizer!
 
-## How to Contribute
+## Prerequisites
 
-### 1. Fork and Clone
-Fork the repository on GitHub and clone your fork locally:
+- [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+- Windows OS (the application targets `net10.0-windows` with WinForms)
+- Git
+
+## Building Locally
+
 ```bash
+# Clone the repository
 git clone https://github.com/your-username/naudio-visualizer.git
 cd naudio-visualizer
+
+# Restore dependencies
+dotnet restore
+
+# Build in Release mode
+dotnet build --configuration Release
+
+# Or use the Makefile
+make build
 ```
 
-### 2. Create a Branch
-Create a new branch for your feature or bug fix:
+## Running Tests
+
+```bash
+# Run all tests
+dotnet test --configuration Release --verbosity normal
+
+# Run with detailed output and save results
+dotnet test --configuration Release --verbosity normal --logger "trx;LogFileName=test-results.trx"
+
+# Run a specific test project
+dotnet test tests/naudio-visualizer.Tests/ --configuration Release
+```
+
+## Code Style
+
+The project uses an `.editorconfig` to enforce consistent formatting. Key conventions:
+
+- **Indentation**: 4 spaces for C# files
+- **Namespaces**: File-scoped namespace declarations
+- **Nullability**: Nullable reference types enabled (`#nullable enable`)
+- **Naming**:
+  - Types and public members: `PascalCase`
+  - Private fields: `_camelCase` with underscore prefix
+  - Interfaces: `IPascalCase`
+- **Documentation**: XML doc comments required for all public APIs
+- Braces on new lines (`Allman` style)
+- Warnings are treated as errors — keep the build clean
+
+## Workflow
+
+### 1. Fork and branch
+
 ```bash
 git checkout -b feature/your-feature-name
+# or
+git checkout -b fix/issue-description
 ```
 
-### 3. Development Requirements
-- **.NET 10.0 SDK**: Ensure you have the .NET 10.0 SDK installed on your system.
+### 2. Make your changes
 
-### 4. Code Style
-- Follow the existing code conventions in the project.
-- Provide XML documentation (XML docs) for public APIs and complex logic.
-- **IMPORTANT**: Keep all author headers intact. Do not remove them.
+- Write clean, focused commits with descriptive messages
+- Use conventional commit prefixes: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`
+- Add or update tests for any changed behaviour
+- Ensure all existing tests still pass
 
-### 5. Run Tests
-Before submitting a Pull Request, make sure all tests pass (if any).
-```bash
-dotnet test
-```
+### 3. Submit a Pull Request
 
-### 6. Submit a Pull Request
-Once your changes are ready:
-1. Push your branch to your fork.
-2. Open a Pull Request against the main repository.
-3. Provide a clear description of the changes and the problem they solve.
+1. Push your branch to your fork
+2. Open a PR against the `main` branch
+3. Fill in the PR template completely
+4. Link any related issues with `Closes #<issue-number>`
+
+PRs require passing CI checks before merging.
 
 ## Reporting Issues
-If you find a bug or have a feature request, please use GitHub Issues. Include as much detail as possible, such as:
-- Clear steps to reproduce the issue.
-- Expected behavior vs. actual behavior.
-- Operating system and environment details.
+
+Use [GitHub Issues](https://github.com/sarmkadan/naudio-visualizer/issues). Include:
+
+- Steps to reproduce
+- Expected vs. actual behaviour
+- OS version and .NET SDK version (`dotnet --version`)
+- Relevant log output or error messages
 
 ## License
-By contributing, you agree that your contributions will be licensed under its MIT License.
+
+By contributing, you agree that your contributions will be licensed under the [MIT License](LICENSE).
