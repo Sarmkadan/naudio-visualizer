@@ -44,9 +44,32 @@ public class AudioCaptureService : IDisposable
     /// <summary>
     /// Initializes audio capture on the specified device.
     /// </summary>
+    /// <param name="deviceIndex">Zero-based index of the audio input device.</param>
+    /// <param name="sampleRate">Desired sample rate in Hz (e.g. 44100, 48000).</param>
+    /// <param name="channelCount">Number of audio channels (1 = mono, 2 = stereo).</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Thrown when <paramref name="deviceIndex"/> is negative,
+    /// <paramref name="sampleRate"/> is not a supported value,
+    /// or <paramref name="channelCount"/> is outside the 1-2 range.
+    /// </exception>
+    /// <exception cref="AudioDeviceException">
+    /// Thrown when the target device cannot be initialized with the requested parameters.
+    /// </exception>
     public void Initialize(int deviceIndex, int sampleRate, int channelCount)
     {
         ThrowIfDisposed();
+
+        if (deviceIndex < 0)
+            throw new ArgumentOutOfRangeException(nameof(deviceIndex), deviceIndex,
+                "Device index must be non-negative.");
+
+        if (sampleRate <= 0)
+            throw new ArgumentOutOfRangeException(nameof(sampleRate), sampleRate,
+                "Sample rate must be a positive value.");
+
+        if (channelCount < 1 || channelCount > 2)
+            throw new ArgumentOutOfRangeException(nameof(channelCount), channelCount,
+                "Channel count must be 1 (mono) or 2 (stereo).");
 
         try
         {
