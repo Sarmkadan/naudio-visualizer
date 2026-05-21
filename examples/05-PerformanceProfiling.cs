@@ -71,9 +71,9 @@ public class PerformanceProfilingExample
         try
         {
             Console.WriteLine("Capturing 10 seconds of audio...\n");
-            await audioService.StartRecordingAsync();
-            await Task.Delay(TimeSpan.FromSeconds(10));
-            await audioService.StopRecordingAsync();
+            await audioService.StartRecordingAsync().ConfigureAwait(false);
+            await Task.Delay(TimeSpan.FromSeconds(10)).ConfigureAwait(false);
+            await audioService.StopRecordingAsync().ConfigureAwait(false);
 
             totalProcessingTime.Stop();
 
