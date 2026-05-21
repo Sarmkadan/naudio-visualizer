@@ -138,7 +138,7 @@ public class AudioProcessingWorker : IDisposable
             {
                 try
                 {
-                    await ExecuteTaskAsync(task, cancellationToken);
+                    await ExecuteTaskAsync(task, cancellationToken).ConfigureAwait(false);
                 }
                 catch (OperationCanceledException)
                 {
@@ -152,7 +152,7 @@ public class AudioProcessingWorker : IDisposable
             else
             {
                 // No tasks, sleep briefly to avoid busy waiting
-                await Task.Delay(10, cancellationToken);
+                await Task.Delay(10, cancellationToken).ConfigureAwait(false);
             }
         }
     }
@@ -166,7 +166,7 @@ public class AudioProcessingWorker : IDisposable
 
         try
         {
-            await task.ExecuteAsync(cancellationToken);
+            await task.ExecuteAsync(cancellationToken).ConfigureAwait(false);
             stopwatch.Stop();
 
             _logger.Debug($"Task '{task.Name}' completed in {stopwatch.ElapsedMilliseconds}ms");

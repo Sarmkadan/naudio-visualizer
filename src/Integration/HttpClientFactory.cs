@@ -138,10 +138,10 @@ public class HttpRequester
 
         try
         {
-            var response = await _client.GetAsync(url);
+            var response = await _client.GetAsync(url).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadAsStringAsync();
+            return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
         }
         catch (HttpRequestException ex)
         {
@@ -160,10 +160,10 @@ public class HttpRequester
         try
         {
             var content = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
-            var response = await _client.PostAsync(url, content);
+            var response = await _client.PostAsync(url, content).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadAsStringAsync();
+            return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
         }
         catch (HttpRequestException ex)
         {
@@ -182,10 +182,10 @@ public class HttpRequester
         try
         {
             var content = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
-            var response = await _client.PutAsync(url, content);
+            var response = await _client.PutAsync(url, content).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadAsStringAsync();
+            return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
         }
         catch (HttpRequestException ex)
         {
@@ -203,7 +203,7 @@ public class HttpRequester
 
         try
         {
-            var response = await _client.DeleteAsync(url);
+            var response = await _client.DeleteAsync(url).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
         }
         catch (HttpRequestException ex)
@@ -219,7 +219,7 @@ public class HttpRequester
     {
         try
         {
-            var response = await _client.GetAsync(url, HttpCompletionOption.ResponseHeadersOnly);
+            var response = await _client.GetAsync(url, HttpCompletionOption.ResponseHeadersOnly).ConfigureAwait(false);
             return response.IsSuccessStatusCode;
         }
         catch

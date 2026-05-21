@@ -47,7 +47,7 @@ public class SessionRecordingReplayExample
         audioService.FrameCaptured += async (sender, args) =>
         {
             frameCount++;
-            await sessionRepo.AddFrameAsync(sessionId, args.Frame);
+            await sessionRepo.AddFrameAsync(sessionId, args.Frame).ConfigureAwait(false);
 
             if (frameCount % 30 == 0)
             {
@@ -60,9 +60,9 @@ public class SessionRecordingReplayExample
             Console.WriteLine("Recording Phase: Capturing 10 seconds of audio...\n");
 
             audioService.Initialize(deviceIndex: 0);
-            await audioService.StartRecordingAsync();
-            await Task.Delay(TimeSpan.FromSeconds(10));
-            await audioService.StopRecordingAsync();
+            await audioService.StartRecordingAsync().ConfigureAwait(false);
+            await Task.Delay(TimeSpan.FromSeconds(10)).ConfigureAwait(false);
+            await audioService.StopRecordingAsync().ConfigureAwait(false);
 
             Console.WriteLine($"\nRecording completed: {frameCount} frames captured\n");
 

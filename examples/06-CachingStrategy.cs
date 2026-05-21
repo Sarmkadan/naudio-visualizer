@@ -96,9 +96,9 @@ public class CachingStrategyExample
             audioService.Initialize(deviceIndex: 0);
 
             Console.WriteLine("Capturing with caching (15 seconds)...\n");
-            await audioService.StartRecordingAsync();
-            await Task.Delay(TimeSpan.FromSeconds(15));
-            await audioService.StopRecordingAsync();
+            await audioService.StartRecordingAsync().ConfigureAwait(false);
+            await Task.Delay(TimeSpan.FromSeconds(15)).ConfigureAwait(false);
+            await audioService.StopRecordingAsync().ConfigureAwait(false);
 
             Console.WriteLine("\n=== Cache Statistics ===");
             var finalStats = cacheManager.GetStatistics();
