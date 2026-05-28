@@ -37,7 +37,7 @@ public class AudioBufferAndEventBusTests
         buffer.Write(new float[] { 0.5f, 0.6f, 0.7f });
 
         // Act
-        var result = buffer.Read(2);
+        var result = buffer.Read(2, out _);
 
         // Assert
         result.Should().HaveCount(2);
