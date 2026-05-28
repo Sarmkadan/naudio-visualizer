@@ -293,3 +293,5 @@ public class ConfigurationManager
             _logger.Error($"Failed to import settings: {ex.Message}");
             throw;
         }
+    }
+}

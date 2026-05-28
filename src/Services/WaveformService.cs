@@ -8,6 +8,7 @@ using System;
 using NAudioVisualizer.Constants;
 using NAudioVisualizer.Domain.Models;
 using NAudioVisualizer.Exceptions;
+using static NAudioVisualizer.Constants.VisualizationConstants;
 
 namespace NAudioVisualizer.Services;
 
@@ -40,7 +41,7 @@ public class WaveformService
     /// <exception cref="VisualizationException">
     /// Thrown when <paramref name="frame"/> fails validation or sample processing fails.
     /// </exception>
-    public WaveformData GenerateWaveform(AudioFrame frame, int downsamplingFactor = AudioConstants.DEFAULT_WAVEFORM_DOWNSAMPLING)
+    public WaveformData GenerateWaveform(AudioFrame frame, int downsamplingFactor = DEFAULT_WAVEFORM_DOWNSAMPLING)
     {
         if (frame is null)
             throw new ArgumentNullException(nameof(frame));

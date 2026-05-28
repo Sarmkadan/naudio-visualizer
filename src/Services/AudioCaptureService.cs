@@ -20,7 +20,7 @@ namespace NAudioVisualizer.Services;
 /// </summary>
 public class AudioCaptureService : IDisposable
 {
-    private IWaveInDevice? _waveInput;
+    private WaveInEvent? _waveInput;
     private WaveFileWriter? _waveFileWriter;
     private AudioBuffer? _audioBuffer;
     private CancellationTokenSource? _cancellationTokenSource;
@@ -28,6 +28,7 @@ public class AudioCaptureService : IDisposable
     private AudioMetadata? _currentMetadata;
     private readonly List<AudioDevice> _availableDevices = [];
     private bool _isDisposed;
+    private bool _isRecording;
 
     public event EventHandler<AudioFrameEventArgs>? FrameCaptured;
     public event EventHandler<AudioDeviceEventArgs>? DeviceStatusChanged;
@@ -116,7 +117,7 @@ public class AudioCaptureService : IDisposable
         if (_waveInput is null)
             throw new InvalidOperationException("Audio device not initialized. Call Initialize() first.");
 
-        if (_waveInput.RecordingState == RecordingState.Recording)
+        if (_isRecording)
             return;
 
         _cancellationTokenSource = new CancellationTokenSource();
@@ -124,6 +125,7 @@ public class AudioCaptureService : IDisposable
         try
         {
             _waveInput.StartRecording();
+            _isRecording = true;
 
             _captureTask = Task.Run(async () =>
             {
@@ -157,12 +159,13 @@ public class AudioCaptureService : IDisposable
     {
         ThrowIfDisposed();
 
-        if (_waveInput is null || _waveInput.RecordingState != RecordingState.Recording)
+        if (_waveInput is null || !_isRecording)
             return;
 
         try
         {
             _waveInput.StopRecording();
+            _isRecording = false;
             _cancellationTokenSource?.Cancel();
 
             if (_captureTask is not null)
@@ -229,8 +232,7 @@ public class AudioCaptureService : IDisposable
             var capabilities = WaveInEvent.GetCapabilities(i);
             var device = new AudioDevice(capabilities.ProductName, i, capabilities.Channels)
             {
-                IsDefault = i == 0,
-                Manufacturer = capabilities.ManufacturerName
+                IsDefault = i == 0
             };
 
             // Add common sample rates
