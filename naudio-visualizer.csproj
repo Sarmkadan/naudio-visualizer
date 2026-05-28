@@ -4,18 +4,18 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
-    <UseWPF>false</UseWPF>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <RepositoryUrl>https://github.com/sarmkadan/naudio-visualizer</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageId>Zaiets.naudio.visualizer</PackageId>
-    <Version>2.0.2</Version>
+    <Version>2.0.3</Version>
     <Description>Real-time audio visualization with NAudio and SkiaSharp - waveform, spectrum, spectrogram</Description>
-    <PackageTags>audio naudio visualization skia skiasharp waveform spectrum spectrogram</PackageTags>
+    <PackageTags>audio naudio visualization skiasharp waveform spectrum spectrogram windows</PackageTags>
     <PackageProjectUrl>https://github.com/sarmkadan/naudio-visualizer</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,9 +23,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="tests/**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="NAudio" Version="2.2.1" />
-    <PackageReference Include="SkiaSharp" Version="2.88.8" />
-    <PackageReference Include="SkiaSharp.Views.Desktop.WinForms" Version="2.88.8" />
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <PackageReference Include="SkiaSharp.Views.Desktop.Common" Version="2.88.9" />
   </ItemGroup>
 
 </Project>
