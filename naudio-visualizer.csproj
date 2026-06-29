@@ -5,16 +5,17 @@
     <TargetFramework>net10.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
-    <RepositoryUrl>https://github.com/sarmkadan/naudio-visualizer</RepositoryUrl>
+    <PackageId>naudio-visualizer</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Vladyslav Zaiets</Authors>
+    <Description>A library for real-time audio visualization using NAudio and SkiaSharp.</Description>
+    <PackageTags>audio, naudio, visualization, csharp, dotnet</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageId>Zaiets.naudio.visualizer</PackageId>
-    <Version>2.0.3</Version>
-    <Description>Real-time audio visualization with NAudio and SkiaSharp - waveform, spectrum, spectrogram</Description>
-    <PackageTags>audio naudio visualization skiasharp waveform spectrum spectrogram windows</PackageTags>
     <PackageProjectUrl>https://github.com/sarmkadan/naudio-visualizer</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/sarmkadan/naudio-visualizer</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
@@ -24,6 +25,7 @@
 
   <ItemGroup>
     <Compile Remove="tests/**" />
+    <Compile Remove="examples/**" />
   </ItemGroup>
 
   <ItemGroup>
