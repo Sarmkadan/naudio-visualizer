@@ -6,52 +6,29 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: naudio-visualizer
-    image: naudio-visualizer:1.2.0
-
-    # Windows containers require interactive mode for GUI applications
+    image: naudio-visualizer:1.0.0
     stdin_open: true
     tty: true
-
-    # Environment variables
     environment:
       - DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
       - LOG_LEVEL=Info
-
-    # Volume mounts for persistent data
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs
-
-    # Note: Windows Forms GUI applications require display passthrough configuration
-    # For Linux containers with X11 forwarding, use:
-    #   - DISPLAY=${DISPLAY}
-    #   - /tmp/.X11-unix:/tmp/.X11-unix
-    # For Windows containers, display passthrough depends on your Docker Desktop setup
-    # See documentation for audio device passthrough setup
-
-    # Health check
     healthcheck:
-      test: ["CMD", "powershell", "-Command", "Test-Path 'C:\\app\\naudio-visualizer.dll'"]
+      test: ["CMD", "test", "-f", "/app/naudio-visualizer.dll"]
       interval: 30s
       timeout: 3s
       retries: 3
       start_period: 30s
-
-    # Restart policy
     restart: unless-stopped
-
-    # Logging configuration
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
-
-    # Network configuration
     networks:
       - naudio-visualizer-network
-
-    # Resource limits
     deploy:
       resources:
         limits:
@@ -60,6 +37,10 @@ services:
         reservations:
           cpus: '1'
           memory: 1G
+
+networks:
+  naudio-visualizer-network:
+    driver: bridge
 
 # Optional: separate database service for session storage
 # Uncomment if you need persistent storage for application data
