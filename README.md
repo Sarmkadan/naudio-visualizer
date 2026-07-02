@@ -156,6 +156,32 @@ var waveform = service.GenerateWaveform(frame, downsamplingFactor: 4);
 float[] peaks = service.CalculatePeakValues(waveform.GetData(), peakCount: 512);
 ```
 
+## Performance Benchmarks
+
+This project includes performance benchmarks using [BenchmarkDotNet](https://benchmarkdotnet.org/) to measure the throughput and memory allocation of critical audio processing operations.
+
+### Running Benchmarks
+
+Benchmarks are located in the `tests/naudio-visualizer.Benchmarks` project.
+
+**Note:** As this project relies on Windows-specific libraries, benchmarks must be run on a Windows machine with the appropriate .NET SDK installed.
+
+To run the benchmarks:
+
+```bash
+cd tests/naudio-visualizer.Benchmarks
+dotnet run -c Release
+```
+
+The benchmarks will automatically detect the system and run the configured scenarios, generating detailed reports in `tests/naudio-visualizer.Benchmarks/BenchmarkDotNet.Artifacts/results`.
+
+### Benchmarked Operations
+
+- `GenerateWaveform`: Measures time to create waveform data from raw PCM samples.
+- `DownsampleSamples`: Measures efficiency of downsampling audio samples.
+- `CalculatePeakValues`: Measures speed of calculating peak amplitude in waveform segments.
+- `ApplySmoothingFilter`: Measures performance of moving-average smoothing.
+
 ## Tests
 
 ```bash
