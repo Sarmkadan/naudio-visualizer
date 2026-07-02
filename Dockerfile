@@ -48,11 +48,11 @@ ENV PATH="${DOTNET_ROOT};${PATH}"
 
 # Health check - verify application files exist
 HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 \
-CMD powershell -Command "Test-Path 'C:\\app\\NAudioVisualizer.dll'"
+CMD powershell -Command "Test-Path 'C:\\app\\naudio-visualizer.dll'"
 
 # Note: Windows Forms GUI applications in containers require interactive mode and display passthrough
 # For actual GUI display, use: docker run -it --rm naudio-visualizer:1.2.0
 # For headless testing/validation, the application can be tested via command line
 
 # Set entry point to run the application
-ENTRYPOINT ["dotnet", "NAudioVisualizer.dll"]
+ENTRYPOINT ["dotnet", "naudio-visualizer.dll"]
