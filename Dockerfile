@@ -22,7 +22,7 @@ RUN dotnet publish naudio-visualizer.csproj -c Release \
     /p:GenerateDocumentationFile=false
 
 # Runtime stage using Windows Server Core with desktop support
-FROM mcr.microsoft.com/dotnet/runtime:10.0-windowsservercore-ltsc2022
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-windowsservercore-ltsc2022
 
 # Install required system dependencies for Windows Forms GUI applications
 RUN powershell -Command \
@@ -40,6 +40,9 @@ WORKDIR /app
 
 # Copy published application from builder
 COPY --from=builder /app/publish .
+
+# Expose port 8080
+EXPOSE 8080
 
 # Set environment variables
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false

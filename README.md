@@ -245,6 +245,8 @@ environment:
   - LOG_LEVEL=Info
 ```
 
+The container exposes port 8080.
+
 ### Volumes
 
 The application uses volumes for persistent data:

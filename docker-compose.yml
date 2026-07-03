@@ -9,6 +9,8 @@ services:
     image: naudio-visualizer:1.0.0
     stdin_open: true
     tty: true
+    ports:
+      - "8080:8080"
     environment:
       - DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
       - LOG_LEVEL=Info
