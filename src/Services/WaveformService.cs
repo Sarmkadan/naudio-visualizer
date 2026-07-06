@@ -22,7 +22,7 @@ namespace NAudioVisualizer.Services;
 /// float[] peaks = service.CalculatePeakValues(waveform.GetData(), peakCount: 512);
 /// </code>
 /// </example>
-public class WaveformService
+public sealed class WaveformService
 {
     /// <summary>
     /// Generates waveform visualization from an audio frame.

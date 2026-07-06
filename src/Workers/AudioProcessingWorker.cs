@@ -16,7 +16,7 @@ namespace NAudioVisualizer.Workers;
 /// Background worker for processing audio frames and generating visualization data.
 /// Runs asynchronously on a dedicated thread to avoid blocking the UI.
 /// </summary>
-public class AudioProcessingWorker : IDisposable
+public sealed class AudioProcessingWorker : IDisposable
 {
     private readonly Logger _logger;
     private readonly Queue<ProcessingTask> _taskQueue;
@@ -194,7 +194,7 @@ public class AudioProcessingWorker : IDisposable
 /// <summary>
 /// Represents a processing task to be executed by the worker.
 /// </summary>
-public class ProcessingTask
+public sealed class ProcessingTask
 {
     public required string Name { get; init; }
     public required Func<CancellationToken, Task> ExecuteAsync { get; init; }
