@@ -13,7 +13,7 @@ namespace NAudioVisualizer.Infrastructure;
 /// <summary>
 /// Simple logging utility for application diagnostics and debugging.
 /// </summary>
-public class Logger : IDisposable
+public sealed class Logger : IDisposable
 {
     private readonly string _logFilePath;
     private readonly StreamWriter? _writer;
