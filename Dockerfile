@@ -24,10 +24,6 @@ RUN dotnet publish naudio-visualizer.csproj -c Release \
 # Runtime stage using Windows Server Core with desktop support
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-windowsservercore-ltsc2022
 
-# Install required system dependencies for Windows Forms GUI applications
-RUN powershell -Command \
-    Install-WindowsFeature Web-Server
-
 # Create application directory
 RUN mkdir C:\app\logs && \
     mkdir C:\app\data && \
