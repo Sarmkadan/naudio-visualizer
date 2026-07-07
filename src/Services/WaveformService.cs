@@ -51,12 +51,7 @@ public sealed class WaveformService
 
         try
         {
-            // Get samples and optionally downsample
-            var samples = frame.Samples;
-            if (downsamplingFactor > 1)
-            {
-                samples = DownsampleSamples(samples, downsamplingFactor);
-            }
+            var samples = ProcessSamples(frame.Samples, downsamplingFactor);
 
             var waveform = new WaveformData(
                 samples,
@@ -68,7 +63,6 @@ public sealed class WaveformService
                 SourceFrame = frame
             };
 
-            // Generate stereo channel data if stereo
             if (frame.ChannelCount == 2)
             {
                 waveform.CalculateStereoChannels();
@@ -84,6 +78,15 @@ public sealed class WaveformService
                 ex
             );
         }
+    }
+
+    private float[] ProcessSamples(float[] samples, int downsamplingFactor)
+    {
+        float[] processedSamples = downsamplingFactor > 1
+            ? DownsampleSamples(samples, downsamplingFactor)
+            : (float[])samples.Clone();
+
+        return processedSamples;
     }
 
     /// <summary>
@@ -110,24 +113,27 @@ public sealed class WaveformService
 
         for (int i = 0; i < downsampledLength; i++)
         {
-            // Average nearby samples for smoother downsampling
-            float sum = 0f;
-            int count = 0;
-
-            for (int j = 0; j < factor; j++)
-            {
-                int idx = i * factor + j;
-                if (idx < samples.Length)
-                {
-                    sum += samples[idx];
-                    count++;
-                }
-            }
-
-            downsampled[i] = count > 0 ? sum / count : 0f;
+            downsampled[i] = CalculateDownsampledValue(samples, factor, i);
         }
 
         return downsampled;
+    }
+
+    private float CalculateDownsampledValue(float[] samples, int factor, int outputIndex)
+    {
+        float sum = 0f;
+        int count = 0;
+
+        int startIdx = outputIndex * factor;
+        int endIdx = Math.Min(startIdx + factor, samples.Length);
+
+        for (int j = startIdx; j < endIdx; j++)
+        {
+            sum += samples[j];
+            count++;
+        }
+
+        return count > 0 ? sum / count : 0f;
     }
 
     /// <summary>
@@ -176,21 +182,28 @@ public sealed class WaveformService
 
         for (int i = 0; i < peakCount; i++)
         {
-            float maxPeak = 0f;
-            int startIdx = i * samplesPerPeak;
-            int endIdx = i == peakCount - 1 ? samples.Length : (i + 1) * samplesPerPeak;
-
-            for (int j = startIdx; j < endIdx; j++)
-            {
-                float absSample = Math.Abs(samples[j]);
-                if (absSample > maxPeak)
-                    maxPeak = absSample;
-            }
-
-            peaks[i] = maxPeak;
+            peaks[i] = CalculatePeakForSegment(samples, i, samplesPerPeak);
         }
 
         return peaks;
+    }
+
+    private float CalculatePeakForSegment(float[] samples, int segmentIndex, int samplesPerPeak)
+    {
+        float maxPeak = 0f;
+        int startIdx = segmentIndex * samplesPerPeak;
+        int endIdx = segmentIndex == samples.Length / samplesPerPeak - 1
+            ? samples.Length
+            : startIdx + samplesPerPeak;
+
+        for (int j = startIdx; j < endIdx; j++)
+        {
+            float absSample = Math.Abs(samples[j]);
+            if (absSample > maxPeak)
+                maxPeak = absSample;
+        }
+
+        return maxPeak;
     }
 
     /// <summary>
@@ -208,31 +221,34 @@ public sealed class WaveformService
         if (samples is null)
             throw new ArgumentNullException(nameof(samples));
 
-        if (windowSize < 1)
-            windowSize = 1;
-
+        windowSize = Math.Max(1, windowSize);
         var smoothed = new float[samples.Length];
-        int halfWindow = windowSize / 2;
 
         for (int i = 0; i < samples.Length; i++)
         {
-            float sum = 0f;
-            int count = 0;
-
-            for (int j = -halfWindow; j <= halfWindow; j++)
-            {
-                int idx = i + j;
-                if (idx >= 0 && idx < samples.Length)
-                {
-                    sum += samples[idx];
-                    count++;
-                }
-            }
-
-            smoothed[i] = sum / count;
+            smoothed[i] = CalculateSmoothedValue(samples, windowSize, i);
         }
 
         return smoothed;
+    }
+
+    private float CalculateSmoothedValue(float[] samples, int windowSize, int index)
+    {
+        float sum = 0f;
+        int count = 0;
+        int halfWindow = windowSize / 2;
+
+        for (int j = -halfWindow; j <= halfWindow; j++)
+        {
+            int idx = index + j;
+            if (idx >= 0 && idx < samples.Length)
+            {
+                sum += samples[idx];
+                count++;
+            }
+        }
+
+        return sum / count;
     }
 
     /// <summary>
@@ -262,20 +278,27 @@ public sealed class WaveformService
 
         for (int i = 0; i < frameCount; i++)
         {
-            double sumSquares = 0;
-            int startIdx = i * samplesPerFrame;
-            int endIdx = i == frameCount - 1 ? samples.Length : (i + 1) * samplesPerFrame;
-            int sampleCount = endIdx - startIdx;
-
-            for (int j = startIdx; j < endIdx; j++)
-            {
-                sumSquares += samples[j] * samples[j];
-            }
-
-            energyFrames[i] = (float)Math.Sqrt(sumSquares / sampleCount);
+            energyFrames[i] = CalculateEnergyForFrame(samples, i, samplesPerFrame);
         }
 
         return energyFrames;
+    }
+
+    private float CalculateEnergyForFrame(float[] samples, int frameIndex, int samplesPerFrame)
+    {
+        double sumSquares = 0;
+        int startIdx = frameIndex * samplesPerFrame;
+        int endIdx = frameIndex == samplesPerFrame - 1
+            ? samples.Length
+            : startIdx + samplesPerFrame;
+        int sampleCount = endIdx - startIdx;
+
+        for (int j = startIdx; j < endIdx; j++)
+        {
+            sumSquares += samples[j] * samples[j];
+        }
+
+        return (float)Math.Sqrt(sumSquares / sampleCount);
     }
 
     /// <summary>
@@ -294,7 +317,6 @@ public sealed class WaveformService
 
         for (int i = 1; i < samples.Length; i++)
         {
-            // Check if sign changed from previous to current sample
             if ((samples[i - 1] < 0 && samples[i] >= 0) ||
                 (samples[i - 1] >= 0 && samples[i] < 0))
             {

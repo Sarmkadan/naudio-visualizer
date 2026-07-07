@@ -30,6 +30,11 @@ public sealed class Logger : IDisposable
         _logFilePath = logFilePath ?? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", "app.log");
         _writeToConsole = writeToConsole;
 
+        InitializeLogFile();
+    }
+
+    private void InitializeLogFile()
+    {
         try
         {
             string? directory = Path.GetDirectoryName(_logFilePath);
@@ -52,42 +57,25 @@ public sealed class Logger : IDisposable
     /// <summary>
     /// Logs a debug message.
     /// </summary>
-    public void Debug(string message)
-    {
-        Log(LogLevel.Debug, message);
-    }
+    public void Debug(string message) => Log(LogLevel.Debug, message);
 
     /// <summary>
     /// Logs an information message.
     /// </summary>
-    public void Info(string message)
-    {
-        Log(LogLevel.Info, message);
-    }
+    public void Info(string message) => Log(LogLevel.Info, message);
 
     /// <summary>
     /// Logs a warning message.
     /// </summary>
-    public void Warn(string message)
-    {
-        Log(LogLevel.Warn, message);
-    }
+    public void Warn(string message) => Log(LogLevel.Warn, message);
 
     /// <summary>
     /// Logs an error message.
     /// </summary>
     public void Error(string message, Exception? exception = null)
     {
-        var sb = new StringBuilder(message);
-        if (exception is not null)
-        {
-            sb.AppendLine();
-            sb.Append("Exception: ").AppendLine(exception.GetType().Name);
-            sb.Append("Message: ").AppendLine(exception.Message);
-            sb.Append("StackTrace: ").AppendLine(exception.StackTrace);
-        }
-
-        Log(LogLevel.Error, sb.ToString());
+        var formattedMessage = FormatExceptionMessage(message, exception);
+        Log(LogLevel.Error, formattedMessage);
     }
 
     /// <summary>
@@ -95,16 +83,22 @@ public sealed class Logger : IDisposable
     /// </summary>
     public void Critical(string message, Exception? exception = null)
     {
-        var sb = new StringBuilder(message);
-        if (exception is not null)
-        {
-            sb.AppendLine();
-            sb.Append("Exception: ").AppendLine(exception.GetType().Name);
-            sb.Append("Message: ").AppendLine(exception.Message);
-            sb.Append("StackTrace: ").AppendLine(exception.StackTrace);
-        }
+        var formattedMessage = FormatExceptionMessage(message, exception);
+        Log(LogLevel.Critical, formattedMessage);
+    }
 
-        Log(LogLevel.Critical, sb.ToString());
+    private string FormatExceptionMessage(string message, Exception? exception)
+    {
+        if (exception is null)
+            return message;
+
+        var sb = new StringBuilder(message);
+        sb.AppendLine();
+        sb.Append("Exception: ").AppendLine(exception.GetType().Name);
+        sb.Append("Message: ").AppendLine(exception.Message);
+        sb.Append("StackTrace: ").AppendLine(exception.StackTrace);
+
+        return sb.ToString();
     }
 
     /// <summary>
@@ -117,15 +111,25 @@ public sealed class Logger : IDisposable
         if (level < MinimumLevel)
             return;
 
-        string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-        string logMessage = $"[{timestamp}] [{level}] {message}";
+        string logMessage = FormatLogMessage(level, message);
 
+        WriteLogMessage(logMessage);
+    }
+
+    private string FormatLogMessage(LogLevel level, string message)
+    {
+        string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+        return $"[{timestamp}] [{level}] {message}";
+    }
+
+    private void WriteLogMessage(string message)
+    {
         if (_writeToConsole)
         {
-            Console.WriteLine(logMessage);
+            Console.WriteLine(message);
         }
 
-        _writer?.WriteLine(logMessage);
+        _writer?.WriteLine(message);
     }
 
     private void ThrowIfDisposed()
