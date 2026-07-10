@@ -12,7 +12,7 @@ namespace NAudioVisualizer.Infrastructure;
 /// <summary>
 /// Utility class for converting and formatting audio data.
 /// </summary>
-public static class AudioDataConverter
+public class AudioDataConverter
 {
     /// <summary>
     /// Converts decibels to linear amplitude.
