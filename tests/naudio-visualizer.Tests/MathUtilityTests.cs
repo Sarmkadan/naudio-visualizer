@@ -8,10 +8,14 @@ using FluentAssertions;
 using NAudioVisualizer.Utilities;
 using Xunit;
 
-namespace NAudioVisualizer.Tests;
-
+/// <summary>
+/// Tests for the MathUtility class.
+/// </summary>
 public class MathUtilityTests
 {
+    /// <summary>
+    /// Tests the FrequencyToMidiNote method with a frequency of A4 (440 Hz).
+    /// </summary>
     [Fact]
     public void FrequencyToMidiNote_A4Frequency_Returns69()
     {
@@ -20,6 +24,10 @@ public class MathUtilityTests
         result.Should().Be(69);
     }
 
+    /// <summary>
+    /// Tests the FrequencyToMidiNote method with non-positive frequencies.
+    /// </summary>
+    /// <param name="frequency">The frequency to test.</param>
     [Theory]
     [InlineData(0f)]
     [InlineData(-100f)]
@@ -30,6 +38,9 @@ public class MathUtilityTests
         result.Should().Be(0);
     }
 
+    /// <summary>
+    /// Tests the AmplitudeToDb method with a zero amplitude.
+    /// </summary>
     [Fact]
     public void AmplitudeToDb_ZeroAmplitude_ReturnsNegativeInfinity()
     {
@@ -38,6 +49,9 @@ public class MathUtilityTests
         result.Should().Be(float.NegativeInfinity);
     }
 
+    /// <summary>
+    /// Tests the AmplitudeToDb method with a unit amplitude.
+    /// </summary>
     [Fact]
     public void AmplitudeToDb_UnitAmplitude_ReturnsZeroDb()
     {
@@ -46,6 +60,9 @@ public class MathUtilityTests
         result.Should().BeApproximately(0f, precision: 0.001f);
     }
 
+    /// <summary>
+    /// Tests the CalculateRms method with a uniform signal.
+    /// </summary>
     [Fact]
     public void CalculateRms_UniformSignal_ReturnsUnitValue()
     {
@@ -59,6 +76,9 @@ public class MathUtilityTests
         result.Should().BeApproximately(1f, precision: 0.001f);
     }
 
+    /// <summary>
+    /// Tests the CalculateRms method with an empty array.
+    /// </summary>
     [Fact]
     public void CalculateRms_EmptyArray_ReturnsZero()
     {
@@ -67,6 +87,9 @@ public class MathUtilityTests
         result.Should().Be(0f);
     }
 
+    /// <summary>
+    /// Tests the CalculatePeak method with a signal containing negative values.
+    /// </summary>
     [Fact]
     public void CalculatePeak_SignalWithNegativeValues_ReturnsAbsoluteMaximum()
     {
@@ -80,6 +103,11 @@ public class MathUtilityTests
         result.Should().BeApproximately(0.9f, precision: 0.001f);
     }
 
+    /// <summary>
+    /// Tests the NextPowerOf2 method with various inputs.
+    /// </summary>
+    /// <param name="input">The input value to test.</param>
+    /// <param name="expected">The expected result.</param>
     [Theory]
     [InlineData(1, 1)]
     [InlineData(2, 2)]
@@ -94,6 +122,11 @@ public class MathUtilityTests
         result.Should().Be(expected);
     }
 
+    /// <summary>
+    /// Tests the IsPowerOf2 method with various inputs.
+    /// </summary>
+    /// <param name="input">The input value to test.</param>
+    /// <param name="expected">The expected result.</param>
     [Theory]
     [InlineData(1, true)]
     [InlineData(2, true)]
@@ -109,6 +142,9 @@ public class MathUtilityTests
         result.Should().Be(expected);
     }
 
+    /// <summary>
+    /// Tests the Lerp method with a value beyond the upper bound.
+    /// </summary>
     [Fact]
     public void Lerp_TBeyondUpperBound_ClampsToEndValue()
     {
@@ -117,6 +153,9 @@ public class MathUtilityTests
         result.Should().Be(10f);
     }
 
+    /// <summary>
+    /// Tests the MapRange method with a midpoint value.
+    /// </summary>
     [Fact]
     public void MapRange_MidpointValue_ReturnsMidpointOfTargetRange()
     {
@@ -125,6 +164,9 @@ public class MathUtilityTests
         result.Should().BeApproximately(50f, precision: 0.001f);
     }
 
+    /// <summary>
+    /// Tests the MapRange method with equal source bounds.
+    /// </summary>
     [Fact]
     public void MapRange_EqualSourceBounds_ReturnsTargetMinimum()
     {
