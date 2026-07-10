@@ -1,23 +1,23 @@
 // src/README.md
 // ... rest of the file content ...
-## AudioDataConverter
-The `AudioDataConverter` class provides a set of static methods for converting and manipulating audio data. It offers functionality for converting between decibel and linear scales, formatting audio data, and performing operations such as RMS and peak level calculation, normalization, and gain application.
+## AudioStreamException
+The `AudioStreamException` is thrown when an error occurs while working with audio streams. It provides information about the error through its `ErrorCode` property. This exception can be used to handle different types of audio stream errors.
 
 ### Usage Example
 
 ```csharp
-// Initialize audio data
-float[] samples = new float[1024];
-// ... populate samples array ...
-
-// Calculate RMS level
-float rmsLevel = AudioDataConverter.CalculateRmsLevel(samples);
-
-// Normalize samples
-float[] normalizedSamples = AudioDataConverter.NormalizeSamples(samples);
-
-// Apply gain
-float[] gainedSamples = AudioDataConverter.ApplyGain(normalizedSamples, 2.0f);
+try
+{
+    // Attempt to read from an audio stream
+    using (var stream = new AudioStream())
+    {
+        // ... read from stream ...
+    }
+}
+catch (AudioStreamException ex)
+{
+    Console.WriteLine($"Audio stream error: {ex.ErrorCode}");
+}
 ```
 
 ## AudioDeviceException
