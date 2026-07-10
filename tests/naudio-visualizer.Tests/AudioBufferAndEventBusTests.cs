@@ -13,12 +13,24 @@ using Xunit;
 
 namespace NAudioVisualizer.Tests;
 
+/// <summary>
+/// Contains unit tests for the <see cref="AudioBuffer"/> class and <see cref="EventBus"/> class,
+/// covering audio sample buffering functionality and event bus subscription/publishing behavior.
+/// </summary>
 public class AudioBufferAndEventBusTests
 {
     // -------------------------------------------------------------------------
     // AudioBuffer
     // -------------------------------------------------------------------------
 
+    /// <summary>
+    /// Tests for the <see cref="AudioBuffer"/> class, verifying audio sample buffering behavior including
+    /// writing, reading, peeking, capacity management, clearing, and duration calculation.
+    /// </summary>
+
+    /// <summary>
+    /// Tests that writing audio samples to the buffer correctly increases the sample count.
+    /// </summary>
     [Fact]
     public void Write_SamplesWritten_CountIncreasesAccordingly()
     {
@@ -29,6 +41,9 @@ public class AudioBufferAndEventBusTests
         buffer.Count.Should().Be(3);
     }
 
+    /// <summary>
+    /// Tests that reading samples from the buffer correctly consumes them and decreases the count.
+    /// </summary>
     [Fact]
     public void Read_SamplesConsumed_CountDecreasesAndDataReturned()
     {
@@ -44,6 +59,9 @@ public class AudioBufferAndEventBusTests
         buffer.Count.Should().Be(1);
     }
 
+    /// <summary>
+    /// Tests that peeking at samples does not consume them, leaving the count unchanged.
+    /// </summary>
     [Fact]
     public void Peek_DoesNotConsumeSamples_CountRemainsUnchanged()
     {
@@ -55,6 +73,9 @@ public class AudioBufferAndEventBusTests
         buffer.Count.Should().Be(3);
     }
 
+    /// <summary>
+    /// Tests that when writing exceeds capacity, the oldest samples are overwritten.
+    /// </summary>
     [Fact]
     public void Write_ExceedsCapacity_OldestSamplesAreOverwritten()
     {
@@ -69,6 +90,9 @@ public class AudioBufferAndEventBusTests
         buffer.GetAll().Should().Contain(5f);
     }
 
+    /// <summary>
+    /// Tests that clearing the buffer after writing returns it to an empty state.
+    /// </summary>
     [Fact]
     public void Clear_AfterWriting_BufferReturnsEmpty()
     {
@@ -81,6 +105,9 @@ public class AudioBufferAndEventBusTests
         buffer.Count.Should().Be(0);
     }
 
+    /// <summary>
+    /// Tests that duration calculation returns the correct duration based on sample count and rate.
+    /// </summary>
     [Fact]
     public void GetDurationSeconds_KnownSampleCountAndRate_ReturnsCorrectDuration()
     {
@@ -92,6 +119,9 @@ public class AudioBufferAndEventBusTests
         duration.Should().BeApproximately(0.1, precision: 0.001);
     }
 
+    /// <summary>
+    /// Tests that reading with insufficient samples returns zero-padded results and reports correct actual samples read.
+    /// </summary>
     [Fact]
     public void Read_InsufficientSamples_ReturnsZeroPaddedAndCorrectActualSamplesRead()
     {
@@ -117,6 +147,13 @@ public class AudioBufferAndEventBusTests
     // CacheManager
     // -------------------------------------------------------------------------
 
+    /// <summary>
+    /// Tests for the <see cref="CacheManager"/> class, verifying cache storage and retrieval functionality.
+    /// </summary>
+
+    /// <summary>
+    /// Tests that setting a value and then retrieving it returns the stored value.
+    /// </summary>
     [Fact]
     public void Set_ThenTryGetValue_ReturnsStoredValue()
     {
@@ -129,6 +166,9 @@ public class AudioBufferAndEventBusTests
         value.Should().Be(44100);
     }
 
+    /// <summary>
+    /// Tests that removing an existing key returns true and the entry is removed.
+    /// </summary>
     [Fact]
     public void Remove_ExistingKey_ReturnsTrueAndEntryIsGone()
     {
@@ -141,6 +181,9 @@ public class AudioBufferAndEventBusTests
         cache.Contains("key").Should().BeFalse();
     }
 
+    /// <summary>
+    /// Tests that trying to get an expired entry returns false.
+    /// </summary>
     [Fact]
     public void TryGetValue_ExpiredEntry_ReturnsFalse()
     {
@@ -154,6 +197,9 @@ public class AudioBufferAndEventBusTests
         cache.TryGetValue("key", out _).Should().BeFalse();
     }
 
+    /// <summary>
+    /// Tests that getting statistics after adding entries reflects the current size.
+    /// </summary>
     [Fact]
     public void GetStatistics_AfterAddingEntries_ReflectsCurrentSize()
     {
@@ -176,6 +222,9 @@ public class AudioBufferAndEventBusTests
         void OnEvent(string payload);
     }
 
+    /// <summary>
+    /// Tests that publishing an event with a registered subscriber invokes the handler once.
+    /// </summary>
     [Fact]
     public void Publish_WithRegisteredSubscriber_HandlerIsInvokedOnce()
     {
@@ -191,6 +240,9 @@ public class AudioBufferAndEventBusTests
         mockHandler.Verify(h => h.OnEvent("spectrum-ready"), Times.Once);
     }
 
+    /// <summary>
+    /// Tests that publishing after unsubscribing all handlers never invokes any handler.
+    /// </summary>
     [Fact]
     public void Publish_AfterUnsubscribeAll_HandlerIsNeverInvoked()
     {
@@ -207,6 +259,9 @@ public class AudioBufferAndEventBusTests
         mockHandler.Verify(h => h.OnEvent(It.IsAny<string>()), Times.Never);
     }
 
+    /// <summary>
+    /// Tests that getting subscriber count after two subscriptions returns two.
+    /// </summary>
     [Fact]
     public void GetSubscriberCount_AfterTwoSubscribes_ReturnsTwo()
     {
@@ -218,6 +273,9 @@ public class AudioBufferAndEventBusTests
         bus.GetSubscriberCount<string>().Should().Be(2);
     }
 
+    /// <summary>
+    /// Tests that publishing with no subscribers registered does not throw an exception.
+    /// </summary>
     [Fact]
     public void Publish_NoSubscribersRegistered_DoesNotThrow()
     {
@@ -228,6 +286,9 @@ public class AudioBufferAndEventBusTests
         act.Should().NotThrow();
     }
 
+    /// <summary>
+    /// Tests that disposing a subscription token removes the subscription.
+    /// </summary>
     [Fact]
     public void Subscribe_DisposeToken_RemovesSubscription()
     {
