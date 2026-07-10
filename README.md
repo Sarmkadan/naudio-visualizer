@@ -156,6 +156,28 @@ var waveform = service.GenerateWaveform(frame, downsamplingFactor: 4);
 float[] peaks = service.CalculatePeakValues(waveform.GetData(), peakCount: 512);
 ```
 
+## Logger
+
+The `Logger` class provides simple yet effective logging capabilities for application diagnostics, debugging, and runtime monitoring. It supports multiple log levels (Debug, Info, Warn, Error, Critical) and can write logs to both console and a log file. The minimum log level can be configured via the `MinimumLevel` property to control verbosity.
+
+```csharp
+// Initialize logger with default settings (writes to console and app.log)
+var logger = new Logger();
+
+// Set minimum log level to Debug for verbose logging
+logger.MinimumLevel = LogLevel.Debug;
+
+// Log messages at different levels
+logger.Debug("Initializing audio capture service...");
+logger.Info("Audio capture started successfully");
+logger.Warn("High CPU usage detected in audio processing");
+logger.Error("Failed to read audio device", exception);
+logger.Critical("Application encountered unrecoverable error", exception);
+
+// Dispose when done to release file handles
+disposing (logger) { }
+```
+
 ## Performance Benchmarks
 
 This project includes performance benchmarks using [BenchmarkDotNet](https://benchmarkdotnet.org/) to measure the throughput and memory allocation of critical audio processing operations.
