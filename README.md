@@ -1,61 +1,25 @@
 // src/README.md
 // ... rest of the file content ...
-## AudioStreamException
-The `AudioStreamException` is thrown when an error occurs while working with audio streams. It provides information about the error through its `ErrorCode` property. This exception can be used to handle different types of audio stream errors.
+## AudioCaptureStartedEvent
+The `AudioCaptureStartedEvent` is published when audio capture begins. It provides detailed information about the capture process, including the device ID, sample rate, channel count, and start time.
 
 ### Usage Example
 
 ```csharp
-try
-{
-    // Attempt to read from an audio stream
-    using (var stream = new AudioStream())
-    {
-        // ... read from stream ...
-    }
-}
-catch (AudioStreamException ex)
-{
-    Console.WriteLine($"Audio stream error: {ex.ErrorCode}");
-}
-```
+using Events; // adjust namespace as needed
 
-## AudioDeviceException
-The `AudioDeviceException` is thrown when an audio device is not found or inaccessible. It includes an optional `DeviceIndex` property that identifies which specific audio device caused the error, enabling targeted error handling and recovery attempts.
+var eventPublisher = EventPublisher.Subscribe<AudioCaptureStartedEvent>(event =>
+{
+    Console.WriteLine($"Audio capture started on device {event.DeviceId} at {event.StartTime}");
+    Console.WriteLine($"Sample rate: {event.SampleRate} Hz, Channel count: {event.ChannelCount}");
+    Console.WriteLine($"Total samples captured: {event.TotalSamplesCaptured}, Duration: {event.Duration}");
+    Console.WriteLine($"Frame sequence number: {event.FrameSequenceNumber}, Elapsed time: {event.ElapsedTime}");
+    Console.WriteLine($"Waveform: {event.Waveform}");
+    Console.WriteLine($"Spectrum: {event.Spectrum}");
+    Console.WriteLine($"Spectrogram: {event.Spectrogram}");
+});
 
-```csharp
-try
-{
-    // Attempt to use audio device with index 2
-    using (var audioClient = new WasapiAudioClient(2))
-    {
-        // ... audio processing ...
-    }
-}
-catch (AudioDeviceException ex) when (ex.DeviceIndex.HasValue)
-{
-    Console.WriteLine($"Audio device {ex.DeviceIndex} is not available: {ex.Message}");
-    // Attempt fallback to default device
-}
-catch (AudioDeviceException ex)
-{
-    Console.WriteLine($"Audio device error: {ex.Message}");
-}
-```
-
-## VisualizationException
-The `VisualizationException` is thrown when an error occurs during the rendering or processing of a visualization. It carries an optional `VisualizationType` property that indicates which visualization component caused the failure, allowing callers to handle different visualizers separately.
-
-```csharp
-try
-{
-    // Simulate a failure in a specific visualization
-    throw new VisualizationException("Failed to render waveform");
-}
-catch (VisualizationException ex)
-{
-    Console.WriteLine($"Error in {ex.VisualizationType ?? "unknown"}: {ex.Message}");
-}
+EventPublisher.PublishAudioCaptureStarted();
 ```
 
 ## EventBus
@@ -105,4 +69,5 @@ audioStarted.Dispose();
 waveformGenerated.Dispose();
 
 EventPublisher.Reset();
+```
 ```
