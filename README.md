@@ -70,4 +70,31 @@ waveformGenerated.Dispose();
 
 EventPublisher.Reset();
 ```
+
+## GradientStop
+The `GradientStop` type represents a single stop in a color gradient used by visualizers. It exposes the stop's position, color, optional name, and background color, and is used by `VisualizerTheme` to build waveform and spectrogram palettes. A typical usage might look like this:
+
+```csharp
+using Domain.Models;
+
+// Create a gradient stop
+var stop = new GradientStop
+{
+    Position = 0.25f,
+    Color = 0xFFFF0000,          // Red
+    Name = "MidRed",
+    BackgroundColor = 0xFF000000 // Black
+};
+
+// Inspect the stop
+Console.WriteLine($"Stop {stop.Name} at {stop.Position} with color 0x{stop.Color:X8}");
+
+// Use it with a theme
+var theme = VisualizerTheme.Classic;
+foreach (var gs in theme.WaveformGradient)
+{
+    Console.WriteLine($"{gs.Name} at {gs.Position}");
+}
 ```
+
+This example demonstrates creating a `GradientStop`, accessing its properties, and iterating over a theme's waveform gradient.
