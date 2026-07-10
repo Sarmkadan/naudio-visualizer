@@ -104,3 +104,45 @@ foreach (var gs in theme.WaveformGradient)
 ```
 
 This example demonstrates creating a `GradientStop`, accessing its properties, and iterating over a theme's waveform gradient.
+
+
+## AudioMetadata
+
+The `AudioMetadata` type tracks real-time information about an audio stream being visualized, including session identification, timing metrics, audio characteristics, and processing statistics. It provides methods to update duration and level metrics, record buffer underruns, and validate metadata consistency.
+
+### Usage Example
+
+```csharp
+using Domain.Models;
+
+// Create audio metadata for a new session
+var metadata = new AudioMetadata
+{
+    SampleRate = 44100,
+    ChannelCount = 2,
+    BitDepth = 16,
+    AudioDevice = new AudioDevice { Name = "Primary Audio Device", Id = "dev-123" }
+};
+
+// Simulate audio processing
+metadata.IsCapturing = true;
+metadata.TotalSamplesCaptured = 44100; // 1 second at 44.1kHz
+metadata.UpdateDuration();
+
+// Update level metrics
+metadata.UpdateLevelMetrics(0.75f); // 75% volume
+metadata.UpdateLevelMetrics(0.82f); // Peak at 82%
+
+// Record performance issues
+metadata.RecordBufferUnderrun();
+metadata.RecordBufferUnderrun();
+
+// Access metrics
+Console.WriteLine($"Session: {metadata.SessionId}");
+Console.WriteLine($"Duration: {metadata.CurrentDurationSeconds:F2}s");
+Console.WriteLine($"Current Level: {metadata.CurrentLevel:F2}");
+Console.WriteLine($"Peak Level: {metadata.PeakLevel:F2}");
+Console.WriteLine($"Average Level: {metadata.AverageLevel:F2}");
+Console.WriteLine($"Buffer Underruns: {metadata.BufferUnderruns}");
+Console.WriteLine($"Dominant Frequency: {metadata.DominantFrequency}Hz");
+```
