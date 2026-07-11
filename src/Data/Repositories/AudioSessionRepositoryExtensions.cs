@@ -16,60 +16,60 @@ public static class AudioSessionRepositoryExtensions
     /// <summary>
     /// Gets the duration of a session in seconds.
     /// </summary>
+    /// <param name="repository">The audio session repository instance.</param>
+    /// <param name="sessionId">The unique identifier of the audio session.</param>
+    /// <returns>The duration of the session in seconds, or 0 if the session does not exist.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="repository"/> is <see langword="null"/></exception>
     public static double GetSessionDurationSeconds(this AudioSessionRepository repository, Guid sessionId)
     {
-        if (repository is null)
-            throw new ArgumentNullException(nameof(repository));
+        ArgumentNullException.ThrowIfNull(repository);
 
         var session = repository.GetSession(sessionId);
-        if (session is null)
-            return 0;
-
-        return session.GetDuration().TotalSeconds;
+        return session?.GetDuration().TotalSeconds ?? 0;
     }
 
     /// <summary>
     /// Gets the duration of a session in milliseconds.
     /// </summary>
+    /// <param name="repository">The audio session repository instance.</param>
+    /// <param name="sessionId">The unique identifier of the audio session.</param>
+    /// <returns>The duration of the session in milliseconds, or 0 if the session does not exist.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="repository"/> is <see langword="null"/></exception>
     public static long GetSessionDurationMilliseconds(this AudioSessionRepository repository, Guid sessionId)
     {
-        if (repository is null)
-            throw new ArgumentNullException(nameof(repository));
+        ArgumentNullException.ThrowIfNull(repository);
 
         var session = repository.GetSession(sessionId);
-        if (session is null)
-            return 0;
-
-        return (long)session.GetDuration().TotalMilliseconds;
+        return session is null ? 0L : (long)session.GetDuration().TotalMilliseconds;
     }
 
     /// <summary>
     /// Gets the average RMS energy across all frames in a session.
     /// </summary>
+    /// <param name="repository">The audio session repository instance.</param>
+    /// <param name="sessionId">The unique identifier of the audio session.</param>
+    /// <returns>The average RMS energy across all frames, or 0 if no frames exist.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="repository"/> is <see langword="null"/></exception>
     public static double GetAverageRmsEnergy(this AudioSessionRepository repository, Guid sessionId)
     {
-        if (repository is null)
-            throw new ArgumentNullException(nameof(repository));
+        ArgumentNullException.ThrowIfNull(repository);
 
         var frames = repository.GetSessionFrames(sessionId);
-        if (frames.Count == 0)
-            return 0;
-
-        return frames.Average(f => f.RmsEnergy);
+        return frames.Count == 0 ? 0 : frames.Average(f => f.RmsEnergy);
     }
 
     /// <summary>
     /// Gets the peak amplitude across all frames in a session.
     /// </summary>
+    /// <param name="repository">The audio session repository instance.</param>
+    /// <param name="sessionId">The unique identifier of the audio session.</param>
+    /// <returns>The peak amplitude across all frames, or 0 if no frames exist.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="repository"/> is <see langword="null"/></exception>
     public static double GetPeakAmplitude(this AudioSessionRepository repository, Guid sessionId)
     {
-        if (repository is null)
-            throw new ArgumentNullException(nameof(repository));
+        ArgumentNullException.ThrowIfNull(repository);
 
         var frames = repository.GetSessionFrames(sessionId);
-        if (frames.Count == 0)
-            return 0;
-
-        return frames.Max(f => f.PeakAmplitude);
+        return frames.Count == 0 ? 0 : frames.Max(f => f.PeakAmplitude);
     }
 }
