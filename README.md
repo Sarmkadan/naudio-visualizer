@@ -1,148 +1,67 @@
 // src/README.md
 // ... rest of the file content ...
-## MidiNoteEvent
-The `MidiNoteEvent` type represents a single MIDI note event, providing information about the note's channel, note number, velocity, and timestamp. It also includes methods to retrieve the note's name and frequency.
+## VisualizationSettings
+`VisualizationSettings` encapsulates the configuration for visualizing audio data. It includes settings for waveform, spectrum, and spectrogram rendering, as well as display options such as grid, labels, and anti-aliasing.
 
 ### Usage Example
 
 ```csharp
 using Domain.Models;
 
-// Create a new MidiNoteEvent
-var event = new MidiNoteEvent
+// Create a new VisualizationSettings instance
+var settings = new VisualizationSettings
 {
-    Channel = 0,
-    NoteNumber = 60,
-    Velocity = 100,
-    IsNoteOn = true,
-    Frequency = MidiNoteEvent.GetFrequency(60),
-    Timestamp = DateTime.Now,
-    DeviceIndex = 0
+    Theme = VisualizerTheme.Classic,
+    WaveformSettings = new WaveformRenderingSettings
+    {
+        LineColor = 0xFF0000FF, // Blue
+        LineThickness = 2f
+    },
+    SpectrumSettings = new SpectrumRenderingSettings
+    {
+        MaxFrequencyDisplay = 20000f
+    },
+    SpectrogramSettings = new SpectrogramRenderingSettings
+    {
+        DownsamplingFactor = 4
+    },
+    RenderingQuality = 2,
+    TargetFPS = 60,
+    EnableAntiAliasing = true,
+    BackgroundColor = 0xFF000000, // Black
+    ShowGrid = true,
+    ShowFrequencyLabels = true,
+    ShowTimeLabels = true,
+    TimeScale = 1f,
+    MaxFrequencyDisplay = 20000f,
+    IsValid = true,
+    LineColor = 0xFF0000FF, // Blue
+    LineThickness = 2f,
+    ShowStereoSeparate = true,
+    AmplitudeZoom = 1f,
+    DownsamplingFactor = 4
 };
 
-// Inspect the event
-Console.WriteLine($"Note: {event.NoteName}, Channel: {event.Channel}, Note Number: {event.NoteNumber}, Velocity: {event.Velocity}");
-Console.WriteLine($"Frequency: {event.Frequency}, Timestamp: {event.Timestamp}, Device Index: {event.DeviceIndex}");
-
-// Check if the event is valid
-Console.WriteLine($"Is valid: {event.IsValid}");
+// Inspect the settings
+Console.WriteLine($"Theme: {settings.Theme}");
+Console.WriteLine($"Waveform Settings: {settings.WaveformSettings}");
+Console.WriteLine($"Spectrum Settings: {settings.SpectrumSettings}");
+Console.WriteLine($"Spectrogram Settings: {settings.SpectrogramSettings}");
+Console.WriteLine($"Rendering Quality: {settings.RenderingQuality}");
+Console.WriteLine($"Target FPS: {settings.TargetFPS}");
+Console.WriteLine($"Enable Anti-Aliasing: {settings.EnableAntiAliasing}");
+Console.WriteLine($"Background Color: 0x{settings.BackgroundColor:X8}");
+Console.WriteLine($"Show Grid: {settings.ShowGrid}");
+Console.WriteLine($"Show Frequency Labels: {settings.ShowFrequencyLabels}");
+Console.WriteLine($"Show Time Labels: {settings.ShowTimeLabels}");
+Console.WriteLine($"Time Scale: {settings.TimeScale}");
+Console.WriteLine($"Max Frequency Display: {settings.MaxFrequencyDisplay}");
+Console.WriteLine($"Is Valid: {settings.IsValid}");
+Console.WriteLine($"Line Color: 0x{settings.LineColor:X8}");
+Console.WriteLine($"Line Thickness: {settings.LineThickness}");
+Console.WriteLine($"Show Stereo Separate: {settings.ShowStereoSeparate}");
+Console.WriteLine($"Amplitude Zoom: {settings.AmplitudeZoom}");
+Console.WriteLine($"Downsampling Factor: {settings.DownsamplingFactor}");
 ```
 
-## EventBus
-`EventBus` is a lightweight publish/subscribe system that allows components to communicate without tight coupling. It supports generic event types, keeps track of subscriber counts, and can clean up all subscriptions when needed.
-
-### Usage Example
-
-```csharp
-using Events; // adjust namespace as needed
-
-var bus = new EventBus();
-
-// Subscribe to a string event
-var subscription = bus.Subscribe<string>(msg => Console.WriteLine($"Received: {msg}"));
-
-// Publish an event
-bus.Publish("Hello, world!");
-
-// Check how many subscribers are listening to string events
-Console.WriteLine($"Subscribers: {bus.GetSubscriberCount<string>()}");
-
-// Unsubscribe all string listeners
-bus.UnsubscribeAll<string>();
-
-// Clear all remaining subscriptions
-bus.Clear();
-
-// Dispose the bus when done
-bus.Dispose();
-```
-
-## EventPublisher
-`EventPublisher` is a static helper that publishes a wide range of audio and visualization events to the global `EventBus`. It exposes strongly‑typed publish methods such as `PublishAudioCaptureStarted`, `PublishWaveformGenerated`, and `PublishVisualizationError`, along with a generic `Subscribe<T>` method for consuming those events. The `Reset` method clears all internal state and subscriptions, allowing a clean slate for new event streams.
-
-### Usage Example
-
-```csharp
-using Events;
-
-var audioStarted = EventPublisher.Subscribe<string>(msg => Console.WriteLine($"Audio started: {msg}"));
-var waveformGenerated = EventPublisher.Subscribe<string>(msg => Console.WriteLine($"Waveform: {msg}"));
-
-EventPublisher.PublishAudioCaptureStarted();
-EventPublisher.PublishWaveformGenerated();
-
-audioStarted.Dispose();
-waveformGenerated.Dispose();
-
-EventPublisher.Reset();
-```
-
-## GradientStop
-The `GradientStop` type represents a single stop in a color gradient used by visualizers. It exposes the stop's position, color, optional name, and background color, and is used by `VisualizerTheme` to build waveform and spectrogram palettes. A typical usage might look like this:
-
-```csharp
-using Domain.Models;
-
-// Create a gradient stop
-var stop = new GradientStop
-{
-    Position = 0.25f,
-    Color = 0xFFFF0000,          // Red
-    Name = "MidRed",
-    BackgroundColor = 0xFF000000 // Black
-};
-
-// Inspect the stop
-Console.WriteLine($"Stop {stop.Name} at {stop.Position} with color 0x{stop.Color:X8}");
-
-// Use it with a theme
-var theme = VisualizerTheme.Classic;
-foreach (var gs in theme.WaveformGradient)
-{
-    Console.WriteLine($"{gs.Name} at {gs.Position}");
-}
-```
-
-This example demonstrates creating a `GradientStop`, accessing its properties, and iterating over a theme's waveform gradient.
-
-
-## AudioMetadata
-
-The `AudioMetadata` type tracks real-time information about an audio stream being visualized, including session identification, timing metrics, audio characteristics, and processing statistics. It provides methods to update duration and level metrics, record buffer underruns, and validate metadata consistency.
-
-### Usage Example
-
-```csharp
-using Domain.Models;
-
-// Create audio metadata for a new session
-var metadata = new AudioMetadata
-{
-    SampleRate = 44100,
-    ChannelCount = 2,
-    BitDepth = 16,
-    AudioDevice = new AudioDevice { Name = "Primary Audio Device", Id = "dev-123" }
-};
-
-// Simulate audio processing
-metadata.IsCapturing = true;
-metadata.TotalSamplesCaptured = 44100; // 1 second at 44.1kHz
-metadata.UpdateDuration();
-
-// Update level metrics
-metadata.UpdateLevelMetrics(0.75f); // 75% volume
-metadata.UpdateLevelMetrics(0.82f); // Peak at 82%
-
-// Record performance issues
-metadata.RecordBufferUnderrun();
-metadata.RecordBufferUnderrun();
-
-// Access metrics
-Console.WriteLine($"Session: {metadata.SessionId}");
-Console.WriteLine($"Duration: {metadata.CurrentDurationSeconds:F2}s");
-Console.WriteLine($"Current Level: {metadata.CurrentLevel:F2}");
-Console.WriteLine($"Peak Level: {metadata.PeakLevel:F2}");
-Console.WriteLine($"Average Level: {metadata.AverageLevel:F2}");
-Console.WriteLine($"Buffer Underruns: {metadata.BufferUnderruns}");
-Console.WriteLine($"Dominant Frequency: {metadata.DominantFrequency}Hz");
 ```
