@@ -4,16 +4,26 @@ using System.Linq;
 
 namespace NAudioVisualizer.Domain.Models
 {
+    /// <summary>
+    /// Provides validation methods for <see cref="AudioDevice"/> instances.
+    /// </summary>
     public static class AudioDeviceValidation
     {
+        /// <summary>
+        /// Validates an <see cref="AudioDevice"/> instance and returns a list of validation errors.
+        /// </summary>
+        /// <param name="value">The audio device to validate.</param>
+        /// <returns>An <see cref="IReadOnlyList{T}"/> of validation error messages. Empty if valid.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
         public static IReadOnlyList<string> Validate(this AudioDevice value)
         {
+            ArgumentNullException.ThrowIfNull(value);
+
             var errors = new List<string>();
 
-            if (value == null)
+            if (value.Id == Guid.Empty)
             {
-                errors.Add("AudioDevice cannot be null");
-                return errors.AsReadOnly();
+                errors.Add("Id must be a non-empty GUID");
             }
 
             if (string.IsNullOrWhiteSpace(value.Name))
@@ -78,13 +88,27 @@ namespace NAudioVisualizer.Domain.Models
             return errors.AsReadOnly();
         }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="AudioDevice"/> is valid.
+        /// </summary>
+        /// <param name="value">The audio device to check.</param>
+        /// <returns><see langword="true"/> if the audio device is valid; otherwise, <see langword="false"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
         public static bool IsValid(this AudioDevice value)
         {
+            ArgumentNullException.ThrowIfNull(value);
             return Validate(value).Count == 0;
         }
 
+        /// <summary>
+        /// Validates the specified <see cref="AudioDevice"/> and throws an exception if invalid.
+        /// </summary>
+        /// <param name="value">The audio device to validate.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException">The audio device is invalid.</exception>
         public static void EnsureValid(this AudioDevice value)
         {
+            ArgumentNullException.ThrowIfNull(value);
             var errors = Validate(value);
             if (errors.Count > 0)
             {
