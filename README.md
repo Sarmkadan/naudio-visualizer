@@ -49,5 +49,47 @@ Console.WriteLine($"Colormap Type: {spectrogramData.ColormapType}");
 Console.WriteLine($"Is Valid: {spectrogramData.IsValid()}");
 ```
 
-// ... existing content ...
+## AudioBuffer
+
+`AudioBuffer` is a circular buffer that stores interleaved audio samples for real‑time processing. It supports writing, reading, peeking, and querying buffer state, making it suitable for audio streaming and analysis.
+
+### Usage Example
+
+```csharp
+using Domain.Models;
+
+// Create an AudioBuffer with capacity 1024 samples, sample rate 44100 Hz, 2 channels
+var buffer = new AudioBuffer(1024, 44100, 2);
+
+// Write some samples (e.g., 256 stereo samples)
+float[] samplesToWrite = new float[256 * 2]; // interleaved left/right
+buffer.Write(samplesToWrite);
+
+// Peek at the next 128 samples without removing them
+float[] peeked = buffer.Peek(128 * 2);
+
+// Read 128 samples, removing them from the buffer
+float[] readSamples = buffer.Read(128 * 2);
+
+// Get all remaining samples
+float[] allSamples = buffer.GetAll();
+
+// Check buffer state
+bool isFull = buffer.IsFull;
+bool isEmpty = buffer.IsEmpty;
+int available = buffer.AvailableSpace;
+
+// Get statistics
+AudioBufferStats stats = buffer.GetStats();
+
+// Inspect properties
+int count = buffer.CurrentCount;
+int capacity = buffer.Capacity;
+float fillPct = buffer.FillPercentage;
+double durationSec = buffer.DurationSeconds;
+
+// Clear the buffer
+buffer.Clear();
 ```
+
+// ... existing content ...
