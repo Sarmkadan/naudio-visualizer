@@ -21,12 +21,10 @@ public static class AudioCaptureStartedEventExtensions
     /// </summary>
     /// <param name="event">The audio capture started event.</param>
     /// <returns>A formatted string describing the capture session.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="event"/> is <see langword="null"/></exception>
     public static string GetSessionDescription(this AudioCaptureStartedEvent @event)
     {
-        if (@event is null)
-        {
-            return "Audio capture session: null";
-        }
+        ArgumentNullException.ThrowIfNull(@event);
 
         return $"Audio Capture Started [Device: {@event.DeviceId}, Sample Rate: {@event.SampleRate}Hz, Channels: {@event.ChannelCount}] at {@event.StartTime:yyyy-MM-dd HH:mm:ss}";
     }
@@ -36,14 +34,14 @@ public static class AudioCaptureStartedEventExtensions
     /// the capture parameters.
     /// </summary>
     /// <param name="event">The audio capture started event.</param>
-    /// <param name="seconds">Number of seconds to estimate for.</param>
+    /// <param name="seconds">Number of seconds to estimate for. Must be non-negative.</param>
     /// <returns>Estimated memory usage in bytes (16-bit samples).</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="event"/> is <see langword="null"/></exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="seconds"/> is negative.</exception>
     public static long EstimateMemoryUsage(this AudioCaptureStartedEvent @event, int seconds)
     {
-        if (@event is null)
-        {
-            return 0L;
-        }
+        ArgumentNullException.ThrowIfNull(@event);
+        ArgumentOutOfRangeException.ThrowIfNegative(seconds);
 
         // 16-bit samples, 2 bytes per sample
         const int bytesPerSample = 2;
@@ -60,12 +58,10 @@ public static class AudioCaptureStartedEventExtensions
     /// <param name="targetSampleRate">The target sample rate to match.</param>
     /// <param name="targetChannelCount">The target channel count to match.</param>
     /// <returns>True if the settings match; otherwise, false.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="event"/> is <see langword="null"/></exception>
     public static bool MatchesConfiguration(this AudioCaptureStartedEvent @event, int targetSampleRate, int targetChannelCount)
     {
-        if (@event is null)
-        {
-            return false;
-        }
+        ArgumentNullException.ThrowIfNull(@event);
 
         return @event.SampleRate == targetSampleRate && @event.ChannelCount == targetChannelCount;
     }
@@ -75,13 +71,11 @@ public static class AudioCaptureStartedEventExtensions
     /// </summary>
     /// <param name="event">The audio capture started event.</param>
     /// <returns>A formatted device label.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="event"/> is <see langword="null"/></exception>
     public static string GetDeviceLabel(this AudioCaptureStartedEvent @event)
     {
-        if (@event is null)
-        {
-            return "Unknown Device";
-        }
+        ArgumentNullException.ThrowIfNull(@event);
 
-        return $"Device {(@event.DeviceId)} - {(@event.SampleRate)}Hz/{@event.ChannelCount}ch";
+        return $"Device {@event.DeviceId} - {@event.SampleRate}Hz/{@event.ChannelCount}ch";
     }
 }
