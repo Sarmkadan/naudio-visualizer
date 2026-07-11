@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace NAudioVisualizer.Services;
 
@@ -20,15 +19,14 @@ public static class SpectrogramAnalyzerValidation
     /// An empty list if the analyzer is valid; otherwise, a list of human-readable
     /// problem descriptions.
     /// </returns>
-    public static IReadOnlyList<string> Validate(this SpectrogramAnalyzer value)
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="value"/> is <see langword="null"/>.
+    /// </exception>
+    public static IReadOnlyList<string> Validate(this SpectrogramAnalyzer? value)
     {
-        var problems = new List<string>();
+        ArgumentNullException.ThrowIfNull(value);
 
-        if (value is null)
-        {
-            problems.Add("SpectrogramAnalyzer instance is null");
-            return problems;
-        }
+        var problems = new List<string>();
 
         // Validate internal state via public API
         try
@@ -54,25 +52,22 @@ public static class SpectrogramAnalyzerValidation
     /// <returns>
     /// <see langword="true"/> if the analyzer is valid; otherwise, <see langword="false"/>.
     /// </returns>
-    public static bool IsValid(this SpectrogramAnalyzer value)
-    {
-        return value.Validate().Count == 0;
-    }
+    public static bool IsValid(this SpectrogramAnalyzer? value) => value?.Validate().Count == 0;
 
     /// <summary>
     /// Ensures that the specified <see cref="SpectrogramAnalyzer"/> instance is valid.
     /// </summary>
     /// <param name="value">The analyzer instance to validate.</param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="value"/> is <see langword="null"/>.
+    /// </exception>
     /// <exception cref="ArgumentException">
-    /// Thrown when the analyzer instance is null or contains validation problems.
+    /// Thrown when the analyzer instance contains validation problems.
     /// The exception message lists all detected problems.
     /// </exception>
-    public static void EnsureValid(this SpectrogramAnalyzer value)
+    public static void EnsureValid(this SpectrogramAnalyzer? value)
     {
-        if (value is null)
-        {
-            throw new ArgumentException("SpectrogramAnalyzer instance cannot be null", nameof(value));
-        }
+        ArgumentNullException.ThrowIfNull(value);
 
         var problems = value.Validate();
 
