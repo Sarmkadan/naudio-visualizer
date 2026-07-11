@@ -5,14 +5,19 @@
 // =====================================================================
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace NAudioVisualizer.Exceptions;
 
 /// <summary>
-/// Extension methods for <see cref="AudioStreamException"/> that provide additional functionality
-/// for error handling and diagnostics.
+/// Provides extension methods for <see cref="AudioStreamException"/> to enhance error handling,
+/// diagnostics, and recovery strategies for audio streaming scenarios.
 /// </summary>
+/// <remarks>
+/// All methods validate arguments and throw appropriate exceptions for null or invalid inputs.
+/// </remarks>
+[SuppressMessage("Microsoft.Naming", "CA1711:IdentifiersShouldNotHaveIncorrectSuffix", Justification = "Extension class naming convention")]
 public static class AudioStreamExceptionExtensions
 {
     /// <summary>
