@@ -1,5 +1,51 @@
 // src/README.md
-// ... rest of the file content ...
+
+## VisualizationData
+
+`VisualizationData` is the base class for all audio visualization types (waveform, spectrum, and spectrogram). It provides core properties and methods for storing, normalizing, and validating audio visualization data, including metadata like timestamps, source audio frames, and value ranges.
+
+### Usage Example
+
+```csharp
+using Domain.Models;
+using System;
+
+// Create a concrete visualization data instance (e.g., WaveformData)
+var waveformData = new WaveformData
+{
+    VisualizationType = VisualizationType.Waveform,
+    DataPointCount = 1024,
+    MinValue = -1.0f,
+    MaxValue = 1.0f,
+    IsNormalized = false,
+    SourceFrame = new AudioFrame { SampleRate = 44100, Channels = 2 }
+};
+
+// Generate some sample data
+var rawData = new float[1024];
+var random = new Random();
+for (int i = 0; i < rawData.Length; i++)
+{
+    rawData[i] = (float)(random.NextDouble() * 2 - 1); // -1 to 1 range
+}
+
+// Set the data through the abstract GetData method
+var dataArray = waveformData.GetData();
+Array.Copy(rawData, dataArray, rawData.Length);
+
+// Normalize the data
+waveformData.Normalize();
+
+Console.WriteLine($"Visualization ID: {waveformData.Id}");
+Console.WriteLine($"Type: {waveformData.VisualizationType}");
+Console.WriteLine($"Generated At: {waveformData.GeneratedAt}");
+Console.WriteLine($"Data Points: {waveformData.DataPointCount}");
+Console.WriteLine($"Min Value: {waveformData.MinValue}");
+Console.WriteLine($"Max Value: {waveformData.MaxValue}");
+Console.WriteLine($"Is Normalized: {waveformData.IsNormalized}");
+Console.WriteLine($"Is Valid: {waveformData.IsValid()}");
+```
+
 ## VisualizationSettings
 `VisualizationSettings` encapsulates the configuration for visualizing audio data. It includes settings for waveform, spectrum, and spectrogram rendering, as well as display options such as grid, labels, and anti-aliasing.
 
