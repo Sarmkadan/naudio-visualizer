@@ -108,4 +108,43 @@ Console.WriteLine($"Show Stereo Separate: {settings.ShowStereoSeparate}");
 Console.WriteLine($"Amplitude Zoom: {settings.AmplitudeZoom}");
 Console.WriteLine($"Downsampling Factor: {settings.SpectrogramSettings.DownsamplingFactor}");
 ```
+
+## AudioFrame
+
+`AudioFrame` represents a single frame of audio data, including its timestamp, sample rate, and channel count. It also provides access to the raw audio samples and various calculated metrics such as peak amplitude and RMS energy.
+
+### Usage Example
+
+```csharp
+using Domain.Models;
+
+// Create a new AudioFrame instance
+var frame = new AudioFrame
+{
+    SampleRate = 44100,
+    Channels = 2,
+    Timestamp = DateTime.Now,
+    FrameIndex = 0,
+    DurationSeconds = 0.1f,
+    PeakAmplitude = 0.5f,
+    RmsEnergy = 0.2f
+};
+
+// Access the raw audio samples
+var samples = frame.Samples;
+
+// Calculate the duration of the frame in seconds
+var duration = frame.DurationSeconds;
+
+// Check if the frame is valid
+var isValid = frame.IsValid;
+
+Console.WriteLine($"Sample Rate: {frame.SampleRate}");
+Console.WriteLine($"Channels: {frame.Channels}");
+Console.WriteLine($"Timestamp: {frame.Timestamp}");
+Console.WriteLine($"Frame Index: {frame.FrameIndex}");
+Console.WriteLine($"Duration (s): {frame.DurationSeconds}");
+Console.WriteLine($"Peak Amplitude: {frame.PeakAmplitude}");
+Console.WriteLine($"RMS Energy: {frame.RmsEnergy}");
+Console.WriteLine($"Is Valid: {frame.IsValid}");
 ```
