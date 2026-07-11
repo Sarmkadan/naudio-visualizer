@@ -16,16 +16,19 @@ namespace NAudioVisualizer.Utilities;
 public static class PathUtilityValidation
 {
     /// <summary>
-    /// Validates a path normalization operation.
+    /// Validates that a path normalization operation handles edge cases correctly.
     /// </summary>
     /// <param name="path">Path to validate</param>
     /// <returns>List of validation problems (empty if valid)</returns>
-    public static IReadOnlyList<string> ValidateNormalizePath(string path)
+    /// <exception cref="ArgumentNullException">Thrown if path is null.</exception>
+    public static IReadOnlyList<string> ValidateNormalizePath(string? path)
     {
+        ArgumentNullException.ThrowIfNull(path);
+
         var problems = new List<string>();
 
-        // Null handling
-        if (PathUtility.NormalizePath(null) != null)
+        // Null handling - test with null literal
+        if (PathUtility.NormalizePath(null!) != null)
             problems.Add("NormalizePath(null) should return null");
 
         // Empty string handling
@@ -41,16 +44,19 @@ public static class PathUtilityValidation
     }
 
     /// <summary>
-    /// Validates path combination.
+    /// Validates path combination operations.
     /// </summary>
     /// <param name="segments">Path segments to validate</param>
     /// <returns>List of validation problems (empty if valid)</returns>
-    public static IReadOnlyList<string> ValidateCombine(string[] segments)
+    /// <exception cref="ArgumentNullException">Thrown if segments is null.</exception>
+    public static IReadOnlyList<string> ValidateCombine(IEnumerable<string> segments)
     {
+        ArgumentNullException.ThrowIfNull(segments);
+
         var problems = new List<string>();
 
-        // Null array
-        if (PathUtility.Combine(null) != string.Empty)
+        // Null array - test with null literal
+        if (PathUtility.Combine(null!) != string.Empty)
             problems.Add("Combine(null) should return string.Empty");
 
         // Empty array
@@ -70,18 +76,20 @@ public static class PathUtilityValidation
     /// </summary>
     /// <param name="relativePath">Relative path to validate</param>
     /// <returns>List of validation problems (empty if valid)</returns>
+    /// <exception cref="ArgumentNullException">Thrown if relativePath is null.</exception>
     public static IReadOnlyList<string> ValidateGetAbsolutePath(string relativePath)
     {
+        ArgumentNullException.ThrowIfNull(relativePath);
+
         var problems = new List<string>();
 
-        // Null handling
+        // Null handling - test with null literal
         try
         {
-            PathUtility.GetAbsolutePath(null);
-            problems.Add("GetAbsolutePath(null) should throw ArgumentNullException");
+            PathUtility.GetAbsolutePath(null!);
+            problems.Add("GetAbsolutePath(null) should throw exception");
         }
-        catch (ArgumentNullException) { }
-        catch { problems.Add("GetAbsolutePath(null) should throw exception"); }
+        catch { }
 
         // Empty string
         try
@@ -107,27 +115,29 @@ public static class PathUtilityValidation
     /// <param name="fromPath">Source path</param>
     /// <param name="toPath">Target path</param>
     /// <returns>List of validation problems (empty if valid)</returns>
+    /// <exception cref="ArgumentNullException">Thrown if fromPath or toPath is null.</exception>
     public static IReadOnlyList<string> ValidateGetRelativePath(string fromPath, string toPath)
     {
+        ArgumentNullException.ThrowIfNull(fromPath);
+        ArgumentNullException.ThrowIfNull(toPath);
+
         var problems = new List<string>();
 
-        // Null fromPath
+        // Null fromPath - test with null literal
         try
         {
-            PathUtility.GetRelativePath(null, "target");
-            problems.Add("GetRelativePath(null, target) should throw ArgumentException");
+            PathUtility.GetRelativePath(null!, "target");
+            problems.Add("GetRelativePath(null, target) should throw exception");
         }
-        catch (ArgumentException) { }
-        catch { problems.Add("GetRelativePath(null, target) should throw exception"); }
+        catch { }
 
-        // Null toPath
+        // Null toPath - test with null literal
         try
         {
-            PathUtility.GetRelativePath("source", null);
-            problems.Add("GetRelativePath(source, null) should throw ArgumentException");
+            PathUtility.GetRelativePath("source", null!);
+            problems.Add("GetRelativePath(source, null) should throw exception");
         }
-        catch (ArgumentException) { }
-        catch { problems.Add("GetRelativePath(source, null) should throw exception"); }
+        catch { }
 
         // Empty strings
         try
@@ -150,11 +160,14 @@ public static class PathUtilityValidation
     /// </summary>
     /// <param name="path">Path to validate</param>
     /// <returns>List of validation problems (empty if valid)</returns>
-    public static IReadOnlyList<string> ValidateEnsureTrailingSeparator(string path)
+    /// <exception cref="ArgumentNullException">Thrown if path is null.</exception>
+    public static IReadOnlyList<string> ValidateEnsureTrailingSeparator(string? path)
     {
+        ArgumentNullException.ThrowIfNull(path);
+
         var problems = new List<string>();
 
-        // Null
+        // Null - test with null literal
         if (PathUtility.EnsureTrailingSeparator(null) != null)
             problems.Add("EnsureTrailingSeparator(null) should return null");
 
@@ -180,11 +193,14 @@ public static class PathUtilityValidation
     /// </summary>
     /// <param name="path">Path to validate</param>
     /// <returns>List of validation problems (empty if valid)</returns>
-    public static IReadOnlyList<string> ValidateRemoveTrailingSeparator(string path)
+    /// <exception cref="ArgumentNullException">Thrown if path is null.</exception>
+    public static IReadOnlyList<string> ValidateRemoveTrailingSeparator(string? path)
     {
+        ArgumentNullException.ThrowIfNull(path);
+
         var problems = new List<string>();
 
-        // Null
+        // Null - test with null literal
         if (PathUtility.RemoveTrailingSeparator(null) != null)
             problems.Add("RemoveTrailingSeparator(null) should return null");
 
@@ -210,11 +226,14 @@ public static class PathUtilityValidation
     /// </summary>
     /// <param name="path">Path to validate</param>
     /// <returns>List of validation problems (empty if valid)</returns>
-    public static IReadOnlyList<string> ValidateIsAbsolute(string path)
+    /// <exception cref="ArgumentNullException">Thrown if path is null.</exception>
+    public static IReadOnlyList<string> ValidateIsAbsolute(string? path)
     {
+        ArgumentNullException.ThrowIfNull(path);
+
         var problems = new List<string>();
 
-        // Null
+        // Null - test with null literal
         if (PathUtility.IsAbsolute(null))
             problems.Add("IsAbsolute(null) should return false");
 
@@ -238,11 +257,14 @@ public static class PathUtilityValidation
     /// </summary>
     /// <param name="path">Path to validate</param>
     /// <returns>List of validation problems (empty if valid)</returns>
-    public static IReadOnlyList<string> ValidateIsRelative(string path)
+    /// <exception cref="ArgumentNullException">Thrown if path is null.</exception>
+    public static IReadOnlyList<string> ValidateIsRelative(string? path)
     {
+        ArgumentNullException.ThrowIfNull(path);
+
         var problems = new List<string>();
 
-        // Null
+        // Null - test with null literal
         if (PathUtility.IsRelative(null))
             problems.Add("IsRelative(null) should return false");
 
@@ -266,11 +288,14 @@ public static class PathUtilityValidation
     /// </summary>
     /// <param name="directoryPath">Directory path to validate</param>
     /// <returns>List of validation problems (empty if valid)</returns>
-    public static IReadOnlyList<string> ValidateGetFilesRecursive(string directoryPath)
+    /// <exception cref="ArgumentNullException">Thrown if directoryPath is null.</exception>
+    public static IReadOnlyList<string> ValidateGetFilesRecursive(string? directoryPath)
     {
+        ArgumentNullException.ThrowIfNull(directoryPath);
+
         var problems = new List<string>();
 
-        // Null
+        // Null - test with null literal
         var files1 = PathUtility.GetFilesRecursive(null);
         if (files1 != null && files1.GetEnumerator().MoveNext())
             problems.Add("GetFilesRecursive(null) should return empty enumerable");
@@ -365,13 +390,16 @@ public static class PathUtilityValidation
     /// <summary>
     /// Validates path validity checking.
     /// </summary>
-    /// <param name="path">Path to validate</param>
+    /// <param name="path">Path to path</param>
     /// <returns>List of validation problems (empty if valid)</returns>
-    public static IReadOnlyList<string> ValidateIsValidPath(string path)
+    /// <exception cref="ArgumentNullException">Thrown if path is null.</exception>
+    public static IReadOnlyList<string> ValidateIsValidPath(string? path)
     {
+        ArgumentNullException.ThrowIfNull(path);
+
         var problems = new List<string>();
 
-        // Null
+        // Null - test with null literal
         if (PathUtility.IsValidPath(null))
             problems.Add("IsValidPath(null) should return false");
 
@@ -391,8 +419,11 @@ public static class PathUtilityValidation
     /// </summary>
     /// <param name="directoryPath">Directory path to validate</param>
     /// <returns>List of validation problems (empty if valid)</returns>
-    public static IReadOnlyList<string> ValidateGetDirectorySize(string directoryPath)
+    /// <exception cref="ArgumentNullException">Thrown if directoryPath is null.</exception>
+    public static IReadOnlyList<string> ValidateGetDirectorySize(string? directoryPath)
     {
+        ArgumentNullException.ThrowIfNull(directoryPath);
+
         var problems = new List<string>();
 
         // Null
@@ -421,8 +452,11 @@ public static class PathUtilityValidation
     /// </summary>
     /// <param name="filePath">File path to validate</param>
     /// <returns>List of validation problems (empty if valid)</returns>
+    /// <exception cref="ArgumentNullException">Thrown if filePath is null.</exception>
     public static IReadOnlyList<string> ValidateGenerateUniqueFileName(string filePath)
     {
+        ArgumentNullException.ThrowIfNull(filePath);
+
         var problems = new List<string>();
 
         // Null
@@ -466,22 +500,28 @@ public static class PathUtilityValidation
     /// </summary>
     /// <param name="problems">List of validation problems</param>
     /// <returns>True if no problems found</returns>
-    public static bool IsValid(this IReadOnlyList<string> problems)
-    {
-        return problems == null || problems.Count == 0;
-    }
+    public static bool IsValid(this IReadOnlyList<string>? problems) => problems.IsNullOrEmpty();
 
     /// <summary>
     /// Ensures a PathUtility operation result is valid, throwing if not.
     /// </summary>
     /// <param name="problems">List of validation problems</param>
     /// <exception cref="ArgumentException">Thrown when validation fails</exception>
-    public static void EnsureValid(this IReadOnlyList<string> problems)
+    public static void EnsureValid(this IReadOnlyList<string>? problems)
     {
-        if (problems == null || problems.Count == 0)
+        if (problems.IsValid())
             return;
 
         throw new ArgumentException(
-            $"PathUtility validation failed:\n{string.Join("\n", problems)}");
+            $"PathUtility validation failed:{Environment.NewLine}{string.Join(Environment.NewLine, problems)}");
     }
+
+    /// <summary>
+    /// Checks if a collection is null or empty.
+    /// </summary>
+    /// <typeparam name="T">Collection element type</typeparam>
+    /// <param name="collection">Collection to check</param>
+    /// <returns>True if null or empty</returns>
+    private static bool IsNullOrEmpty<T>(this IReadOnlyCollection<T>? collection) =>
+        collection is null || collection.Count == 0;
 }
