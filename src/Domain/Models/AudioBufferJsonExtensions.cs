@@ -31,12 +31,10 @@ public static class AudioBufferJsonExtensions
     /// <param name="value">The AudioBuffer to serialize.</param>
     /// <param name="indented">Whether to format the JSON with indentation.</param>
     /// <returns>A JSON string representation of the AudioBuffer.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="value"/> is null.</exception>
     public static string ToJson(this AudioBuffer value, bool indented = false)
     {
-        if (value is null)
-        {
-            return "{}";
-        }
+        ArgumentNullException.ThrowIfNull(value);
 
         var options = indented
             ? new JsonSerializerOptions(_jsonOptions)
@@ -53,12 +51,10 @@ public static class AudioBufferJsonExtensions
     /// </summary>
     /// <param name="json">The JSON string to deserialize.</param>
     /// <returns>The deserialized AudioBuffer, or null if deserialization fails.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="json"/> is null.</exception>
     public static AudioBuffer? FromJson(string json)
     {
-        if (string.IsNullOrWhiteSpace(json))
-        {
-            return null;
-        }
+        ArgumentException.ThrowIfNullOrWhiteSpace(json);
 
         try
         {
@@ -76,14 +72,12 @@ public static class AudioBufferJsonExtensions
     /// <param name="json">The JSON string to deserialize.</param>
     /// <param name="value">Output parameter containing the deserialized AudioBuffer, or null if deserialization fails.</param>
     /// <returns>True if deserialization succeeded; otherwise, false.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="json"/> is null.</exception>
     public static bool TryFromJson(string json, out AudioBuffer? value)
     {
-        value = null;
+        ArgumentException.ThrowIfNullOrWhiteSpace(json);
 
-        if (string.IsNullOrWhiteSpace(json))
-        {
-            return false;
-        }
+        value = null;
 
         try
         {
@@ -92,6 +86,7 @@ public static class AudioBufferJsonExtensions
         }
         catch (JsonException)
         {
+            value = null;
             return false;
         }
     }
