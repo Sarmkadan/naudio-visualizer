@@ -141,4 +141,74 @@ Console.WriteLine($"Peak Amplitude: {frame.PeakAmplitude}");
 Console.WriteLine($"RMS Energy: {frame.RmsEnergy}");
 Console.WriteLine($"Is Valid: {frame.IsValid}");
 ```
+
+## VstPluginInfo
+
+`VstPluginInfo` represents metadata about a loaded VST plugin, including its unique identifier, SDK version, channel capabilities, and parameter information. It provides runtime details about plugin validation, loading time, and parameter states for automation and parameter management.
+
+### Usage Example
+
+```csharp
+using Domain.Models;
+using System;
+
+// Create a VST plugin info instance
+var pluginInfo = new VstPluginInfo
+{
+    LoadedAt = DateTime.Now,
+    UniqueId = "ABCD1234EFGH5678",
+    SdkVersion = "VST3.7.8",
+    MaxChannels = 2,
+    IsValid = true
+};
+
+// Add parameters to the plugin
+pluginInfo.Parameters.Add(new VstParameter
+{
+    Id = 0,
+    Name = "Volume",
+    Label = "dB",
+    Units = "Decibels",
+    MinValue = -60f,
+    MaxValue = 12f,
+    DefaultValue = 0f,
+    CurrentValue = 0f,
+    IsAutomated = false,
+    Category = "Main",
+    IsReadOnly = false,
+    IsValid = true
+});
+
+pluginInfo.Parameters.Add(new VstParameter
+{
+    Id = 1,
+    Name = "Reverb",
+    Label = "%",
+    Units = "Percentage",
+    MinValue = 0f,
+    MaxValue = 100f,
+    DefaultValue = 30f,
+    CurrentValue = 45.5f,
+    IsAutomated = true,
+    Category = "Effects",
+    IsReadOnly = false,
+    IsValid = true
+});
+
+// Display plugin information
+Console.WriteLine($"Plugin Loaded At: {pluginInfo.LoadedAt}");
+Console.WriteLine($"Plugin Unique ID: {pluginInfo.UniqueId}");
+Console.WriteLine($"SDK Version: {pluginInfo.SdkVersion}");
+Console.WriteLine($"Max Channels: {pluginInfo.MaxChannels}");
+Console.WriteLine($"Is Valid: {pluginInfo.IsValid}");
+Console.WriteLine($"ToString: {pluginInfo}");
+
+// Display parameter information
+foreach (var param in pluginInfo.Parameters)
+{
+    Console.WriteLine($"Parameter {param.Id}: {param.Name} = {param.CurrentValue} {param.Label}");
+    Console.WriteLine($"  Range: {param.MinValue} to {param.MaxValue} {param.Units}");
+    Console.WriteLine($"  Category: {param.Category}, Automated: {param.IsAutomated}");
+}
+```
 ```
