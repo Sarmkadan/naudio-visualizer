@@ -1,17 +1,22 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace NAudioVisualizer.Domain.Models
 {
+    /// <summary>
+    /// Provides extension methods for <see cref="SpectrogramData"/> to perform common spectrogram operations
+    /// such as normalization, region extraction, frequency masking, and spectral analysis.
+    /// </summary>
     public static class SpectrogramDataExtensions
     {
         /// <summary>
         /// Creates a new spectrogram with normalized frequency bins, ensuring consistent scaling across different audio clips.
         /// </summary>
-        /// <param name="spectrogram">The source spectrogram data</param>
-        /// <param name="targetMaxDb">Target maximum decibel level for normalization (default: -3dB)</param>
-        /// <returns>A new spectrogram with normalized frequency bins</returns>
+        /// <param name="spectrogram">The source spectrogram data.</param>
+        /// <param name="targetMaxDb">Target maximum decibel level for normalization in dB (default: -3dB).</param>
+        /// <exception cref="ArgumentNullException"><paramref name="spectrogram"/> is null.</exception>
+        /// <exception cref="InvalidOperationException">Thrown when the spectrogram data is invalid.</exception>
+        /// <returns>A new spectrogram with normalized frequency bins.</returns>
         public static SpectrogramData NormalizeFrequencyBins(this SpectrogramData spectrogram, float targetMaxDb = -3.0f)
         {
             if (spectrogram == null)
@@ -68,12 +73,14 @@ namespace NAudioVisualizer.Domain.Models
         /// <summary>
         /// Extracts a rectangular region from the spectrogram, useful for focusing on specific frequency ranges or time segments.
         /// </summary>
-        /// <param name="spectrogram">The source spectrogram data</param>
-        /// <param name="startFrequencyBin">Starting frequency bin index (0-based)</param>
-        /// <param name="frequencyBinCount">Number of frequency bins to extract</param>
-        /// <param name="startTimeFrame">Starting time frame index (0-based)</param>
-        /// <param name="timeFrameCount">Number of time frames to extract</param>
-        /// <returns>A new spectrogram containing only the specified region</returns>
+        /// <param name="spectrogram">The source spectrogram data.</param>
+        /// <param name="startFrequencyBin">Starting frequency bin index (0-based). Must be within valid range.</param>
+        /// <param name="frequencyBinCount">Number of frequency bins to extract. Must be positive and fit within remaining bins.</param>
+        /// <param name="startTimeFrame">Starting time frame index (0-based). Must be within valid range.</param>
+        /// <param name="timeFrameCount">Number of time frames to extract. Must be positive and fit within remaining frames.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="spectrogram"/> is null.</exception>
+        /// <exception cref="InvalidOperationException">Thrown when the spectrogram data is invalid.</exception>
+        /// <returns>A new spectrogram containing only the specified region.</returns>
         public static SpectrogramData ExtractRegion(this SpectrogramData spectrogram, int startFrequencyBin, int frequencyBinCount, int startTimeFrame, int timeFrameCount)
         {
             if (spectrogram == null)
@@ -114,9 +121,12 @@ namespace NAudioVisualizer.Domain.Models
         /// Applies a frequency mask to the spectrogram, zeroing out specified frequency bins.
         /// Useful for filtering out unwanted frequency ranges (e.g., DC offset, hum, or specific noise bands).
         /// </summary>
-        /// <param name="spectrogram">The source spectrogram data</param>
-        /// <param name="frequencyBinIndices">Array of frequency bin indices to mask (set to zero)</param>
-        /// <returns>A new spectrogram with the specified frequency bins zeroed out</returns>
+        /// <param name="spectrogram">The source spectrogram data.</param>
+        /// <param name="frequencyBinIndices">Array of frequency bin indices to mask (set to zero). Must not be null or empty.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="spectrogram"/> or <paramref name="frequencyBinIndices"/> is null.</exception>
+        /// <exception cref="ArgumentException"><paramref name="frequencyBinIndices"/> array cannot be empty.</exception>
+        /// <exception cref="InvalidOperationException">Thrown when the spectrogram data is invalid.</exception>
+        /// <returns>A new spectrogram with the specified frequency bins zeroed out.</returns>
         public static SpectrogramData ApplyFrequencyMask(this SpectrogramData spectrogram, int[] frequencyBinIndices)
         {
             if (spectrogram == null)
@@ -124,6 +134,9 @@ namespace NAudioVisualizer.Domain.Models
 
             if (frequencyBinIndices == null)
                 throw new ArgumentNullException(nameof(frequencyBinIndices));
+
+            if (frequencyBinIndices.Length == 0)
+                throw new ArgumentException("Frequency bin indices array cannot be empty.", nameof(frequencyBinIndices));
 
             if (!spectrogram.IsValid())
                 throw new InvalidOperationException("Cannot apply mask to invalid spectrogram data");
@@ -157,8 +170,10 @@ namespace NAudioVisualizer.Domain.Models
         /// Calculates the spectral centroid for each time frame, providing a measure of the "center of mass" of the spectrum.
         /// Useful for analyzing the dominant frequency content over time.
         /// </summary>
-        /// <param name="spectrogram">The source spectrogram data</param>
-        /// <returns>Array of spectral centroid values (in Hz) for each time frame</returns>
+        /// <param name="spectrogram">The source spectrogram data.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="spectrogram"/> is null.</exception>
+        /// <exception cref="InvalidOperationException">Thrown when the spectrogram data is invalid.</exception>
+        /// <returns>Array of spectral centroid values in Hz for each time frame.</returns>
         public static float[] CalculateSpectralCentroids(this SpectrogramData spectrogram)
         {
             if (spectrogram == null)
