@@ -19,12 +19,10 @@ public static class AudioStreamExceptionValidation
     /// </summary>
     /// <param name="value">The exception to validate.</param>
     /// <returns>A list of human-readable validation problems; empty if valid.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="value"/> is null.</exception>
     public static IReadOnlyList<string> Validate(this AudioStreamException value)
     {
-        if (value is null)
-        {
-            return new[] { "AudioStreamException cannot be null." };
-        }
+        ArgumentNullException.ThrowIfNull(value);
 
         var problems = new List<string>();
 
@@ -41,12 +39,9 @@ public static class AudioStreamExceptionValidation
         }
 
         // Validate InnerException (from base Exception)
-        if (value.InnerException is not null)
+        if (value.InnerException is not null && string.IsNullOrWhiteSpace(value.InnerException.Message))
         {
-            if (string.IsNullOrWhiteSpace(value.InnerException.Message))
-            {
-                problems.Add("InnerException.Message cannot be null or whitespace.");
-            }
+            problems.Add("InnerException.Message cannot be null or whitespace.");
         }
 
         return problems;
@@ -66,13 +61,11 @@ public static class AudioStreamExceptionValidation
     /// Ensures that an <see cref="AudioStreamException"/> instance is valid, throwing an <see cref="ArgumentException"/> if not.
     /// </summary>
     /// <param name="value">The exception to validate.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="value"/> is null.</exception>
     /// <exception cref="ArgumentException">Thrown when the exception is invalid, containing a list of validation problems.</exception>
     public static void EnsureValid(this AudioStreamException value)
     {
-        if (value is null)
-        {
-            throw new ArgumentException("AudioStreamException cannot be null.", nameof(value));
-        }
+        ArgumentNullException.ThrowIfNull(value);
 
         var problems = Validate(value);
         if (problems.Count > 0)
