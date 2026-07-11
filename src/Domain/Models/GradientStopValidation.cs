@@ -15,12 +15,10 @@ public static class GradientStopValidation
     /// </summary>
     /// <param name="value">The gradient stop to validate.</param>
     /// <returns>An empty list if valid; otherwise, a list of validation error messages.</returns>
-    public static IReadOnlyList<string> Validate(this GradientStop value)
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="value"/> is <see langword="null"/>.</exception>
+    public static IReadOnlyList<string> Validate(this GradientStop? value)
     {
-        if (value is null)
-        {
-            return new[] { "GradientStop cannot be null." };
-        }
+        ArgumentNullException.ThrowIfNull(value);
 
         var errors = new List<string>();
 
@@ -42,9 +40,10 @@ public static class GradientStopValidation
         {
             // Only position 0 can reasonably have color 0 (transparent black)
             // This is a heuristic, not a strict rule
+            errors.Add("Position 0 should use color 0 (transparent black) for gradient start.");
         }
 
-        return errors;
+        return errors.AsReadOnly();
     }
 
     /// <summary>
@@ -52,22 +51,17 @@ public static class GradientStopValidation
     /// </summary>
     /// <param name="value">The gradient stop to check.</param>
     /// <returns>True if valid; otherwise, false.</returns>
-    public static bool IsValid(this GradientStop value)
-    {
-        return value is not null && Validate(value).Count == 0;
-    }
+    public static bool IsValid(this GradientStop? value) => value is not null && Validate(value).Count == 0;
 
     /// <summary>
     /// Ensures that a <see cref="GradientStop"/> instance is valid, throwing an exception if it is not.
     /// </summary>
     /// <param name="value">The gradient stop to validate.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="value"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException">Thrown when the gradient stop is invalid.</exception>
-    public static void EnsureValid(this GradientStop value)
+    public static void EnsureValid(this GradientStop? value)
     {
-        if (value is null)
-        {
-            throw new ArgumentException("GradientStop cannot be null.", nameof(value));
-        }
+        ArgumentNullException.ThrowIfNull(value);
 
         var errors = Validate(value);
         if (errors.Count > 0)
