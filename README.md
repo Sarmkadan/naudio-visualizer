@@ -13,36 +13,29 @@ using System;
 // Create a concrete visualization data instance (e.g., WaveformData)
 var waveformData = new WaveformData
 {
-    VisualizationType = VisualizationType.Waveform,
-    DataPointCount = 1024,
-    MinValue = -1.0f,
-    MaxValue = 1.0f,
-    IsNormalized = false,
-    SourceFrame = new AudioFrame { SampleRate = 44100, Channels = 2 }
+    SampleRate = 44100,
+    ChannelCount = 2,
+    DownsamplingFactor = 4
 };
 
 // Generate some sample data
-var rawData = new float[1024];
-var random = new Random();
-for (int i = 0; i < rawData.Length; i++)
-{
-    rawData[i] = (float)(random.NextDouble() * 2 - 1); // -1 to 1 range
-}
+var leftChannelPeaks = new float[] { 0.5f, 0.2f, 0.8f };
+var rightChannelPeaks = new float[] { 0.3f, 0.9f, 0.1f };
 
-// Set the data through the abstract GetData method
-var dataArray = waveformData.GetData();
-Array.Copy(rawData, dataArray, rawData.Length);
+// Set the data through the SetSamples method
+waveformData.SetSamples(leftChannelPeaks, rightChannelPeaks);
 
 // Normalize the data
 waveformData.Normalize();
 
-Console.WriteLine($"Visualization ID: {waveformData.Id}");
-Console.WriteLine($"Type: {waveformData.VisualizationType}");
-Console.WriteLine($"Generated At: {waveformData.GeneratedAt}");
-Console.WriteLine($"Data Points: {waveformData.DataPointCount}");
-Console.WriteLine($"Min Value: {waveformData.MinValue}");
-Console.WriteLine($"Max Value: {waveformData.MaxValue}");
-Console.WriteLine($"Is Normalized: {waveformData.IsNormalized}");
+// Downsample the data
+waveformData.Downsample();
+
+Console.WriteLine($"Sample Rate: {waveformData.SampleRate}");
+Console.WriteLine($"Channel Count: {waveformData.ChannelCount}");
+Console.WriteLine($"Downsampling Factor: {waveformData.DownsamplingFactor}");
+Console.WriteLine($"Left Channel Peaks: [{string.Join(", ", leftChannelPeaks)}]");
+Console.WriteLine($"Right Channel Peaks: [{string.Join(", ", rightChannelPeaks)}]");
 Console.WriteLine($"Is Valid: {waveformData.IsValid()}");
 ```
 
@@ -147,4 +140,5 @@ Console.WriteLine($"Duration (s): {frame.DurationSeconds}");
 Console.WriteLine($"Peak Amplitude: {frame.PeakAmplitude}");
 Console.WriteLine($"RMS Energy: {frame.RmsEnergy}");
 Console.WriteLine($"Is Valid: {frame.IsValid}");
+```
 ```
