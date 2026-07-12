@@ -37,4 +37,34 @@ var interpolatedStop = GradientStopExtensions.Interpolate(stop, nextStop, 0.7);
 Console.WriteLine($"Interpolated color: {interpolatedStop.Color}");
 ```
 
+## VisualizationSettingsExtensions
+
+`VisualizationSettingsExtensions` provides convenient static methods for creating, cloning, and configuring `VisualizationSettings` objects, as well as validating them and retrieving key colors used in the visualizer. It allows you to quickly switch between high‑performance and high‑quality presets and inspect the current color scheme.
+
+### Usage Example
+
+```csharp
+using Domain.Models;
+using System.Drawing;
+
+// Create a default settings instance
+var settings = VisualizationSettingsExtensions.CreateDefault();
+
+// Clone and tweak for high‑performance mode
+var perfSettings = VisualizationSettingsExtensions.Clone(settings);
+perfSettings = VisualizationSettingsExtensions.WithHighPerformance(perfSettings);
+
+// Validate the settings before use
+VisualizationSettingsExtensions.Validate(perfSettings);
+
+// Retrieve colors used by the visualizer
+var bg = VisualizationSettingsExtensions.GetBackgroundColor(perfSettings);
+var waveform = VisualizationSettingsExtensions.GetWaveformLineColor(perfSettings);
+var spectrum = VisualizationSettingsExtensions.GetSpectrumBarColor(perfSettings);
+
+Console.WriteLine($"Background: {bg}");
+Console.WriteLine($"Waveform line: {waveform}");
+Console.WriteLine($"Spectrum bar: {spectrum}");
+```
+
 // ... existing content ...
