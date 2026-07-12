@@ -49,6 +49,8 @@ else
 {
     logger.Warn("Condition is false");
 }
+```
+
 ## AudioStreamExceptionExtensions
 
 `AudioStreamExceptionExtensions` provides a set of extension methods for working with `AudioStreamException` instances. These methods allow you to get detailed error messages, determine if an exception is recoverable or fatal, and create new exceptions with custom messages.
@@ -82,4 +84,48 @@ catch (AudioStreamException ex)
 }
 ```
 
+## EventPublisherJsonExtensions
+
+`EventPublisherJsonExtensions` adds JSON serialization helpers and subscriber statistics to an event publisher. It lets you convert a publisher's state to JSON, recreate a publisher from JSON, safely attempt deserialization, and inspect how many subscribers each event has as well as the total subscriber count.
+
+### Usage Example
+
+```csharp
+using Events;
+
+// Assume `publisher` is an instance of a class that implements the
+// EventPublisherJsonExtensions members (e.g., EventPublisher).
+var publisher = new EventPublisher();
+
+// Serialize the publisher to JSON.
+string json = EventPublisherJsonExtensions.ToJson(publisher);
+Console.WriteLine($"Serialized JSON: {json}");
+
+// Deserialize back to an object.
+object? deserialized = EventPublisherJsonExtensions.FromJson(json);
+Console.WriteLine($"Deserialized type: {deserialized?.GetType().Name ?? "null"}");
+
+// Try to deserialize safely.
+if (EventPublisherJsonExtensions.TryFromJson(json, out var safeResult))
+{
+    Console.WriteLine("TryFromJson succeeded.");
+}
+else
+{
+    Console.WriteLine("TryFromJson failed.");
+}
+
+// Access subscriber statistics.
+Dictionary<string, int> counts = publisher.SubscriberCounts;
+foreach (var kvp in counts)
+{
+    Console.WriteLine($"Event \"{kvp.Key}\" has {kvp.Value} subscriber(s).");
+}
+
+// Total number of subscribers across all events.
+int total = publisher.TotalSubscribers;
+Console.WriteLine($"Total subscribers: {total}");
+```
+
 // ... existing content ...
+```​```
