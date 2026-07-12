@@ -30,3 +30,22 @@ else
 ## WaveformService
 
 `WaveformService` generates and processes waveform data from audio samples... (existing content remains unchanged)
+
+## AudioSessionRepository
+
+`AudioSessionRepository` is a repository class responsible for managing audio sessions. It provides methods for creating, retrieving, and manipulating sessions, as well as tracking session statistics.
+
+### Usage Example
+
+```csharp
+using Data.Repositories;
+
+var repository = new AudioSessionRepository();
+var session = repository.CreateSession();
+repository.AddFrameToSession(session.Id, new AudioFrame());
+var frames = repository.GetSessionFrames(session.Id);
+repository.EndSession(session.Id);
+```
+
+```csharp
+// src/README.md
