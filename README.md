@@ -40,4 +40,66 @@ Console.WriteLine($"Frame energy: {frameEnergy}");
 Console.WriteLine($"Zero crossings: {zeroCrossings}");
 ```
 
+## VisualizationDataRepository
+
+`VisualizationDataRepository` provides a data storage and retrieval mechanism for visualization data. It allows you to store, retrieve, and manage visualization data by session, type, and other criteria.
+
+### Usage Example
+
+```csharp
+using Data.Repositories;
+
+// Create a visualization data repository instance
+var visualizationDataRepository = new VisualizationDataRepository();
+
+// Store a new visualization data entry
+var visualizationData = new VisualizationData();
+visualizationDataRepository.Store(visualizationData);
+
+// Retrieve a visualization data entry by ID
+var visualizationDataById = visualizationDataRepository.GetById(visualizationData.Id);
+
+// Retrieve all visualization data entries for a specific session
+var visualizationDataBySession = visualizationDataRepository.GetBySession(sessionId);
+
+// Retrieve all visualization data entries of a specific type
+var visualizationDataByType = visualizationDataRepository.GetByType(visualizationDataType);
+
+// Get the most recent visualization data entry
+var mostRecentVisualizationData = visualizationDataRepository.GetMostRecent();
+
+// Get all visualization data entries
+var allVisualizationData = visualizationDataRepository.GetAll();
+
+// Delete a visualization data entry
+visualizationDataRepository.Delete(visualizationData.Id);
+
+// Delete all visualization data entries for a specific session
+var deletedCount = visualizationDataRepository.DeleteBySession(sessionId);
+
+// Clear all visualization data entries
+visualizationDataRepository.Clear();
+
+// Get the total count of visualization data entries
+var totalCount = visualizationDataRepository.Count;
+
+// Get repository statistics
+var repositoryStats = visualizationDataRepository.GetStats();
+
+// Prune the oldest visualization data entries
+var prunedCount = visualizationDataRepository.PruneOldest();
+
+// Get the total count of waveform, spectrum, and spectrogram data entries
+var waveformCount = visualizationDataRepository.WaveformCount;
+var spectrumCount = visualizationDataRepository.SpectrumCount;
+var spectrogramCount = visualizationDataRepository.SpectrogramCount;
+
+// Get the total count of sessions
+var sessionCount = visualizationDataRepository.SessionCount;
+
+// Get the oldest and newest entry dates
+var oldestEntryDate = visualizationDataRepository.OldestEntry;
+var newestEntryDate = visualizationDataRepository.NewestEntry;
+```
+
 // ... existing content ...
