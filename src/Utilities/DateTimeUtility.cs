@@ -5,6 +5,7 @@
 // =============================================================================
 
 using System;
+using System.Globalization;
 
 namespace NAudioVisualizer.Utilities;
 
@@ -51,7 +52,7 @@ public static class DateTimeUtility
     /// </summary>
     public static DateTime FromIso8601(string isoString)
     {
-        if (!DateTime.TryParse(isoString, out var result))
+        if (!DateTime.TryParse(isoString, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var result))
             throw new FormatException($"Invalid ISO 8601 format: {isoString}");
 
         return result;

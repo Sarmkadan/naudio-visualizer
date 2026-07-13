@@ -170,6 +170,7 @@ public sealed class AudioProcessingWorker : IDisposable
             stopwatch.Stop();
 
             _logger.Debug($"Task '{task.Name}' completed in {stopwatch.ElapsedMilliseconds}ms");
+            task.OnComplete?.Invoke();
         }
         catch (Exception ex)
         {
