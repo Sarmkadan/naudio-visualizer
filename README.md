@@ -107,3 +107,7 @@ if (current != null)
     List<int> transients = analyzer.DetectTransients(current, 0.6f);
 }
 ```
+
+## Architecture
+
+The application is a Windows Forms executable layered into services (audio capture, waveform/FFT/spectrogram analysis, MIDI input), domain models, a weak-reference event bus, in-memory repositories, and a small hand-rolled DI container. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the component breakdown, data flow, design decisions, and known limitations.
