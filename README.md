@@ -99,3 +99,63 @@ long medianTime = profiler.GetMedianTime("AudioFileLoad");
 // Clear all recorded metrics
 profiler.Clear();
 ```
+
+## StringUtility
+
+`StringUtility` is a utility class for string manipulation and formatting. It provides static methods for truncating strings, repeating text, padding strings to specific widths, case conversion, whitespace removal, and formatting numbers for human-readable display.
+
+
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Utilities;
+
+// Truncate a string with ellipsis
+string truncated = StringUtility.Truncate("This is a very long string that needs to be shortened", 20);
+Console.WriteLine(truncated); // "This is a very lon..."
+
+// Repeat a string multiple times
+string repeated = StringUtility.Repeat("naudio-", 3);
+Console.WriteLine(repeated); // "naudio-naudio-naudio-"
+
+// Pad a string to center it
+string centered = StringUtility.PadCenter("Hello", 11, '-');
+Console.WriteLine(centered); // "---Hello----"
+
+// Format bytes to human-readable format
+string fileSize = StringUtility.FormatBytes(15728640); // 15MB
+Console.WriteLine(fileSize);
+
+// Format milliseconds to time string
+string duration = StringUtility.FormatMilliseconds(150000); // "2m 30s"
+Console.WriteLine(duration);
+
+// Format large numbers with suffixes
+string formattedNumber = StringUtility.FormatLargeNumber(1500000); // "1.5M"
+Console.WriteLine(formattedNumber);
+
+// Convert to title case
+string titleCase = StringUtility.ToTitleCase("hello world");
+Console.WriteLine(titleCase); // "Hello World"
+
+// Convert to snake_case
+string snakeCase = StringUtility.ToSnakeCase("HelloWorld");
+Console.WriteLine(snakeCase); // "hello_world"
+
+// Convert to camelCase
+string camelCase = StringUtility.ToCamelCase("hello_world");
+Console.WriteLine(camelCase); // "helloWorld"
+
+// Remove whitespace from a string
+string noWhitespace = StringUtility.RemoveWhitespace("Hello  World  Test");
+Console.WriteLine(noWhitespace); // "HelloWorldTest"
+
+// Check if string is alphanumeric
+bool isAlphanumeric = StringUtility.IsAlphanumeric("Hello123");
+Console.WriteLine(isAlphanumeric); // true
+
+// Count occurrences of a substring
+int count = StringUtility.CountOccurrences("hello hello world", "hello");
+Console.WriteLine(count); // 2
+```
