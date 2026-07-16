@@ -190,7 +190,7 @@ public class CacheManager<TKey, TValue> where TKey : notnull
 
         foreach (var kvp in _cache)
         {
-            if (kvp.Value.LastAccessedAt < oldestTime && oldestKey is not null)
+            if (kvp.Value.LastAccessedAt < oldestTime)
             {
                 oldestKey = kvp.Key;
                 oldestTime = kvp.Value.LastAccessedAt;
