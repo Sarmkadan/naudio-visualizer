@@ -242,9 +242,47 @@ ValidationUtility.ThrowIfOutOfRange(44100, 8000, 192000, nameof(sampleRate));
 ValidationUtility.ThrowIfInvalid(ValidationUtility.ValidateSampleRate(44100), nameof(sampleRate), "must be between 8000 and 192000");
 ```
 
-## AudioBufferAndEventBusTests
+## ValidationAndStringUtilityTests
 
-`AudioBufferAndEventBusTests` is a comprehensive test class that verifies the behavior of the `AudioBuffer` and `EventBus` components. It contains unit tests for audio sample buffering functionality including writing, reading, peeking, capacity management, clearing, and duration calculation, as well as event bus subscription and publishing behavior with Moq-based verification.
+`ValidationAndStringUtilityTests` is a comprehensive test class that verifies the behavior of the `ValidationUtility` and `StringUtility` classes. It contains unit tests for validation methods including sample rate, FFT size, channel count, frequency, audio data, amplitude validation, and exception-throwing validation methods, as well as string manipulation methods including truncation, formatting, case conversion, and counting operations.
+
+### Usage Example
+
+```csharp
+using FluentAssertions;
+using NAudioVisualizer.Utilities;
+using Xunit;
+
+// Test ValidationUtility methods
+ValidationUtility.ValidateSampleRate(44100).Should().BeTrue(); // Valid sample rate
+ValidationUtility.ValidateFftSize(1024).Should().BeTrue(); // Valid FFT size
+ValidationUtility.ValidateChannelCount(2).Should().BeTrue(); // Valid channel count
+ValidationUtility.ValidateFrequency(1000f).Should().BeTrue(); // Valid frequency
+ValidationUtility.ValidateAmplitude(0.75f).Should().BeTrue(); // Valid amplitude
+
+float[] audioData = new float[] { 0.5f, -0.3f, 0.8f };
+ValidationUtility.ValidateAudioData(audioData).Should().BeTrue(); // Valid audio data
+
+// Test exception-throwing validation methods
+ValidationUtility.ThrowIfNull(audioData, nameof(audioData)); // Does not throw
+ValidationUtility.ThrowIfOutOfRange(44100, 8000, 192000, nameof(sampleRate)); // Does not throw
+ValidationUtility.ThrowIfNullOrWhitespace("audio.wav", nameof(filePath)); // Does not throw
+
+// Test StringUtility methods
+string truncated = StringUtility.Truncate("This is a very long string", 15);
+truncated.Should().Be("This is a ve...");
+
+string snakeCase = StringUtility.ToSnakeCase("SampleRate");
+snakeCase.Should().Be("sample_rate");
+
+string formattedBytes = StringUtility.FormatBytes(15728640);
+formattedBytes.Should().Contain("MB");
+
+int occurrences = StringUtility.CountOccurrences("hello hello world", "hello");
+occurrences.Should().Be(2);
+```
+
+## AudioBufferAndEventBusTests
 
 ### Usage Example
 
