@@ -108,6 +108,64 @@ if (current != null)
 }
 ```
 
+## ConfigurationManager
+
+`ConfigurationManager` provides centralized configuration management for the application, allowing you to store, retrieve, and manage application settings with type safety. It supports loading from and saving to persistent storage, resetting to defaults, and exporting/importing configurations for backup or sharing purposes.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Configuration;
+
+// Create a configuration manager instance
+var configManager = new ConfigurationManager();
+
+// Load settings from the default configuration file
+configManager.LoadSettings();
+
+// Check if a setting exists
+if (configManager.Contains("AudioBufferSize"))
+{
+    // Get a typed configuration value
+    int bufferSize = configManager.GetValue<int>("AudioBufferSize");
+    Console.WriteLine($"Current buffer size: {bufferSize}");
+}
+
+// Set a configuration value
+configManager.SetValue("AudioBufferSize", 8192);
+
+// Set a nullable configuration value
+configManager.SetValue<int?>("CustomThreshold", null);
+
+// Get all configuration keys
+foreach (string key in configManager.GetAllKeys())
+{
+    Console.WriteLine($"Config key: {key}");
+}
+
+// Check if a setting exists
+bool hasSetting = configManager.Contains("SampleRate");
+
+// Remove a configuration value
+configManager.Remove("TempSetting");
+
+// Reset all settings to their default values
+configManager.ResetToDefaults();
+
+// Get a summary of the current configuration
+string summary = configManager.GetConfigurationSummary();
+Console.WriteLine(summary);
+
+// Save the current configuration to file
+configManager.SaveSettings();
+
+// Export settings to a custom file
+configManager.ExportSettings("backup-config.json");
+
+// Import settings from a file
+configManager.ImportSettings("restore-config.json");
+```
+
 ## Architecture
 
 The application is a Windows Forms executable layered into services (audio capture, waveform/FFT/spectrogram analysis, MIDI input), domain models, a weak-reference event bus, in-memory repositories, and a small hand-rolled DI container. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the component breakdown, data flow, design decisions, and known limitations.
