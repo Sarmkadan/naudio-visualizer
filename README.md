@@ -310,6 +310,53 @@ bool isPower = MathUtility.IsPowerOf2(128); // true
 float dist = MathUtility.Distance(0f, 0f, 3f, 4f); // 5 (3-4-5 triangle)
 ```
 
+## ColorUtility
+
+`ColorUtility` is a static utility class for color manipulation and gradient generation. It provides methods for color space conversions (RGB ↔ HSV), color interpolation, and visualization color schemes (viridis, jet, grayscale) commonly used in audio visualization and spectrogram rendering.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Utilities;
+using System.Drawing;
+
+// Convert between RGB and HSV color spaces
+ColorUtility.RgbToHsv(0.8f, 0.2f, 0.5f, out float h, out float s, out float v);
+Console.WriteLine($"HSV: H={h:F2}, S={s:F2}, V={v:F2}");
+
+ColorUtility.HsvToRgb(120f, 0.75f, 0.9f, out float r, out float g, out float b);
+Console.WriteLine($"RGB: R={r:F2}, G={g:F2}, B={b:F2}");
+
+// Linearly interpolate between two colors
+Color startColor = Color.Red;
+Color endColor = Color.Blue;
+Color interpolated = ColorUtility.LerpColor(startColor, endColor, 0.5f);
+Console.WriteLine($"Interpolated color: {ColorUtility.ColorToHex(interpolated)}");
+
+// Get colors from standard colormaps for spectrogram visualization
+Color viridisColor = ColorUtility.GetViririsColor(0.3f);
+Color jetColor = ColorUtility.GetJetColor(0.75f);
+Color grayscale = ColorUtility.GetGrayscale(0.5f);
+Console.WriteLine($"Viridis: {ColorUtility.ColorToHex(viridisColor)}");
+Console.WriteLine($"Jet: {ColorUtility.ColorToHex(jetColor)}");
+Console.WriteLine($"Grayscale: {ColorUtility.ColorToHex(grayscale)}");
+
+// Adjust color properties
+Color brightColor = ColorUtility.AdjustBrightness(Color.FromArgb(100, 150, 200), 1.5f);
+Color desaturatedColor = ColorUtility.AdjustSaturation(Color.FromArgb(200, 100, 50), 0.5f);
+Color complementary = ColorUtility.GetComplementaryColor(Color.Green);
+Console.WriteLine($"Bright: {ColorUtility.ColorToHex(brightColor)}");
+Console.WriteLine($"Desaturated: {ColorUtility.ColorToHex(desaturatedColor)}");
+Console.WriteLine($"Complementary to Green: {ColorUtility.ColorToHex(complementary)}");
+
+// Convert between Color and hex string
+Color original = Color.Cyan;
+string hex = ColorUtility.ColorToHex(original);
+Console.WriteLine($"Color to hex: {hex}");
+Color fromHex = ColorUtility.HexToColor("#FF5733");
+Console.WriteLine($"Hex to color: R={fromHex.R}, G={fromHex.G}, B={fromHex.B}");
+```
+
 ## Architecture
 
 The application is a Windows Forms executable layered into services (audio capture, waveform/FFT/spectrogram analysis, MIDI input), domain models, a weak-reference event bus, in-memory repositories, and a small hand-rolled DI container. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the component breakdown, data flow, design decisions, and known limitations.
