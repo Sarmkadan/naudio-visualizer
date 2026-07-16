@@ -415,3 +415,48 @@ MathUtility.Lerp(0.5f, 0f, 10f).Should().Be(5f); // Midpoint
 MathUtility.MapRange(0.5f, 0f, 1f, 10f, 20f).Should().Be(15f); // Midpoint of target range
 MathUtility.MapRange(0.5f, 0f, 0.5f, 10f, 20f).Should().Be(10f); // Clamped to target minimum
 ```
+
+## WaveformServiceTests
+
+`WaveformServiceTests` is a comprehensive test class that verifies the behavior of the `WaveformService` class. It contains unit tests for waveform processing operations including downsampling, peak calculation, smoothing filters, frame energy calculation, and zero-crossing detection. The tests use FluentAssertions for readable assertions and Xunit as the testing framework.
+
+### Usage Example
+
+```csharp
+using FluentAssertions;
+using NAudioVisualizer.Services;
+using Xunit;
+
+// Create test instance
+var tests = new WaveformServiceTests();
+
+// Test downsampling - reduces sample count by averaging
+var samples = new float[] { 0.1f, 0.2f, 0.3f, 0.4f };
+var downsampled = tests.DownsampleSamples(samples, 2);
+downsampled.Should().HaveCount(2);
+downsampled[0].Should().BeApproximately(0.15f, 0.0001f); // Average of first two samples
+
+// Test peak calculation - finds top N peaks in audio data
+var peaks = tests.CalculatePeakValues(new float[] { 0.1f, 0.8f, 0.2f, 0.5f }, 2);
+peaks.Should().HaveCount(2);
+peaks[0].Should().Be(0.8f); // Highest peak
+peaks[1].Should().Be(0.5f); // Second highest
+
+// Test smoothing filter - applies moving average to reduce noise
+var smoothed = tests.ApplySmoothingFilter(new float[] { 0.0f, 1.0f, 0.0f }, 3);
+smoothed.Should().HaveCount(3);
+smoothed[1].Should().BeApproximately(0.333f, 0.001f); // Center point after smoothing
+
+// Test frame energy calculation - computes RMS energy per frame
+var frameEnergies = tests.CalculateFrameEnergy(new float[] { 0.5f, 0.5f, 0.5f, 0.5f }, 2);
+frameEnergies.Should().HaveCount(2);
+frameEnergies[0].Should().BeApproximately(0.5f, 0.0001f); // RMS of first frame
+
+// Test zero-crossing detection - counts signal sign changes
+int zeroCrossings = tests.CountZeroCrossings(new float[] { -0.1f, 0.1f, -0.1f, 0.1f });
+zeroCrossings.Should().Be(3); // Three sign changes in the signal
+
+// Test exception handling - invalid peak count throws
+Action invalidPeakCount = () => tests.CalculatePeakValues(new float[] { 0.1f, 0.2f }, 0);
+invalidPeakCount.Should().Throw<ArgumentException>();
+```
