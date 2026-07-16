@@ -241,3 +241,36 @@ ValidationUtility.ThrowIfNullOrWhitespace("audio.wav", nameof(filePath));
 ValidationUtility.ThrowIfOutOfRange(44100, 8000, 192000, nameof(sampleRate));
 ValidationUtility.ThrowIfInvalid(ValidationUtility.ValidateSampleRate(44100), nameof(sampleRate), "must be between 8000 and 192000");
 ```
+
+## WaveformServiceBenchmarks
+
+`WaveformServiceBenchmarks` is a benchmark class for measuring the performance of various waveform processing operations in the `WaveformService` class. It uses BenchmarkDotNet to provide detailed performance metrics including execution time, memory allocation, and other diagnostic information for optimizing audio waveform generation and processing algorithms.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Benchmarks;
+using NAudioVisualizer.Domain.Models;
+using NAudioVisualizer.Services;
+
+// Create benchmark instance
+var benchmarks = new WaveformServiceBenchmarks();
+
+// Initialize the benchmark (required before running any benchmarks)
+benchmarks.Setup();
+
+// Generate a waveform from audio samples
+WaveformData waveform = benchmarks.GenerateWaveform();
+
+// Downsample audio samples by a factor of 4
+float[] downsampled = benchmarks.DownsampleSamples();
+
+// Calculate peak values with a window size of 512
+float[] peaks = benchmarks.CalculatePeakValues();
+
+// Apply smoothing filter with a filter size of 3
+float[] smoothed = benchmarks.ApplySmoothingFilter();
+
+// Run all benchmarks and display results
+WaveformServiceBenchmarks.Program.Main(new string[0]);
+```
