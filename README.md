@@ -267,6 +267,49 @@ await worker.StopAsync();
 worker.Dispose();
 ```
 
+## MathUtility
+
+`MathUtility` is a static utility class providing mathematical functions for audio processing and signal analysis. It includes frequency conversions (MIDI note ↔ Hz), decibel calculations, window functions (Hann, Hamming), and various mathematical utilities for signal processing tasks.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Utilities;
+
+// Convert between MIDI notes and frequencies
+int midiNote = MathUtility.FrequencyToMidiNote(440f); // Returns 69 (A4)
+float frequency = MathUtility.MidiNoteToFrequency(69); // Returns 440 Hz
+
+// Convert between amplitude and decibels
+float amplitude = 0.5f;
+float db = MathUtility.AmplitudeToDb(amplitude); // ~-6 dB
+float linearAmplitude = MathUtility.DbToAmplitude(db); // Returns ~0.5f
+
+// Calculate signal metrics
+float[] signal = new float[1024]; // Sample signal
+float rms = MathUtility.CalculateRms(signal);
+float peak = MathUtility.CalculatePeak(signal);
+
+// Apply window functions
+MathUtility.ApplyHannWindow(signal);
+MathUtility.ApplyHammingWindow(signal);
+
+// Power and logarithmic scaling
+float logValue = MathUtility.LogScale(1000f); // Log10(1000) = 3
+float powerValue = MathUtility.PowerScale(0.5f, 2.0f); // sqrt(0.5) ≈ 0.707
+
+// Range mapping and interpolation
+float mapped = MathUtility.MapRange(50f, 0f, 100f, 0f, 1f); // 0.5
+float interpolated = MathUtility.Lerp(0f, 100f, 0.5f); // 50
+
+// Power-of-2 utilities
+int nextPower = MathUtility.NextPowerOf2(100); // 128
+bool isPower = MathUtility.IsPowerOf2(128); // true
+
+// Distance calculation
+float dist = MathUtility.Distance(0f, 0f, 3f, 4f); // 5 (3-4-5 triangle)
+```
+
 ## Architecture
 
 The application is a Windows Forms executable layered into services (audio capture, waveform/FFT/spectrogram analysis, MIDI input), domain models, a weak-reference event bus, in-memory repositories, and a small hand-rolled DI container. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the component breakdown, data flow, design decisions, and known limitations.
