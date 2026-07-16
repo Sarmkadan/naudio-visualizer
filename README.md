@@ -53,3 +53,49 @@ string logsDir = PathUtility.GetLogsDirectory();
 // Get temp directory
 string tempDir = PathUtility.GetTempDirectory();
 ```
+
+## PerformanceProfiler
+
+`PerformanceProfiler` is a utility class for tracking and analyzing the execution time of operations. It provides comprehensive performance metrics including total, average, minimum, maximum, and median execution times, along with call counts. The profiler supports both manual timing with `RecordTime` and automatic timing using the disposable `TimingToken` pattern.
+
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Utilities;
+
+// Create a profiler instance
+var profiler = new PerformanceProfiler("AudioProcessingSession");
+
+// Manual timing approach
+profiler.RecordTime("AudioFileLoad", 150);
+profiler.RecordTime("AudioFileLoad", 165);
+profiler.RecordTime("AudioFileLoad", 142);
+
+// Using the disposable TimingToken (recommended)
+using (profiler.StartTimer("AudioProcessing"))
+{
+    // Simulate audio processing work
+    await Task.Delay(200);
+}
+
+using (profiler.StartTimer("AudioFileSave"))
+{
+    // Simulate file saving work
+    await Task.Delay(85);
+}
+
+// Retrieve performance metrics
+Console.WriteLine(profiler.GetReport());
+
+// Get specific metrics
+int callCount = profiler.GetCallCount("AudioFileLoad");
+double averageTime = profiler.GetAverageTime("AudioFileLoad");
+long totalTime = profiler.GetTotalTime("AudioProcessing");
+long minTime = profiler.GetMinTime("AudioFileLoad");
+long maxTime = profiler.GetMaxTime("AudioFileLoad");
+long medianTime = profiler.GetMedianTime("AudioFileLoad");
+
+// Clear all recorded metrics
+profiler.Clear();
+```
