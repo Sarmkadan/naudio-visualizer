@@ -1,445 +1,153 @@
-# Architecture Guide
+# Architecture
 
-Comprehensive overview of NAudio Visualizer's system design, components, and data flow.
+Overview of NAudio Visualizer's actual system design, grounded in the code under `src/`.
 
 ## Table of Contents
 - [System Overview](#system-overview)
-- [Architecture Patterns](#architecture-patterns)
-- [Component Details](#component-details)
+- [Project Layout](#project-layout)
+- [Component Breakdown](#component-breakdown)
 - [Data Flow](#data-flow)
+- [Key Design Decisions](#key-design-decisions)
 - [Threading Model](#threading-model)
-- [Memory Management](#memory-management)
-- [Extensibility](#extensibility)
+- [Extension Points](#extension-points)
+- [Known Limitations](#known-limitations)
 
 ## System Overview
 
-NAudio Visualizer uses a **layered architecture** with clear separation of concerns:
+NAudio Visualizer is a single Windows Forms executable (`net10.0-windows`, `OutputType=WinExe`) that captures audio via NAudio's `WaveInEvent` and is intended to render visualizations with SkiaSharp. It uses a layered layout:
 
 ```
-┌─────────────────────────────────────────┐
-│         Presentation Layer              │
-│  (WinForms UI, CLI, HTTP API)           │
-└─────────────┬───────────────────────────┘
-              │
-┌─────────────▼───────────────────────────┐
-│      Application Layer                  │
-│  (Services: Capture, Analyze, Cache)   │
-└─────────────┬───────────────────────────┘
-              │
-┌─────────────▼───────────────────────────┐
-│        Domain Layer                     │
-│  (Models, Business Logic, Events)      │
-└─────────────┬───────────────────────────┘
-              │
-┌─────────────▼───────────────────────────┐
-│     Infrastructure Layer                │
-│  (Data Access, Logging, Utilities)     │
-└─────────────┴───────────────────────────┘
-              │
-              ▼
-        External Systems
-    (NAudio, SkiaSharp, OS)
++-----------------------------------------+
+| Presentation: WinForms MainForm         |  src/Program.cs
++-----------------------------------------+
+| Services: capture, waveform, FFT, MIDI  |  src/Services/
++-----------------------------------------+
+| Domain: models, events, exceptions      |  src/Domain/, src/Events/, src/Exceptions/
++-----------------------------------------+
+| Infrastructure: logging, config, cache, |  src/Infrastructure/, src/Configuration/,
+| in-memory repositories, utilities       |  src/Caching/, src/Data/, src/Utilities/
++-----------------------------------------+
+        External: NAudio 2.2.1, SkiaSharp 2.88.9, WinForms
 ```
 
-## Architecture Patterns
+There is **no** HTTP API, CLI, webhook publisher, or export service in this codebase. Earlier revisions of this document described such components; they do not exist.
 
-### 1. Dependency Injection
-The `ServiceContainer` provides lightweight IoC functionality:
-- Lazy service registration
-- Transient and singleton scopes
-- Factory pattern support
-- Minimal reflection overhead
+## Project Layout
 
-```csharp
-var container = new ServiceContainer();
-container.Register<ILogger>(() => new Logger("app.log"));
-container.Register<IAudioService>(() => new AudioCaptureService());
-var logger = container.Resolve<ILogger>();
-```
+| Path | Contents |
+|---|---|
+| `src/Program.cs` | `Main` entry point plus `MainForm` (menu/status bar shell; visualization views are TODO stubs) |
+| `src/Configuration/` | `ServiceContainer` (minimal DI), `ApplicationConfiguration`, `ApplicationSettings`, `ConfigurationManager` (key-value settings file) |
+| `src/Services/` | `AudioCaptureService`, `WaveformService`, `SpectrumAnalyzer`, `SpectrogramAnalyzer`, `MidiInputService` |
+| `src/Domain/Models/` | `AudioFrame`, `AudioBuffer`, `AudioMetadata`, `AudioDevice`, `WaveformData`, `SpectrumData`, `SpectrogramData`, `VisualizationData`, `VisualizationSettings`, themes/gradients |
+| `src/Events/` | `EventBus` (weak-reference pub/sub), `EventPublisher`, event records |
+| `src/Data/Repositories/` | `AudioSessionRepository`, `VisualizationDataRepository` (in-memory, lock-based) |
+| `src/Caching/` | `CacheManager<TKey,TValue>` (TTL + least-recently-accessed eviction) |
+| `src/Infrastructure/` | `Logger` (file/console), `AudioDataConverter` |
+| `src/Workers/` | `AudioProcessingWorker` (queued background processing tasks) |
+| `src/Utilities/`, `src/Constants/` | Math/color/path/string helpers, `AudioConstants`, `VisualizationConstants` |
+| `tests/` | xUnit tests (`naudio-visualizer.Tests`) and BenchmarkDotNet project (`naudio-visualizer.Benchmarks`) |
 
-### 2. Repository Pattern
-Data access abstraction with in-memory repositories:
+## Component Breakdown
 
-**VisualizationDataRepository**
-- Stores and queries visualization data
-- Provides time-range queries
-- Implements memory pruning
-- Thread-safe operations
+### Startup (`Program.Main`)
+1. Builds an `ApplicationSettings` from `AudioConstants` / `VisualizationConstants` defaults and validates it with `IsValid()`.
+2. Calls `ApplicationConfiguration.ConfigureServices(settings)` to populate a `ServiceContainer`.
+3. Runs `MainForm`. The form's menu handlers (`OnStartCapture`, `OnShowWaveform`, etc.) are currently TODO stubs - the capture/render services are not yet wired to the UI.
 
-**AudioSessionRepository**
-- Session lifecycle management
-- Frame storage and retrieval
-- Efficient memory management
-- Session statistics
+### ServiceContainer (`src/Configuration/ServiceContainer.cs`)
+A deliberately minimal DI container:
+- `Register<T>(instance)` stores a singleton.
+- `RegisterFactory<T>(Func<ServiceContainer,T>)` stores a factory; **the first `Resolve<T>()` caches the created instance**, so factory registrations are effectively lazy singletons, not transients.
+- `Resolve<T>()` returns `null` for unknown types (no exception), so callers must null-check.
+- `Dispose()` disposes every cached `IDisposable` service and clears registrations.
 
-### 3. Service Layer Pattern
-Business logic isolated in service classes:
+`ApplicationConfiguration.ConfigureServices()` registers: `AudioSessionRepository` and `VisualizationDataRepository` as instances; `AudioCaptureService`, `WaveformService`, `SpectrumAnalyzer`, `SpectrogramAnalyzer` as factories. The `ApplicationSettings` overload currently applies no extra configuration beyond the defaults.
 
-- **AudioCaptureService**: Hardware abstraction, device enumeration, frame delivery
-- **WaveformService**: Waveform generation, downsampling, smoothing
-- **SpectrumAnalyzer**: FFT analysis, windowing, frequency band extraction
-- **SpectrogramAnalyzer**: Time-frequency representation, spectral flux detection
+### AudioCaptureService (`src/Services/AudioCaptureService.cs`)
+- Wraps NAudio `WaveInEvent`, 16-bit PCM, 1-2 channels.
+- `Initialize(deviceIndex, sampleRate, channelCount)` validates arguments, creates the wave input, an `AudioBuffer` sized to ~2 seconds of samples, and an `AudioMetadata` record.
+- `OnDataAvailable` (NAudio callback thread) converts the byte buffer to normalized `float` samples (`short / 32768f`), writes them to the circular `AudioBuffer`, updates metadata and RMS level, then raises `FrameCaptured` **synchronously on the callback thread**.
+- `DeviceStatusChanged` is raised on recording errors.
+- Device enumeration (`GetAvailableDevices`) reads `WaveInEvent.DeviceCount`/`GetCapabilities`; supported sample rates are the hard-coded list `{44100, 48000, 96000, 192000}` (not queried from the driver).
 
-### 4. Event-Driven Architecture
-Asynchronous communication between components:
-- `FrameCaptured` - New audio frame available
-- `VisualizationUpdated` - Visualization data ready
-- `SessionStarted/Ended` - Session lifecycle events
-- `CacheHit/Miss` - Caching events for monitoring
+### AudioBuffer (`src/Domain/Models/AudioBuffer.cs`)
+Lock-protected circular `float[]` buffer. Writes overwrite the oldest data when full (read position advances). `Read(count, out actualRead)` zero-pads on underrun to avoid clicks; `Peek`/`GetAll` are non-destructive. Allocates a new array per read - it is not a zero-allocation/object-pool design.
 
-### 5. Observer Pattern
-Components subscribe to events without tight coupling:
+### Analysis services
+- **WaveformService** - pure functions over `float[]`: averaging downsample, peak extraction, moving-average smoothing, per-segment RMS energy, zero-crossing count. Produces `WaveformData`.
+- **SpectrumAnalyzer** - Hann window + NAudio `FastFourierTransform`, returns `SpectrumData` with `fftSize/2` linear magnitude bins and matching frequency bins; optional in-place dB conversion, smoothing, and peak-hold with configurable dB/s decay. FFT sizes outside `[AudioConstants.FFT_MINIMUM, FFT_MAXIMUM]` are silently replaced with the 2048 default.
+- **SpectrogramAnalyzer** - rolling time-frequency analysis building `SpectrogramData`, with log scaling, normalization, frequency/time slicing, spectral flux and transient detection.
+- **MidiInputService** - NAudio MIDI input wrapper raising `NoteReceived` events.
 
-```csharp
-audioService.FrameCaptured += (sender, frame) =>
-{
-    var waveform = waveformService.GenerateWaveform(frame);
-    // Handle visualization
-};
-```
+### EventBus (`src/Events/EventBus.cs`)
+Type-keyed pub/sub with **weak references** to handler targets, so a subscriber being garbage-collected does not leak; dead subscriptions are pruned on publish. `Subscribe` returns an `IDisposable` for explicit unsubscription. Publishing happens outside the lock; subscriber exceptions are swallowed (Debug-logged) so one bad handler cannot break the rest. Note: because handlers are held weakly, a lambda whose target is not referenced elsewhere can be collected and silently stop receiving events - keep the returned subscription (or the target) alive.
 
-## Component Details
+### Repositories (`src/Data/Repositories/`)
+Both are **in-memory only** (Dictionary + lock); nothing is persisted to disk.
+- `AudioSessionRepository`: session lifecycle (`CreateSession`/`EndSession`/`DeleteSession`), per-session frame storage with a max-frames-per-session cap (oldest frame dropped on overflow), time-range and recent-frame queries, aggregate stats.
+- `VisualizationDataRepository`: stores `VisualizationData` by id with queries by session/type, `GetMostRecent`, `PruneOldest(keepCount)`, and `GetStats()`. Pruning is manual - there is no background auto-pruning timer.
 
-### Audio Capture Pipeline
+### CacheManager (`src/Caching/CacheManager.cs`)
+Generic lock-based cache with per-entry TTL (default 1 h) and capacity-based eviction of the least-recently-accessed entry when `Count > maxSize`. Expired entries are removed lazily on access or via `RemoveExpiredEntries()`. `GetStatistics()` reports `CurrentSize`, `MaxSize`, `FillPercentage` only (no hit-rate or byte-size tracking).
 
-```
-┌────────────┐    ┌─────────────┐    ┌──────────────┐
-│ NAudio    │───▶│ AudioBuffer │───▶│ Frame        │
-│ WaveIn    │    │ (circular)  │    │ EventPublish │
-└────────────┘    └─────────────┘    └──────────────┘
-     ▲                                     │
-     │                                     ▼
-     └─────────────────────────────────────┐
-                                           │
-                          ┌────────────────┴──────────────┐
-                          │ Service Subscribers            │
-                          ├───────────────────────────────┤
-                          │ - WaveformService             │
-                          │ - SpectrumAnalyzer            │
-                          │ - SpectrogramAnalyzer         │
-                          │ - VisualizationDataRepository │
-                          └───────────────────────────────┘
-```
-
-**Key Components:**
-
-1. **NAudio WaveInEvent**
-   - Captures audio from device
-   - Delivers frames asynchronously
-   - 44.1kHz-192kHz sample rate support
-   - Mono/stereo channel support
-
-2. **AudioBuffer**
-   - Thread-safe circular buffer
-   - Zero-allocation design (object pool)
-   - Configurable capacity (default 44100 * 5 samples)
-   - Supports variable read/write sizes
-
-3. **AudioFrame**
-   - Contains raw PCM samples
-   - Timestamp information
-   - Channel metadata
-   - Sample rate information
-
-### Analysis Pipeline
-
-```
-┌────────────────┐
-│ AudioFrame     │
-└────────┬───────┘
-         │
-    ┌────┴───────────────┬──────────────┬──────────────┐
-    │                    │              │              │
-    ▼                    ▼              ▼              ▼
-┌──────────┐    ┌────────────────┐  ┌────────────┐  ┌──────────────┐
-│ Waveform │    │ Spectrum       │  │Spectrogram │  │AudioMetadata │
-│ Service  │    │ Analyzer (FFT) │  │ Analyzer   │  │ Repository   │
-└──────┬───┘    └────────┬───────┘  └────┬───────┘  └──────────────┘
-       │                 │               │
-       │      ┌──────────┴───────────────┘
-       │      │
-       ▼      ▼
-    ┌──────────────────┐
-    │ Cache Manager    │
-    ├──────────────────┤
-    │ - Expiration TTL │
-    │ - LRU eviction   │
-    │ - Statistics     │
-    └──────────────────┘
-```
-
-### Visualization Pipeline
-
-```
-┌──────────────────────┐
-│ VisualizationData    │
-│ - Waveform          │
-│ - Spectrum          │
-│ - Spectrogram       │
-└──────────┬───────────┘
-           │
-    ┌──────┴────────────────────────┐
-    │                               │
-    ▼                               ▼
-┌──────────────┐           ┌────────────────┐
-│ SkiaSharp    │           │ Export Service │
-│ Renderer     │           │ (JSON/CSV/XML) │
-└──────────────┘           └────────────────┘
-    │
-    ▼
-┌──────────────┐
-│ Display/File │
-└──────────────┘
-```
+### AudioProcessingWorker (`src/Workers/AudioProcessingWorker.cs`)
+Background worker that dequeues `ProcessingTask` items and executes them with error/completion callbacks.
 
 ## Data Flow
 
-### Capture → Analysis → Visualization
+Intended pipeline (the services exist and are unit-tested; the WinForms UI wiring is still TODO):
 
 ```
-[Audio Device]
-      │
-      │ PCM samples @ 44.1kHz stereo
-      ▼
-[AudioCaptureService.FrameCaptured]
-      │ 1 frame / 10ms (4410 samples)
-      ▼
-┌─────────────────────────────────┐
-│ Multiple Parallel Subscribers   │
-├─────────────────────────────────┤
-│ 1. WaveformService              │ ──→ WaveformData
-│ 2. SpectrumAnalyzer (2048 FFT)  │ ──→ SpectrumData
-│ 3. SpectrogramAnalyzer          │ ──→ SpectrogramData
-│ 4. SessionRepository (optional) │ ──→ Frame storage
-└─────────────────────────────────┘
-      │
-      ▼
-[CacheManager]
-    Hit? ────────┐
-    Miss?        │
-      │          │
-      ▼          ▼
-[Render]───────→[Display]
-      │
-      ▼
-[Event Bus]
-      │
-      ├─→ [HTTP API clients]
-      ├─→ [Webhook publishers]
-      └─→ [Export workers]
+[Audio device]
+     |  NAudio WaveInEvent callback (16-bit PCM bytes)
+     v
+AudioCaptureService.OnDataAvailable
+     |  bytes -> float[-1,1] samples -> AudioBuffer.Write
+     |  RMS + metadata update
+     v
+FrameCaptured event (synchronous, callback thread)
+     |
+     +--> WaveformService.GenerateWaveform      -> WaveformData
+     +--> SpectrumAnalyzer.AnalyzeSpectrum      -> SpectrumData
+     +--> SpectrogramAnalyzer                   -> SpectrogramData
+     +--> AudioSessionRepository.AddFrameToSession (optional recording)
+                    |
+                    v
+     VisualizationDataRepository / CacheManager
+                    |
+                    v
+     SkiaSharp rendering in MainForm (not yet implemented)
 ```
 
-### Session Recording Flow
+## Key Design Decisions
 
-```
-[Audio Device]
-    │
-    ▼
-[AudioSessionRepository.AddFrameAsync]
-    │
-    ├─→ [Memory storage]
-    │   (up to MaxFramesPerSession)
-    │
-    └─→ [SessionMetadata]
-        - StartTime
-        - EndTime
-        - FrameCount
-        - Duration
-        - Statistics
-```
+1. **Hand-rolled DI instead of `Microsoft.Extensions.DependencyInjection`** - the app needs only singleton services; `ServiceContainer` avoids the dependency and keeps resolution trivial. Trade-off: no transient/scoped lifetimes, no constructor injection, and `Resolve` returning `null` pushes error handling to call sites.
+2. **Weak-reference EventBus** - prevents the classic "forgot to unsubscribe" leak in long-lived audio apps. Trade-off: subscriptions can silently die if the handler target is collected, so callers must hold the returned `IDisposable`.
+3. **Circular AudioBuffer with overwrite-on-full** - real-time capture must never block the NAudio callback; dropping the oldest audio is preferable to stalling. Trade-off: readers can miss data under sustained backpressure.
+4. **Synchronous `FrameCaptured` on the capture thread** - lowest latency and no queue to manage. Trade-off: a slow subscriber delays capture; heavy work (large FFTs) should be offloaded, e.g. via `AudioProcessingWorker`.
+5. **In-memory repositories with hard caps** - visualization data is transient; capping frames per session bounds memory without a persistence layer. Trade-off: nothing survives process exit.
+6. **Fixed 16-bit capture format** - `ConvertBytesToFloatSamples` assumes 2 bytes/sample; this simplifies conversion at the cost of not supporting 24/32-bit or IEEE-float devices.
 
 ## Threading Model
 
-### Thread Safety Design
+- **NAudio callback thread**: `OnDataAvailable` -> buffer write -> `FrameCaptured` handlers.
+- **UI thread**: WinForms message loop; any UI updates from `FrameCaptured` must be marshalled with `Invoke`/`BeginInvoke` (subscriber responsibility).
+- **Thread safety**: `AudioBuffer`, both repositories, `CacheManager`, and `EventBus` each guard state with a private lock. `EventBus.Publish` invokes handlers outside its lock to avoid deadlocks.
+- `AudioCaptureService.StartRecordingAsync` also spins a keep-alive `Task` polling a `CancellationTokenSource` every 50 ms; `StopRecordingAsync` cancels and awaits it.
 
-1. **AudioCaptureService**
-   - Receives frames on NAudio callback thread
-   - Events fired asynchronously (subscriber responsibility)
-   - Lock-free when possible
+## Extension Points
 
-2. **AudioBuffer**
-   - Thread-safe circular buffer
-   - Read/write position tracking
-   - Single reader/writer optimal
-   - Multiple readers: synchronized
+- **New analyzers**: subscribe to `AudioCaptureService.FrameCaptured` (there is no `IAnalyzer` interface - analyzers are plain classes) and register the instance in `ServiceContainer` if it should be shared.
+- **New event types**: define a class and use `EventBus.Subscribe<T>` / `Publish<T>`; no registration needed.
+- **Rendering**: `VisualizationData` plus the `ColorScheme`/`GradientStop` models are renderer-agnostic; a SkiaSharp renderer would consume them inside `MainForm`'s `MainVisualizationPanel`.
+- **Settings**: `ConfigurationManager` persists arbitrary key-value settings to a text file; add keys rather than new config classes for simple options.
 
-3. **VisualizationDataRepository**
-   - Thread-safe concurrent collections
-   - Lock on data modification
-   - Lock-free reads when possible
+## Known Limitations
 
-4. **CacheManager**
-   - Thread-safe dictionary
-   - Atomic operations
-   - No blocking on hit path
-
-### Synchronization Strategy
-
-```csharp
-// Lock-free on hot path (cache hit)
-if (cache.TryGetValue(key, out var value))
-{
-    return value;  // No lock
-}
-
-// Lock only on miss path
-lock (cache)
-{
-    value = Compute();
-    cache[key] = value;
-}
-```
-
-### Background Processing
-
-**ScheduledTaskRunner**
-- Runs long-duration tasks on thread pool
-- Doesn't block UI thread
-- Supports cancellation tokens
-- Monitors progress
-
-**DataExportWorker**
-- Exports visualization data asynchronously
-- Batches operations
-- Monitors for completion
-
-## Memory Management
-
-### Audio Buffering
-
-```csharp
-// Circular buffer design
-var buffer = new AudioBuffer(capacity: 44100 * 5);  // 5 seconds @ 44.1kHz
-
-// Write (from capture thread)
-buffer.Write(samples, count);  // O(1) operation
-
-// Read (from UI thread)
-buffer.Read(output, offset, length);  // O(1) operation
-```
-
-### Visualization Data Retention
-
-```csharp
-// Configure retention policy
-repository.EnableAutoPruning(
-    retentionTimeSeconds: 300,  // Keep 5 minutes
-    checkIntervalSeconds: 10    // Check every 10s
-);
-```
-
-### Cache Management
-
-```csharp
-// LRU eviction with TTL
-cacheManager.Set(key, value, 
-    expiration: TimeSpan.FromSeconds(30));
-
-// Statistics tracking
-var stats = cacheManager.GetStatistics();
-// TotalSizeBytes, ItemCount, HitRate, etc.
-```
-
-## Extensibility
-
-### Adding Custom Analyzers
-
-1. **Implement IAnalyzer**
-```csharp
-public interface IAnalyzer
-{
-    AnalysisResult Analyze(AudioFrame frame);
-}
-```
-
-2. **Register in ServiceContainer**
-```csharp
-container.Register<IAnalyzer>(() => new CustomAnalyzer());
-```
-
-3. **Subscribe to FrameCaptured**
-```csharp
-audioService.FrameCaptured += (s, args) =>
-{
-    var result = analyzer.Analyze(args.Frame);
-};
-```
-
-### Adding Custom Renderers
-
-1. **Extend SkiaSharp canvas**
-```csharp
-public class CustomRenderer
-{
-    public void Render(SKCanvas canvas, VisualizationData data)
-    {
-        // Custom rendering logic
-    }
-}
-```
-
-2. **Hook into event system**
-```csharp
-eventBus.Subscribe<VisualizationUpdatedEvent>(
-    (e) => renderer.Render(e.Data)
-);
-```
-
-### Adding Export Formats
-
-1. **Implement IFormatter**
-```csharp
-public interface IFormatter
-{
-    string Format(VisualizationData data);
-}
-```
-
-2. **Register factory**
-```csharp
-formatterFactory.Register("custom", () => new CustomFormatter());
-```
-
-## Performance Considerations
-
-### Optimization Techniques
-
-1. **Downsampling**
-   - Reduce waveform points for rendering
-   - Example: 44100 samples → 1024 points
-   - Improves render performance by 40x
-
-2. **Spectral Smoothing**
-   - Temporal: Smooth across time (exponential moving average)
-   - Frequency: Smooth across bins (Gaussian filter)
-   - Reduces flickering, visual coherence
-
-3. **FFT Optimization**
-   - Use power-of-2 FFT sizes (2048 optimal)
-   - Smaller sizes (512) = faster but less frequency resolution
-   - Larger sizes (4096) = slower but more resolution
-
-4. **Cache Coherency**
-   - Align visualization update frequency with display refresh (60Hz)
-   - Avoid redundant FFT calculations
-   - Reuse computed results where possible
-
-### Memory Profiling
-
-Monitor heap allocations:
-```csharp
-var sw = Stopwatch.StartNew();
-var before = GC.GetTotalMemory(true);
-
-// Run operation
-
-var after = GC.GetTotalMemory(false);
-var elapsed = sw.ElapsedMilliseconds;
-
-Console.WriteLine($"Allocs: {(after - before) / 1024} KB");
-Console.WriteLine($"Time: {elapsed} ms");
-```
-
----
-
-For detailed API documentation, see [API Reference](./API-REFERENCE.md).
+- The WinForms UI is a shell: capture start/stop, device dialog, and all three visualization views are TODO stubs in `Program.cs`.
+- Windows-only (`net10.0-windows`, WinForms, WaveInEvent); the Dockerfile/Makefile cannot produce a runnable GUI in a Linux container.
+- Capture supports only 16-bit PCM, 1-2 channels; the device sample-rate support list is hard-coded, not queried from the driver.
+- No persistence: sessions, visualization data, and cache contents are lost on exit.
+- `ServiceContainer.Resolve` returns `null` instead of throwing for unregistered types.
+- `MainForm.Dispose` and `Program.Main` both dispose the shared `ServiceContainer` (harmless today because `Dispose` clears its state, but the double ownership is fragile).
