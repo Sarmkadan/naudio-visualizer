@@ -1,3 +1,4 @@
+// README.md
 ## PathUtility
 
 `PathUtility` is a utility class for managing file paths and directories. It provides static methods for path normalization, validation, and manipulation, as well as directory operations and file existence checks.
@@ -145,11 +146,11 @@ Console.WriteLine(snakeCase); // "hello_world"
 
 // Convert to camelCase
 string camelCase = StringUtility.ToCamelCase("hello_world");
-Console.WriteLine(camelCase); // "helloWorld"
+Console.WriteLine(camelCase); // "helloWorld");
 
 // Remove whitespace from a string
 string noWhitespace = StringUtility.RemoveWhitespace("Hello  World  Test");
-Console.WriteLine(noWhitespace); // "HelloWorldTest"
+Console.WriteLine(noWhitespace); // "HelloWorldTest");
 
 // Check if string is alphanumeric
 bool isAlphanumeric = StringUtility.IsAlphanumeric("Hello123");
@@ -158,4 +159,46 @@ Console.WriteLine(isAlphanumeric); // true
 // Count occurrences of a substring
 int count = StringUtility.CountOccurrences("hello hello world", "hello");
 Console.WriteLine(count); // 2
+```
+
+## DateTimeUtility
+
+`DateTimeUtility` provides a collection of static helpers for working with dates and times, including timestamp conversions, ISO‑8601 formatting, duration formatting, and common calendar calculations.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Utilities;
+
+// Current timestamp in milliseconds since the Unix epoch
+long nowMs = DateTimeUtility.GetCurrentTimestampMs();
+
+// Convert a timestamp back to a DateTime
+DateTime now = DateTimeUtility.FromTimestampMs(nowMs);
+
+// Format the DateTime as an ISO‑8601 string and parse it back
+string iso = DateTimeUtility.ToIso8601(now);
+DateTime parsed = DateTimeUtility.FromIso8601(iso);
+
+// Format a TimeSpan as a human‑readable duration
+string duration = DateTimeUtility.FormatDuration(TimeSpan.FromMinutes(2.5));
+
+// Calendar calculations
+int days = DateTimeUtility.DaysBetween(DateTime.Today, DateTime.Today.AddDays(10));
+bool today = DateTimeUtility.IsToday(DateTime.Today);
+bool past = DateTimeUtility.IsInPast(DateTime.UtcNow.AddHours(-1));
+bool future = DateTimeUtility.IsInFuture(DateTime.UtcNow.AddHours(1));
+string relative = DateTimeUtility.GetRelativeTime(DateTime.UtcNow.AddHours(-3));
+
+// Start/end of periods
+DateTime startDay = DateTimeUtility.GetStartOfDay(DateTime.Now);
+DateTime endDay = DateTimeUtility.GetEndOfDay(DateTime.Now);
+DateTime startWeek = DateTimeUtility.GetStartOfWeek(DateTime.Now);
+DateTime startMonth = DateTimeUtility.GetStartOfMonth(DateTime.Now);
+DateTime endMonth = DateTimeUtility.GetEndOfMonth(DateTime.Now);
+
+// Additional helpers
+int age = DateTimeUtility.CalculateAge(new DateTime(1990, 5, 15));
+string dayName = DateTimeUtility.GetDayName(DateTime.Now);
+bool leapYear = DateTimeUtility.IsLeapYear(2024);
 ```
