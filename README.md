@@ -65,6 +65,45 @@ var frames = repository.GetSessionFrames(session.Id);
 repository.EndSession(session.Id);
 ```
 
+## SpectrogramAnalyzer
+
+`SpectrogramAnalyzer` provides a thread‑safe, rolling buffer for spectrum frames and utilities to build, query, and process spectrogram data such as logarithmic scaling, normalization, frequency‑slice extraction, and transient detection.
+
+### Usage Example
+
 ```csharp
-// src/README.md
+using NAudioVisualizer.Services;
+using NAudioVisualizer.Domain.Models;
+using NAudioVisualizer.Constants;
+
+// Create the analyzer and configure the buffer
+var analyzer = new SpectrogramAnalyzer();
+analyzer.SetBufferSize(200);
+
+// Build a spectrogram from an array of audio frames
+AudioFrame[] frames = GetAudioFrames(); // assume this returns populated frames
+SpectrogramData spectrogram = analyzer.BuildSpectrogram(frames);
+
+// Add a single spectrum frame (e.g., from a real‑time callback)
+SpectrumData spectrum = null!; // replace with an actual SpectrumData instance
+analyzer.AddSpectrumFrame(spectrum);
+
+// Retrieve the current rolling spectrogram
+SpectrogramData? current = analyzer.GetCurrentSpectrogram();
+if (current != null)
+{
+    // Apply perceptual scaling and normalization
+    analyzer.ApplyLogScaling(current);
+    analyzer.NormalizeSpectrogram(current);
+
+    // Query a frequency slice at 440 Hz
+    float[] freqSlice = analyzer.GetFrequencySlice(current, 440f);
+
+    // Query a time slice at 1.5 seconds
+    float[] timeSlice = analyzer.GetTimeSlice(current, 1.5);
+
+    // Compute spectral flux and detect transients
+    float[] flux = analyzer.CalculateSpectralFlux(current);
+    List<int> transients = analyzer.DetectTransients(current, 0.6f);
+}
 ```
