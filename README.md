@@ -166,6 +166,54 @@ configManager.ExportSettings("backup-config.json");
 configManager.ImportSettings("restore-config.json");
 ```
 
+## AudioProcessingWorker
+
+`AudioProcessingWorker` is a background worker that processes audio frames asynchronously on a dedicated thread to avoid blocking the UI. It maintains an internal queue of processing tasks and executes them sequentially, providing thread-safe operations for task management and graceful start/stop functionality.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Workers;
+using NAudioVisualizer.Infrastructure;
+
+// Create a logger and processing worker
+var logger = new Logger();
+var worker = new AudioProcessingWorker(logger);
+
+// Start the worker
+worker.Start();
+
+// Create and enqueue a processing task
+var task = new AudioProcessingWorker.ProcessingTask
+{
+    Name = "Real-time FFT Analysis",
+    ExecuteAsync = async ct =>
+    {
+        // Your audio processing logic here
+        await Task.Delay(100, ct);
+        Console.WriteLine("Processing task executed");
+    },
+    OnComplete = () => Console.WriteLine("Task completed successfully"),
+    OnError = ex => Console.WriteLine($"Task failed: {ex.Message}")
+};
+
+worker.EnqueueTask(task);
+
+// Check queue depth
+int queueDepth = worker.GetQueueDepth();
+Console.WriteLine($"Queue depth: {queueDepth}");
+
+// Clear the queue when needed
+int clearedCount = worker.ClearQueue();
+Console.WriteLine($"Cleared {clearedCount} tasks from queue");
+
+// Stop the worker gracefully
+await worker.StopAsync();
+
+// Dispose when done
+worker.Dispose();
+```
+
 ## Architecture
 
 The application is a Windows Forms executable layered into services (audio capture, waveform/FFT/spectrogram analysis, MIDI input), domain models, a weak-reference event bus, in-memory repositories, and a small hand-rolled DI container. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the component breakdown, data flow, design decisions, and known limitations.
