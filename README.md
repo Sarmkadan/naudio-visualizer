@@ -166,6 +166,59 @@ configManager.ExportSettings("backup-config.json");
 configManager.ImportSettings("restore-config.json");
 ```
 
+## CacheManager
+
+`CacheManager<TKey, TValue>` is a generic LRU (Least Recently Used) cache implementation that provides automatic expiration, thread-safe operations, and memory management for cached items. It supports customizable cache size limits, default expiration times, and comprehensive statistics tracking.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Caching;
+using System;
+
+// Create a cache manager with a maximum size of 500 items and 2-hour default expiration
+var cache = new CacheManager<string, byte[]>(
+    maxSize: 500,
+    defaultExpiration: TimeSpan.FromHours(2)
+);
+
+// Add items to the cache
+cache.Set("audio-buffer-1", audioData1);
+cache.Set("audio-buffer-2", audioData2);
+cache.Set("audio-buffer-3", audioData3, TimeSpan.FromMinutes(30)); // Custom expiration
+
+// Check if a key exists
+bool hasKey = cache.Contains("audio-buffer-1");
+Console.WriteLine($"Contains audio-buffer-1: {hasKey}");
+
+// Try to get a value
+if (cache.TryGetValue("audio-buffer-2", out var cachedData))
+{
+    Console.WriteLine($"Retrieved {cachedData.Length} bytes from cache");
+}
+
+// Get a value with a default fallback
+byte[] defaultData = new byte[1024];
+byte[] data = cache.GetOrDefault("missing-key", defaultData);
+Console.WriteLine($"Retrieved {data.Length} bytes (default fallback)");
+
+// Remove an item
+bool removed = cache.Remove("audio-buffer-1");
+Console.WriteLine($"Item removed: {removed}");
+
+// Get cache statistics
+var stats = cache.GetStatistics();
+Console.WriteLine($"Cache size: {stats.CurrentSize}/{stats.MaxSize} ({stats.FillPercentage:F1}% full)");
+
+// Remove all expired entries
+int expiredCount = cache.RemoveExpiredEntries();
+Console.WriteLine($"Removed {expiredCount} expired entries");
+
+// Clear the entire cache
+cache.Clear();
+Console.WriteLine("Cache cleared");
+```
+
 ## AudioProcessingWorker
 
 `AudioProcessingWorker` is a background worker that processes audio frames asynchronously on a dedicated thread to avoid blocking the UI. It maintains an internal queue of processing tasks and executes them sequentially, providing thread-safe operations for task management and graceful start/stop functionality.
