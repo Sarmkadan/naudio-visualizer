@@ -376,3 +376,42 @@ float[] smoothed = benchmarks.ApplySmoothingFilter();
 // Run all benchmarks and display results
 WaveformServiceBenchmarks.Program.Main(new string[0]);
 ```
+
+## MathUtilityTests
+
+`MathUtilityTests` is a test class that verifies the behavior of mathematical utility methods provided by the `MathUtility` class. It contains unit tests for frequency-to-MIDI conversion, amplitude-to-decibel conversion, RMS calculation, power-of-two operations, linear interpolation, and range mapping functions.
+
+### Usage Example
+
+```csharp
+using FluentAssertions;
+using NAudioVisualizer.Utilities;
+using Xunit;
+
+// Test frequency to MIDI conversion
+MathUtility.FrequencyToMidiNote(440f).Should().Be(69); // A4 note
+MathUtility.FrequencyToMidiNote(0f).Should().Be(0); // Non-positive frequency returns 0
+
+// Test amplitude to decibel conversion
+MathUtility.AmplitudeToDb(0f).Should().Be(float.NegativeInfinity); // Zero amplitude
+MathUtility.AmplitudeToDb(1f).Should().Be(0f); // Unit amplitude = 0 dB
+
+// Test RMS calculation
+float[] uniformSignal = new float[] { 0.5f, 0.5f, 0.5f, 0.5f };
+MathUtility.CalculateRms(uniformSignal).Should().BeApproximately(0.5f, 0.0001f);
+MathUtility.CalculateRms(Array.Empty<float>()).Should().Be(0f); // Empty array
+
+// Test peak calculation
+float[] signalWithNegative = new float[] { 0.3f, -0.7f, 0.4f };
+MathUtility.CalculatePeak(signalWithNegative).Should().Be(0.7f); // Absolute maximum
+
+// Test power-of-two operations
+MathUtility.NextPowerOf2(15).Should().Be(16);
+MathUtility.IsPowerOf2(16).Should().BeTrue();
+MathUtility.IsPowerOf2(15).Should().BeFalse();
+
+// Test linear interpolation and range mapping
+MathUtility.Lerp(0.5f, 0f, 10f).Should().Be(5f); // Midpoint
+MathUtility.MapRange(0.5f, 0f, 1f, 10f, 20f).Should().Be(15f); // Midpoint of target range
+MathUtility.MapRange(0.5f, 0f, 0.5f, 10f, 20f).Should().Be(10f); // Clamped to target minimum
+```
