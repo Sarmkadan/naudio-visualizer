@@ -357,6 +357,67 @@ Color fromHex = ColorUtility.HexToColor("#FF5733");
 Console.WriteLine($"Hex to color: R={fromHex.R}, G={fromHex.G}, B={fromHex.B}");
 ```
 
+## FileSystemUtility
+
+`FileSystemUtility` is a static utility class that provides robust file system operations with built-in error handling and safety checks. It includes methods for directory and file management, size calculations, path manipulation, and asynchronous file I/O operations, making it ideal for applications that need reliable file system access.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Utilities;
+using System;
+using System.IO;
+
+// Create directories and manage files safely
+string tempDir = Path.Combine(Path.GetTempPath(), "NAudioVisualizerTemp");
+bool dirCreated = FileSystemUtility.CreateDirectoryIfNotExists(tempDir);
+Console.WriteLine($"Directory created: {dirCreated}");
+
+// Ensure a directory exists
+string cacheDir = Path.Combine(tempDir, "Cache");
+FileSystemUtility.EnsureDirectoryExists(cacheDir);
+
+// Get file size and format it
+string testFile = Path.Combine(tempDir, "test.txt");
+File.WriteAllText(testFile, "Hello World!");
+long fileSize = FileSystemUtility.GetFileSize(testFile);
+string formattedSize = FileSystemUtility.FormatFileSize(fileSize);
+Console.WriteLine($"File size: {formattedSize}");
+
+// Generate unique filenames
+string uniquePath = FileSystemUtility.GenerateUniqueFileName(testFile);
+Console.WriteLine($"Unique path: {uniquePath}");
+
+// Safely delete files and directories
+bool fileDeleted = FileSystemUtility.SafeDeleteFile(testFile);
+Console.WriteLine($"File deleted: {fileDeleted}");
+
+FileSystemUtility.SafeDeleteDirectory(cacheDir);
+FileSystemUtility.SafeDeleteDirectory(tempDir);
+
+// Check if path is directory and get relative paths
+string currentDir = Directory.GetCurrentDirectory();
+string relativePath = FileSystemUtility.GetRelativePath(currentDir, tempDir);
+Console.WriteLine($"Relative path: {relativePath}");
+
+// Work with directories and sizes
+string dataDir = Path.Combine(tempDir, "Data");
+Directory.CreateDirectory(dataDir);
+File.WriteAllText(Path.Combine(dataDir, "file1.txt"), "Data 1");
+File.WriteAllText(Path.Combine(dataDir, "file2.txt"), "Data 2");
+
+long dirSize = FileSystemUtility.GetDirectorySize(dataDir);
+Console.WriteLine($"Directory size: {FileSystemUtility.FormatFileSize(dirSize)}");
+
+int oldFilesDeleted = FileSystemUtility.CleanupOldFiles(tempDir, 0); // Cleanup immediately
+Console.WriteLine($"Old files deleted: {oldFilesDeleted}");
+
+// Asynchronous file operations
+await FileSystemUtility.WriteFileAsync(Path.Combine(tempDir, "async.txt"), "Async content");
+string content = await FileSystemUtility.ReadFileAsync(Path.Combine(tempDir, "async.txt"));
+Console.WriteLine($"Async read: {content}");
+```
+
 ## Architecture
 
 The application is a Windows Forms executable layered into services (audio capture, waveform/FFT/spectrogram analysis, MIDI input), domain models, a weak-reference event bus, in-memory repositories, and a small hand-rolled DI container. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the component breakdown, data flow, design decisions, and known limitations.
