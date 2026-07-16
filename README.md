@@ -242,6 +242,70 @@ ValidationUtility.ThrowIfOutOfRange(44100, 8000, 192000, nameof(sampleRate));
 ValidationUtility.ThrowIfInvalid(ValidationUtility.ValidateSampleRate(44100), nameof(sampleRate), "must be between 8000 and 192000");
 ```
 
+## AudioBufferAndEventBusTests
+
+`AudioBufferAndEventBusTests` is a comprehensive test class that verifies the behavior of the `AudioBuffer` and `EventBus` components. It contains unit tests for audio sample buffering functionality including writing, reading, peeking, capacity management, clearing, and duration calculation, as well as event bus subscription and publishing behavior with Moq-based verification.
+
+### Usage Example
+
+```csharp
+using FluentAssertions;
+using NAudioVisualizer.Caching;
+using NAudioVisualizer.Domain.Models;
+using NAudioVisualizer.Events;
+using Xunit;
+
+// Test AudioBuffer functionality
+var buffer = new AudioBuffer(capacity: 1024, sampleRate: 44100, channelCount: 2);
+
+// Write samples to buffer
+buffer.Write(new float[] { 0.1f, 0.2f, 0.3f, 0.4f });
+buffer.Count.Should().Be(4);
+
+// Read samples from buffer
+var samples = buffer.Read(2, out int actualRead);
+samples.Should().HaveCount(2);
+actualRead.Should().Be(2);
+
+// Peek at samples without consuming them
+buffer.Peek(3);
+buffer.Count.Should().Be(4); // Count unchanged
+
+// Test capacity management - oldest samples get overwritten
+buffer.Write(new float[1024]); // Fill buffer
+buffer.IsFull().Should().BeTrue();
+
+// Test duration calculation
+var duration = buffer.GetDurationSeconds();
+duration.Should().BeApproximately(0.0232f, precision: 0.0001f); // 1024 samples at 44100 Hz
+
+// Test EventBus functionality
+var eventBus = new EventBus();
+bool eventReceived = false;
+
+// Subscribe to events
+var subscription = eventBus.Subscribe<string>(payload => {
+    eventReceived = true;
+    payload.Should().Be("test-event");
+});
+
+// Publish an event
+eventBus.Publish("test-event");
+eventReceived.Should().BeTrue();
+
+// Unsubscribe using token
+subscription.Dispose();
+eventReceived = false;
+eventBus.Publish("test-event-after-dispose");
+eventReceived.Should().BeFalse();
+
+// Test cache functionality
+var cache = new CacheManager<string, int>();
+cache.Set("sampleRate", 48000);
+cache.TryGetValue("sampleRate", out var retrievedValue).Should().BeTrue();
+retrievedValue.Should().Be(48000);
+```
+
 ## WaveformServiceBenchmarks
 
 `WaveformServiceBenchmarks` is a benchmark class for measuring the performance of various waveform processing operations in the `WaveformService` class. It uses BenchmarkDotNet to provide detailed performance metrics including execution time, memory allocation, and other diagnostic information for optimizing audio waveform generation and processing algorithms.
