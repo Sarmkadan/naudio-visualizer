@@ -202,3 +202,42 @@ int age = DateTimeUtility.CalculateAge(new DateTime(1990, 5, 15));
 string dayName = DateTimeUtility.GetDayName(DateTime.Now);
 bool leapYear = DateTimeUtility.IsLeapYear(2024);
 ```
+
+## ValidationUtility
+
+`ValidationUtility` provides comprehensive validation methods for common audio processing parameters and data validation scenarios. It centralizes validation logic to ensure consistency across the application, with both boolean validation methods and exception-throwing variants for different use cases.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Utilities;
+
+// Validate audio processing parameters
+bool isValidSampleRate = ValidationUtility.ValidateSampleRate(44100); // true
+bool isValidFftSize = ValidationUtility.ValidateFftSize(1024); // true
+bool isValidChannelCount = ValidationUtility.ValidateChannelCount(2); // true
+bool isValidFps = ValidationUtility.ValidateFps(60); // true
+bool isValidFrequency = ValidationUtility.ValidateFrequency(1000f); // true
+
+// Validate audio data
+float[] audioData = new float[] { 0.5f, -0.3f, 0.8f };
+bool isValidAudioData = ValidationUtility.ValidateAudioData(audioData); // true
+bool isValidAmplitude = ValidationUtility.ValidateAmplitude(0.75f); // true
+
+// Validate file paths and durations
+bool isValidFilePath = ValidationUtility.ValidateFilePath("audio.wav"); // true
+bool isValidDuration = ValidationUtility.ValidateDuration(30.5f); // true
+bool isValidDeviceIndex = ValidationUtility.ValidateDeviceIndex(0); // true
+bool isValidTimeInMs = ValidationUtility.ValidateTimeInMs(5000); // true
+bool isValidNormalization = ValidationUtility.ValidateNormalization(1.0f); // true
+
+// Validate collections and required parameters
+bool isValidCollection = ValidationUtility.ValidateCollection(new List<float> { 1.0f, 2.0f }); // true
+bool areParametersValid = ValidationUtility.ValidateRequiredParameters("audio.wav", 44100, 2); // true
+
+// Using exception-throwing methods for direct validation in method calls
+ValidationUtility.ThrowIfNull(audioData, nameof(audioData));
+ValidationUtility.ThrowIfNullOrWhitespace("audio.wav", nameof(filePath));
+ValidationUtility.ThrowIfOutOfRange(44100, 8000, 192000, nameof(sampleRate));
+ValidationUtility.ThrowIfInvalid(ValidationUtility.ValidateSampleRate(44100), nameof(sampleRate), "must be between 8000 and 192000");
+```
