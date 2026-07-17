@@ -5,12 +5,12 @@ using System.Globalization;
 namespace NAudioVisualizer.Domain.Models
 {
     /// <summary>
-    /// Extension methods that provide additional insight and utility operations for <see cref="AudioMetadata"/>.
+    /// Provides extension methods for <see cref="AudioMetadata"/> that offer additional insight and utility operations.
     /// </summary>
     public static class AudioMetadataExtensions
     {
         /// <summary>
-        /// Returns the current captured duration formatted as a human‑readable string (hh:mm:ss.fff).
+        /// Gets the current captured duration formatted as a human-readable string (hh:mm:ss.fff).
         /// </summary>
         /// <param name="metadata">The <see cref="AudioMetadata"/> instance.</param>
         /// <returns>A formatted duration string.</returns>
@@ -23,7 +23,7 @@ namespace NAudioVisualizer.Domain.Models
         }
 
         /// <summary>
-        /// Retrieves the level metrics (current, peak and average) as a read‑only dictionary.
+        /// Retrieves the level metrics (current, peak and average) as a read-only dictionary.
         /// </summary>
         /// <param name="metadata">The <see cref="AudioMetadata"/> instance.</param>
         /// <returns>An <see cref="IReadOnlyDictionary{TKey,TValue}"/> containing the level values.</returns>
@@ -31,13 +31,13 @@ namespace NAudioVisualizer.Domain.Models
         public static IReadOnlyDictionary<string, float> GetLevelMetrics(this AudioMetadata metadata)
         {
             ArgumentNullException.ThrowIfNull(metadata);
-            var dict = new Dictionary<string, float>(capacity: 3)
+
+            return new Dictionary<string, float>(capacity: 3)
             {
                 ["Current"] = metadata.CurrentLevel,
-                ["Peak"]    = metadata.PeakLevel,
+                ["Peak"] = metadata.PeakLevel,
                 ["Average"] = metadata.AverageLevel
             };
-            return dict;
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace NAudioVisualizer.Domain.Models
         /// </summary>
         /// <param name="metadata">The <see cref="AudioMetadata"/> instance.</param>
         /// <returns>
-        /// <c>true</c> if CPU usage exceeds 80 % or any buffer underruns have been recorded; otherwise, <c>false</c>.
+        /// <c>true</c> if CPU usage exceeds 80 % or any buffer underruns have been recorded; otherwise, <c>false</c>.
         /// </returns>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="metadata"/> is <c>null</c>.</exception>
         public static bool HasPerformanceIssues(this AudioMetadata metadata)
