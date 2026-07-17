@@ -35,7 +35,7 @@ namespace NAudioVisualizer.Exceptions
             ArgumentNullException.ThrowIfNull(exception);
             ArgumentException.ThrowIfNullOrEmpty(visualizationType);
 
-            return string.Equals(exception.VisualizationType, visualizationType, StringComparison.Ordinal);
+            return exception.VisualizationType == visualizationType;
         }
 
         /// <summary>
