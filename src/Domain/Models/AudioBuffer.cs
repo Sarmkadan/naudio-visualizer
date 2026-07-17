@@ -38,7 +38,7 @@ public sealed class AudioBuffer
     /// <summary>
     /// Lock for thread-safe operations.
     /// </summary>
-    private readonly object _lock = new();
+    internal readonly object _lock = new();
 
     /// <summary>
     /// Number of samples currently in the buffer.

@@ -10,14 +10,15 @@ namespace NAudioVisualizer.Domain.Models;
 public static class AudioBufferExtensions
 {
     /// <summary>
-    /// Copies samples from the buffer to a target array, handling channel separation and interleaving.
+    /// Copies samples from one channel to another in the audio buffer.
+    /// The audio buffer stores samples in interleaved format: [ch0_sample0, ch1_sample0, ch0_sample1, ch1_sample1, ...].
     /// </summary>
-    /// <param name="buffer">The audio buffer.</param>
-    /// <param name="target">The target array to copy samples to.</param>
+    /// <param name="buffer">The audio buffer containing interleaved audio data.</param>
+    /// <param name="target">The target array to copy samples to. Must be large enough to hold the copied channel data.</param>
     /// <param name="targetChannel">The target channel index (0-based).</param>
     /// <param name="sourceChannel">The source channel index (0-based).</param>
     /// <exception cref="ArgumentNullException"><paramref name="buffer"/> or <paramref name="target"/> is null.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">Channel indices are invalid.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Channel indices are invalid or <paramref name="target"/> is too small.</exception>
     public static void CopyToChannel(
         this AudioBuffer buffer,
         float[] target,
@@ -41,7 +42,16 @@ public static class AudioBufferExtensions
                 $"Source channel {sourceChannel} is out of range [0, {buffer.ChannelCount - 1}]");
         }
 
-        lock (buffer.GetLock())
+        // Ensure target array has enough space for the channel data
+        int requiredLength = buffer.Count * buffer.ChannelCount;
+        if (target.Length < requiredLength)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(target),
+                $"Target array must have at least {requiredLength} elements, but has {target.Length}");
+        }
+
+        lock (buffer._lock)
         {
             // Calculate stride between channels
             int stride = buffer.ChannelCount;
@@ -71,7 +81,7 @@ public static class AudioBufferExtensions
     {
         ArgumentNullException.ThrowIfNull(buffer);
 
-        lock (buffer.GetLock())
+        lock (buffer._lock)
         {
             float[] samples = buffer.GetAll();
             float[] normalized = new float[samples.Length];
@@ -124,10 +134,9 @@ public static class AudioBufferExtensions
     {
         ArgumentNullException.ThrowIfNull(buffer);
 
-        lock (buffer.GetLock())
+        lock (buffer._lock)
         {
-            var stats = buffer.GetStats();
-            return stats.FillPercentage.ToString(format, CultureInfo.InvariantCulture);
+            return buffer.GetStats().FillPercentage.ToString(format, CultureInfo.InvariantCulture);
         }
     }
 
@@ -140,6 +149,6 @@ public static class AudioBufferExtensions
     internal static object GetLock(this AudioBuffer buffer)
     {
         ArgumentNullException.ThrowIfNull(buffer);
-        return buffer.GetType().GetField("_lock", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(buffer);
+        return buffer._lock;
     }
 }
