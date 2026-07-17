@@ -203,6 +203,61 @@ string dayName = DateTimeUtility.GetDayName(DateTime.Now);
 bool leapYear = DateTimeUtility.IsLeapYear(2024);
 ```
 
+## AudioDeviceExtensions
+
+`AudioDeviceExtensions` provides extension methods for the `AudioDevice` class, offering convenient ways to query device properties and capabilities. These methods simplify common audio device operations such as checking supported sample rates, retrieving device metadata, and determining device availability.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Domain.Models;
+
+// Example: Querying audio device properties and capabilities
+var audioDevices = AudioDevice.GetAvailableDevices();
+
+foreach (var device in audioDevices)
+{
+    // Check if device is available
+    bool isAvailable = device.IsAvailable();
+    Console.WriteLine($"Device '{device.GetName()}' is {(isAvailable ? "available" : "unavailable")}");
+    
+    // Get basic device information
+    Console.WriteLine($"  Manufacturer: {device.GetManufacturer()}");
+    Console.WriteLine($"  Channels: {device.GetChannelCount()}");
+    Console.WriteLine($"  Bit Depth: {device.GetBitDepth()} bits");
+    Console.WriteLine($"  Default Sample Rate: {device.GetDefaultSampleRate()} Hz");
+    
+    // Check if device is the default system device
+    bool isDefault = device.IsDefaultDevice();
+    Console.WriteLine($"  Is Default Device: {isDefault}");
+    
+    // Get all supported sample rates
+    var supportedSampleRates = device.GetSupportedSampleRates();
+    Console.WriteLine($"  Supported Sample Rates: {string.Join(", ", supportedSampleRates)}");
+    
+    // Check if a specific sample rate is supported
+    bool supports48kHz = device.IsSampleRateSupported(48000);
+    Console.WriteLine($"  Supports 48kHz: {supports48kHz}");
+    
+    bool supports192kHz = device.IsSampleRateSupported(192000);
+    Console.WriteLine($"  Supports 192kHz: {supports192kHz}");
+    
+    // Get device capabilities
+    var capabilities = device.GetCapabilities();
+    Console.WriteLine($"  Capabilities: {capabilities}");
+}
+
+// Example: Filtering devices by capabilities
+var inputDevices = audioDevices.Where(d => d.GetCapabilities().HasFlag(DeviceCapabilities.Input));
+Console.WriteLine($"Found {inputDevices.Count()} input devices");
+
+// Example: Finding a device with specific requirements
+var suitableDevice = audioDevices.FirstOrDefault(d => 
+    d.IsAvailable() && 
+    d.IsSampleRateSupported(44100) && 
+    d.GetChannelCount() >= 2);
+```
+
 ## ValidationUtility
 
 `ValidationUtility` provides comprehensive validation methods for common audio processing parameters and data validation scenarios. It centralizes validation logic to ensure consistency across the application, with both boolean validation methods and exception-throwing variants for different use cases.
