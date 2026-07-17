@@ -21,13 +21,13 @@ public static class WaveformDataExtensions
     /// <summary>
     /// Creates a new <see cref="WaveformData"/> instance by combining left and right channel samples.
     /// </summary>
-    /// <param name="leftSamples">Left channel samples (must not be null or empty)</param>
-    /// <param name="rightSamples">Right channel samples (must not be null or empty)</param>
-    /// <param name="sampleRate">Sample rate of the audio</param>
-    /// <param name="downsamplingFactor">Downsampling factor to apply</param>
-    /// <returns>A new <see cref="WaveformData"/> instance containing interleaved stereo samples</returns>
-    /// <exception cref="ArgumentNullException">Thrown if leftSamples or rightSamples is null</exception>
-    /// <exception cref="ArgumentException">Thrown if leftSamples or rightSamples is empty or arrays have different lengths</exception>
+    /// <param name="leftSamples">Left channel samples (must not be null or empty).</param>
+    /// <param name="rightSamples">Right channel samples (must not be null or empty).</param>
+    /// <param name="sampleRate">Sample rate of the audio.</param>
+    /// <param name="downsamplingFactor">Downsampling factor to apply.</param>
+    /// <returns>A new <see cref="WaveformData"/> instance containing interleaved stereo samples.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="leftSamples"/> or <paramref name="rightSamples"/> is null.</exception>
+    /// <exception cref="ArgumentException">Thrown if <paramref name="leftSamples"/> or <paramref name="rightSamples"/> is empty or arrays have different lengths.</exception>
     public static WaveformData ToStereoWaveform(this float[] leftSamples, float[] rightSamples, int sampleRate, int downsamplingFactor = 1)
     {
         ArgumentNullException.ThrowIfNull(leftSamples);
@@ -55,10 +55,10 @@ public static class WaveformDataExtensions
     /// <summary>
     /// Converts mono <see cref="WaveformData"/> to stereo by duplicating the mono channel.
     /// </summary>
-    /// <param name="waveform">The mono waveform data to convert</param>
-    /// <returns>A new <see cref="WaveformData"/> instance with stereo channels</returns>
-    /// <exception cref="ArgumentNullException">Thrown if waveform is null</exception>
-    /// <exception cref="InvalidOperationException">Thrown if waveform is already stereo</exception>
+    /// <param name="waveform">The mono waveform data to convert.</param>
+    /// <returns>A new <see cref="WaveformData"/> instance with stereo channels.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="waveform"/> is null.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if waveform is already stereo.</exception>
     public static WaveformData ToStereo(this WaveformData waveform)
     {
         ArgumentNullException.ThrowIfNull(waveform);
@@ -86,11 +86,11 @@ public static class WaveformDataExtensions
     /// <summary>
     /// Gets the peak values for the specified channel.
     /// </summary>
-    /// <param name="waveform">The waveform data</param>
-    /// <param name="channelIndex">0 for left channel, 1 for right channel</param>
-    /// <returns>An array of peak values for the specified channel, or null if not available</returns>
-    /// <exception cref="ArgumentNullException">Thrown if waveform is null</exception>
-    /// <exception cref="ArgumentOutOfRangeException">Thrown if channelIndex is not 0 or 1</exception>
+    /// <param name="waveform">The waveform data.</param>
+    /// <param name="channelIndex">0 for left channel, 1 for right channel.</param>
+    /// <returns>An array of peak values for the specified channel, or null if not available.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="waveform"/> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="channelIndex"/> is not 0 or 1.</exception>
     public static float[]? GetChannelPeaks(this WaveformData waveform, int channelIndex)
     {
         ArgumentNullException.ThrowIfNull(waveform);
@@ -106,9 +106,9 @@ public static class WaveformDataExtensions
     /// <summary>
     /// Calculates the duration of the waveform in seconds.
     /// </summary>
-    /// <param name="waveform">The waveform data</param>
-    /// <returns>The duration in seconds, or 0 if invalid</returns>
-    /// <exception cref="ArgumentNullException">Thrown if waveform is null</exception>
+    /// <param name="waveform">The waveform data.</param>
+    /// <returns>The duration in seconds, or 0 if invalid.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="waveform"/> is null.</exception>
     public static double GetDurationSeconds(this WaveformData waveform)
     {
         ArgumentNullException.ThrowIfNull(waveform);
@@ -122,9 +122,9 @@ public static class WaveformDataExtensions
     /// <summary>
     /// Gets the total number of samples across all channels.
     /// </summary>
-    /// <param name="waveform">The waveform data</param>
-    /// <returns>The total sample count</returns>
-    /// <exception cref="ArgumentNullException">Thrown if waveform is null</exception>
+    /// <param name="waveform">The waveform data.</param>
+    /// <returns>The total sample count.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="waveform"/> is null.</exception>
     public static int GetTotalSampleCount(this WaveformData waveform)
     {
         ArgumentNullException.ThrowIfNull(waveform);
@@ -135,12 +135,16 @@ public static class WaveformDataExtensions
     /// <summary>
     /// Gets the number of data points per channel.
     /// </summary>
-    /// <param name="waveform">The waveform data</param>
-    /// <returns>The number of data points per channel</returns>
-    /// <exception cref="ArgumentNullException">Thrown if waveform is null</exception>
+    /// <param name="waveform">The waveform data.</param>
+    /// <returns>The number of data points per channel.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="waveform"/> is null.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if <paramref name="waveform"/> has invalid channel count.</exception>
     public static int GetPointsPerChannel(this WaveformData waveform)
     {
         ArgumentNullException.ThrowIfNull(waveform);
+
+        if (waveform.ChannelCount <= 0)
+            throw new InvalidOperationException("Channel count must be positive.");
 
         return waveform.GetData().Length / waveform.ChannelCount;
     }
@@ -148,11 +152,11 @@ public static class WaveformDataExtensions
     /// <summary>
     /// Creates a downsampled copy of the waveform with the specified factor.
     /// </summary>
-    /// <param name="waveform">The waveform data to downsample</param>
-    /// <param name="factor">Downsampling factor (must be greater than 1)</param>
-    /// <returns>A new <see cref="WaveformData"/> instance with downsampled data</returns>
-    /// <exception cref="ArgumentNullException">Thrown if waveform is null</exception>
-    /// <exception cref="ArgumentOutOfRangeException">Thrown if factor is less than 2</exception>
+    /// <param name="waveform">The waveform data to downsample.</param>
+    /// <param name="factor">Downsampling factor (must be greater than 1).</param>
+    /// <returns>A new <see cref="WaveformData"/> instance with downsampled data.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="waveform"/> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="factor"/> is less than 2.</exception>
     public static WaveformData Downsample(this WaveformData waveform, int factor)
     {
         ArgumentNullException.ThrowIfNull(waveform);
@@ -179,9 +183,9 @@ public static class WaveformDataExtensions
     /// <summary>
     /// Gets the peak amplitude value from the waveform data.
     /// </summary>
-    /// <param name="waveform">The waveform data</param>
-    /// <returns>The peak amplitude value, or 0 if no data</returns>
-    /// <exception cref="ArgumentNullException">Thrown if waveform is null</exception>
+    /// <param name="waveform">The waveform data.</param>
+    /// <returns>The peak amplitude value, or 0 if no data.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="waveform"/> is null.</exception>
     public static float GetPeakAmplitude(this WaveformData waveform)
     {
         ArgumentNullException.ThrowIfNull(waveform);
@@ -192,9 +196,9 @@ public static class WaveformDataExtensions
     /// <summary>
     /// Gets the RMS (Root Mean Square) amplitude of the waveform.
     /// </summary>
-    /// <param name="waveform">The waveform data</param>
-    /// <returns>The RMS amplitude value</returns>
-    /// <exception cref="ArgumentNullException">Thrown if waveform is null</exception>
+    /// <param name="waveform">The waveform data.</param>
+    /// <returns>The RMS amplitude value.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="waveform"/> is null.</exception>
     public static float GetRmsAmplitude(this WaveformData waveform)
     {
         ArgumentNullException.ThrowIfNull(waveform);
@@ -215,9 +219,9 @@ public static class WaveformDataExtensions
     /// <summary>
     /// Gets the average amplitude of the waveform.
     /// </summary>
-    /// <param name="waveform">The waveform data</param>
-    /// <returns>The average amplitude value</returns>
-    /// <exception cref="ArgumentNullException">Thrown if waveform is null</exception>
+    /// <param name="waveform">The waveform data.</param>
+    /// <returns>The average amplitude value.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="waveform"/> is null.</exception>
     public static float GetAverageAmplitude(this WaveformData waveform)
     {
         ArgumentNullException.ThrowIfNull(waveform);
@@ -228,9 +232,9 @@ public static class WaveformDataExtensions
     /// <summary>
     /// Creates a normalized copy of the waveform.
     /// </summary>
-    /// <param name="waveform">The waveform data to normalize</param>
-    /// <returns>A new normalized <see cref="WaveformData"/> instance</returns>
-    /// <exception cref="ArgumentNullException">Thrown if waveform is null</exception>
+    /// <param name="waveform">The waveform data to normalize.</param>
+    /// <returns>A new normalized <see cref="WaveformData"/> instance.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="waveform"/> is null.</exception>
     public static WaveformData NormalizedCopy(this WaveformData waveform)
     {
         ArgumentNullException.ThrowIfNull(waveform);
@@ -261,10 +265,10 @@ public static class WaveformDataExtensions
     /// <summary>
     /// Splits stereo <see cref="WaveformData"/> into separate left and right channel arrays.
     /// </summary>
-    /// <param name="waveform">The stereo waveform data to split</param>
-    /// <returns>A tuple containing left and right channel samples, or null if not stereo</returns>
-    /// <exception cref="ArgumentNullException">Thrown if waveform is null</exception>
-    /// <exception cref="InvalidOperationException">Thrown if waveform is not stereo</exception>
+    /// <param name="waveform">The stereo waveform data to split.</param>
+    /// <returns>A tuple containing left and right channel samples, or null if not stereo.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="waveform"/> is null.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if waveform is not stereo.</exception>
     public static (float[] Left, float[] Right)? SplitStereoChannels(this WaveformData waveform)
     {
         ArgumentNullException.ThrowIfNull(waveform);
@@ -288,11 +292,11 @@ public static class WaveformDataExtensions
     /// <summary>
     /// Gets the sample at the specified index across all channels.
     /// </summary>
-    /// <param name="waveform">The waveform data</param>
-    /// <param name="index">The sample index</param>
-    /// <returns>The sample value at the specified index</returns>
-    /// <exception cref="ArgumentNullException">Thrown if waveform is null</exception>
-    /// <exception cref="ArgumentOutOfRangeException">Thrown if index is out of range</exception>
+    /// <param name="waveform">The waveform data.</param>
+    /// <param name="index">The sample index.</param>
+    /// <returns>The sample value at the specified index.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="waveform"/> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="index"/> is out of range.</exception>
     public static float GetSample(this WaveformData waveform, int index)
     {
         ArgumentNullException.ThrowIfNull(waveform);
@@ -307,12 +311,12 @@ public static class WaveformDataExtensions
     /// <summary>
     /// Gets a range of samples from the waveform.
     /// </summary>
-    /// <param name="waveform">The waveform data</param>
-    /// <param name="startIndex">Starting index (inclusive)</param>
-    /// <param name="count">Number of samples to retrieve</param>
-    /// <returns>An array containing the requested samples</returns>
-    /// <exception cref="ArgumentNullException">Thrown if waveform is null</exception>
-    /// <exception cref="ArgumentOutOfRangeException">Thrown if startIndex or count are invalid</exception>
+    /// <param name="waveform">The waveform data.</param>
+    /// <param name="startIndex">Starting index (inclusive).</param>
+    /// <param name="count">Number of samples to retrieve.</param>
+    /// <returns>An array containing the requested samples.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="waveform"/> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="startIndex"/> or <paramref name="count"/> are invalid.</exception>
     public static float[] GetSampleRange(this WaveformData waveform, int startIndex, int count)
     {
         ArgumentNullException.ThrowIfNull(waveform);
