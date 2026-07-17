@@ -28,9 +28,11 @@ public static class VisualizationDataExtensions
     /// <param name="maxValue">The maximum value of the scaled range.</param>
     /// <returns>An array of scaled data points.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="data"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="minValue"/> is greater than <paramref name="maxValue"/>.</exception>
     public static IReadOnlyList<float> ScaleDataPoints(this VisualizationData data, float minValue, float maxValue)
     {
         ArgumentNullException.ThrowIfNull(data);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(minValue, maxValue);
 
         var dataPoints = data.GetData();
         var scaledDataPoints = new float[dataPoints.Length];
@@ -38,9 +40,23 @@ public static class VisualizationDataExtensions
         var dataMin = data.MinValue;
         var dataMax = data.MaxValue;
 
-        for (int i = 0; i < dataPoints.Length; i++)
+        if (dataMax > dataMin)
         {
-            scaledDataPoints[i] = (dataPoints[i] - dataMin) / (dataMax - dataMin) * (maxValue - minValue) + minValue;
+            var range = dataMax - dataMin;
+            var targetRange = maxValue - minValue;
+
+            for (int i = 0; i < dataPoints.Length; i++)
+            {
+                scaledDataPoints[i] = (dataPoints[i] - dataMin) / range * targetRange + minValue;
+            }
+        }
+        else
+        {
+            // Handle case where all data points are the same value
+            for (int i = 0; i < dataPoints.Length; i++)
+            {
+                scaledDataPoints[i] = minValue;
+            }
         }
 
         return scaledDataPoints;
