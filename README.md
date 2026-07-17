@@ -297,9 +297,63 @@ ValidationUtility.ThrowIfOutOfRange(44100, 8000, 192000, nameof(sampleRate));
 ValidationUtility.ThrowIfInvalid(ValidationUtility.ValidateSampleRate(44100), nameof(sampleRate), "must be between 8000 and 192000");
 ```
 
-## ValidationAndStringUtilityTests
+## WaveformDataExtensions
 
-`ValidationAndStringUtilityTests` is a comprehensive test class that verifies the behavior of the `ValidationUtility` and `StringUtility` classes. It contains unit tests for validation methods including sample rate, FFT size, channel count, frequency, audio data, amplitude validation, and exception-throwing validation methods, as well as string manipulation methods including truncation, formatting, case conversion, and counting operations.
+`WaveformDataExtensions` provides extension methods for the `WaveformData` class, offering convenient utilities for audio waveform manipulation and analysis. These methods enable common operations such as converting mono to stereo, downsampling, calculating amplitude metrics, splitting stereo channels, and accessing waveform properties without modifying the original waveform data.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Domain.Models;
+
+// Create a waveform from audio samples
+var samples = new float[] { 0.1f, 0.5f, -0.3f, 0.8f, -0.6f, 0.2f };
+var waveform = new WaveformData(samples, channelCount: 1, sampleRate: 44100);
+
+// Calculate waveform properties
+Console.WriteLine($"Duration: {waveform.GetDurationSeconds():F3} seconds");
+Console.WriteLine($"Total samples: {waveform.GetTotalSampleCount()}");
+Console.WriteLine($"Points per channel: {waveform.GetPointsPerChannel()}");
+Console.WriteLine($"Peak amplitude: {waveform.GetPeakAmplitude():F3}");
+Console.WriteLine($"RMS amplitude: {waveform.GetRmsAmplitude():F3}");
+Console.WriteLine($"Average amplitude: {waveform.GetAverageAmplitude():F3}");
+
+// Convert mono to stereo
+var stereoWaveform = waveform.ToStereo();
+Console.WriteLine($"Stereo channel count: {stereoWaveform.ChannelCount}");
+
+// Downsample waveform (reduce resolution by factor of 2)
+var downsampled = waveform.Downsample(2);
+Console.WriteLine($"Downsampled sample rate: {downsampled.SampleRate} Hz");
+
+// Normalize waveform to range [0, 1]
+var normalized = waveform.NormalizedCopy();
+Console.WriteLine($"Normalized peak: {normalized.GetPeakAmplitude():F3}");
+
+// Get sample at specific index
+float sampleAtIndex = waveform.GetSample(2);
+Console.WriteLine($"Sample at index 2: {sampleAtIndex:F3}");
+
+// Get range of samples
+var sampleRange = waveform.GetSampleRange(1, 3);
+Console.WriteLine($"Samples from index 1-3: [{string.Join(", ", sampleRange.Select(s => s.ToString("F3")))}]");
+
+// For stereo waveforms: split channels or get channel-specific peaks
+var leftSamples = new float[] { 0.1f, 0.2f, 0.3f };
+var rightSamples = new float[] { 0.4f, 0.5f, 0.6f };
+var stereoFromChannels = leftSamples.ToStereoWaveform(rightSamples, 44100);
+
+var leftPeaks = stereoFromChannels.GetChannelPeaks(0);
+var rightPeaks = stereoFromChannels.GetChannelPeaks(1);
+
+if (stereoFromChannels.SplitStereoChannels() is (float[] Left, float[] Right) channels)
+{
+    Console.WriteLine($"Left channel length: {channels.Left.Length}");
+    Console.WriteLine($"Right channel length: {channels.Right.Length}");
+}
+```
+
+## ValidationAndStringUtilityTests
 
 ### Usage Example
 
