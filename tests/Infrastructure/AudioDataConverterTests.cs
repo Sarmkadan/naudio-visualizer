@@ -1,5 +1,3 @@
-#if false
-// This file is intentionally excluded from compilation in the main project.
 using System;
 using NAudioVisualizer.Infrastructure;
 using Xunit;
@@ -61,4 +59,3 @@ namespace NAudioVisualizer.Tests.Infrastructure
         }
     }
 }
-#endif
