@@ -125,6 +125,42 @@ public class WaveformServiceTests
     }
 
     /// <summary>
+    /// Verifies that DownsampleMinMax returns the correct min and max values.
+    /// </summary>
+    [Fact]
+    public void DownsampleMinMax_ReturnsCorrectMinMax()
+    {
+        // Arrange
+        var samples = new float[] { -0.5f, 0.2f, 0.8f, -0.1f };
+        int targetBuckets = 2;
+
+        // Act
+        var result = _service.DownsampleMinMax(samples, targetBuckets);
+
+        // Assert
+        result.Should().HaveCount(2);
+        result[0].Should().Be((-0.5f, 0.2f));
+        result[1].Should().Be((-0.1f, 0.8f));
+    }
+
+    /// <summary>
+    /// Verifies that DownsampleMinMax handles empty input gracefully.
+    /// </summary>
+    [Fact]
+    public void DownsampleMinMax_EmptyInput_ReturnsEmpty()
+    {
+        // Arrange
+        var samples = Array.Empty<float>();
+        int targetBuckets = 10;
+
+        // Act
+        var result = _service.DownsampleMinMax(samples, targetBuckets);
+
+        // Assert
+        result.Should().BeEmpty();
+    }
+
+    /// <summary>
     /// Verifies that CountZeroCrossings returns the correct count.
     /// </summary>
     [Fact]

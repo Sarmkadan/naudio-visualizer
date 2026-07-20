@@ -119,6 +119,52 @@ public sealed class WaveformService
         return downsampled;
     }
 
+    /// <summary>
+    /// Downsamples audio samples by finding the minimum and maximum values in each of 
+    /// <paramref name="targetBuckets"/> segments. Useful for waveform overview rendering.
+    /// </summary>
+    /// <param name="samples">Source PCM samples in the [-1, 1] range.</param>
+    /// <param name="targetBuckets">Number of buckets for the overview.</param>
+    /// <returns>An array of (min, max) tuples for each bucket.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="samples"/> is null.</exception>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="targetBuckets"/> is not positive.</exception>
+    public (float min, float max)[] DownsampleMinMax(float[] samples, int targetBuckets)
+    {
+        if (samples is null)
+            throw new ArgumentNullException(nameof(samples));
+
+        if (targetBuckets <= 0)
+            throw new ArgumentException("Target buckets must be positive", nameof(targetBuckets));
+
+        if (samples.Length == 0)
+            return Array.Empty<(float, float)>();
+
+        int actualBuckets = Math.Min(samples.Length, targetBuckets);
+        var result = new (float min, float max)[actualBuckets];
+
+        int samplesPerBucket = samples.Length / actualBuckets;
+
+        for (int i = 0; i < actualBuckets; i++)
+        {
+            int startIdx = i * samplesPerBucket;
+            int endIdx = (i == actualBuckets - 1) ? samples.Length : startIdx + samplesPerBucket;
+
+            float min = float.MaxValue;
+            float max = float.MinValue;
+
+            for (int j = startIdx; j < endIdx; j++)
+            {
+                float sample = samples[j];
+                if (sample < min) min = sample;
+                if (sample > max) max = sample;
+            }
+
+            result[i] = (min, max);
+        }
+
+        return result;
+    }
+
     private float CalculateDownsampledValue(float[] samples, int factor, int outputIndex)
     {
         float sum = 0f;
