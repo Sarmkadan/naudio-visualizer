@@ -6,7 +6,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
 using NAudioVisualizer.Domain.Models;
 
 namespace NAudioVisualizer.Data.Repositories;
@@ -234,6 +236,19 @@ public class VisualizationDataRepository
 
             return removeCount;
         }
+    }
+
+    /// <summary>
+    /// Exports all visualization data for a specific session to a JSON file.
+    /// </summary>
+    /// <param name="sessionId">The ID of the session to export.</param>
+    /// <param name="path">The file path to write the JSON data to.</param>
+    public void ExportSessionToJson(Guid sessionId, string path)
+    {
+        var data = GetBySession(sessionId);
+        var options = new JsonSerializerOptions { WriteIndented = true };
+        string jsonString = JsonSerializer.Serialize(data, options);
+        File.WriteAllText(path, jsonString);
     }
 }
 
