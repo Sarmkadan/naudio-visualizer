@@ -194,6 +194,10 @@ public sealed class ConfigurationManager
         _settings["visualization.brightness"] = 1.0f;
         _settings["visualization.contrast"] = 1.0f;
 
+        // Peak‑hold settings (new)
+        _settings["visualization.peakHoldEnabled"] = false;
+        _settings["visualization.peakHoldFallRateDbPerSec"] = 10f;
+
         // Display settings
         _settings["display.width"] = 1280;
         _settings["display.height"] = 720;

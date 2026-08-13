@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using NAudioVisualizer.Configuration;
 
 namespace NaudioVisualizer.Services
 {
@@ -11,6 +12,13 @@ namespace NaudioVisualizer.Services
         private readonly int _width;
         private readonly int _height;
         private readonly bool _logScale;
+
+        // Peak‑hold support
+        private readonly bool _peakHoldEnabled;
+        private readonly float _peakFallRateDbPerSec;
+        private readonly float[] _peakValues;
+        private DateTime _lastRenderTime;
+        private const char PeakChar = '^';
 
         /// <summary>
         /// Characters used for drawing bars from bottom to top.
@@ -26,7 +34,8 @@ namespace NaudioVisualizer.Services
         /// <param name="width">Number of columns in the output.</param>
         /// <param name="height">Number of rows in the output.</param>
         /// <param name="logScale">If true, values are log‑scaled before rendering.</param>
-        public AsciiSpectrumRenderer(int width = 80, int height = 20, bool logScale = false)
+        /// <param name="config">Optional configuration manager for peak‑hold settings.</param>
+        public AsciiSpectrumRenderer(int width = 80, int height = 20, bool logScale = false, ConfigurationManager? config = null)
         {
             if (width <= 0) throw new ArgumentOutOfRangeException(nameof(width));
             if (height <= 0) throw new ArgumentOutOfRangeException(nameof(height));
@@ -34,6 +43,12 @@ namespace NaudioVisualizer.Services
             _width = width;
             _height = height;
             _logScale = logScale;
+
+            // Initialise peak‑hold state
+            _peakHoldEnabled = config?.GetValue<bool>("visualization.peakHoldEnabled", false) ?? false;
+            _peakFallRateDbPerSec = config?.GetValue<float>("visualization.peakHoldFallRateDbPerSec", 10f) ?? 10f;
+            _peakValues = new float[_width];
+            _lastRenderTime = DateTime.UtcNow;
         }
 
         /// <summary>
@@ -60,22 +75,71 @@ namespace NaudioVisualizer.Services
             // Avoid division by zero
             if (max <= 0f) max = 1f;
 
+            // Update peak‑hold values if enabled
+            if (_peakHoldEnabled)
+                UpdatePeakValues(mapped, max);
+
             // Build the chart line by line
             var sb = new StringBuilder();
             for (int row = 0; row < _height; row++)
             {
-                int level = _height - row; // 1-based level from bottom
+                int level = _height - row; // 1‑based level from bottom
                 for (int col = 0; col < _width; col++)
                 {
                     float val = _logScale ? LogScale(mapped[col]) : mapped[col];
                     int barHeight = (int)Math.Round((val / max) * _height);
-                    char ch = barHeight >= level ? BarChars[Math.Min(barHeight, BarChars.Length - 1)] : ' ';
+                    int peakHeight = (int)Math.Round((_peakValues[col] / max) * _height);
+
+                    char ch;
+                    if (_peakHoldEnabled && peakHeight >= level && level > barHeight)
+                    {
+                        // Peak marker sits above the current bar
+                        ch = PeakChar;
+                    }
+                    else if (barHeight >= level)
+                    {
+                        ch = BarChars[Math.Min(barHeight, BarChars.Length - 1)];
+                    }
+                    else
+                    {
+                        ch = ' ';
+                    }
+
                     sb.Append(ch);
                 }
                 sb.AppendLine();
             }
 
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Updates the stored peak values, applying decay based on elapsed time.
+        /// </summary>
+        private void UpdatePeakValues(float[] currentValues, float max)
+        {
+            DateTime now = DateTime.UtcNow;
+            double elapsedSec = (now - _lastRenderTime).TotalSeconds;
+            _lastRenderTime = now;
+
+            // Convert fall rate from dB/s to a linear decay factor
+            double decayFactor = Math.Pow(10.0, -_peakFallRateDbPerSec * elapsedSec / 20.0);
+
+            for (int i = 0; i < _width; i++)
+            {
+                float current = currentValues[i];
+                if (current > _peakValues[i])
+                {
+                    _peakValues[i] = current;
+                }
+                else
+                {
+                    _peakValues[i] = (float)(_peakValues[i] * decayFactor);
+                }
+
+                // Clamp to zero to avoid negative values due to rounding
+                if (_peakValues[i] < 0f) _peakValues[i] = 0f;
+            }
         }
 
         /// <summary>
