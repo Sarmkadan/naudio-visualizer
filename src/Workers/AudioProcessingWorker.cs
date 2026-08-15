@@ -151,7 +151,7 @@ public sealed class AudioProcessingWorker : IDisposable
             }
             else
             {
-                // No tasks, sleep briefly to avoid busy waiting
+                // No tasks, wait briefly to avoid busy waiting
                 await Task.Delay(10, cancellationToken).ConfigureAwait(false);
             }
         }
