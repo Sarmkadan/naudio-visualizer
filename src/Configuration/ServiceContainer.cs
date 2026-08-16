@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using NAudioVisualizer.Data.Repositories;
 using NAudioVisualizer.Services;
+using NAudioVisualizer.Infrastructure;
 
 namespace NAudioVisualizer.Configuration;
 
@@ -117,6 +118,9 @@ public class ApplicationConfiguration
     public static ServiceContainer ConfigureServices()
     {
         var container = new ServiceContainer();
+
+        // Register logger abstraction
+        container.Register<ILogger>(new Logger());
 
         // Register repositories
         container.Register(new AudioSessionRepository());
