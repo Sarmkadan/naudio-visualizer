@@ -160,6 +160,8 @@ public sealed class AudioCaptureService : IDisposable
         }
         catch (InvalidOperationException ex)
         {
+            // Ensure resources are cleaned up and event handlers are detached on failure
+            Cleanup();
             throw new AudioStreamException(
                 $"Failed to start recording: {ex.Message}",
                 AudioStreamErrorCode.InitializationFailed,
@@ -193,6 +195,9 @@ public sealed class AudioCaptureService : IDisposable
             {
                 _currentMetadata.IsCapturing = false;
             }
+
+            // Clean up resources and detach event handlers after stopping
+            Cleanup();
         }
         catch (InvalidOperationException ex)
         {
@@ -375,10 +380,25 @@ public sealed class AudioCaptureService : IDisposable
     }
 
     /// <summary>
+    /// Detaches event handlers from the WaveInEvent instance to avoid memory leaks.
+    /// </summary>
+    private void DetachEventHandlers()
+    {
+        if (_waveInput != null)
+        {
+            _waveInput.DataAvailable -= OnDataAvailable;
+            _waveInput.RecordingStopped -= OnRecordingStopped;
+        }
+    }
+
+    /// <summary>
     /// Cleans up resources.
     /// </summary>
     private void Cleanup()
     {
+        // Detach event handlers before disposing
+        DetachEventHandlers();
+
         _waveInput?.Dispose();
         _waveInput = null;
         _waveFileWriter?.Dispose();
