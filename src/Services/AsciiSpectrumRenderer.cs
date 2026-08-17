@@ -61,8 +61,12 @@ namespace NaudioVisualizer.Services
             if (spectrumFrame == null) throw new ArgumentNullException(nameof(spectrumFrame));
             if (spectrumFrame.Length == 0) return string.Empty;
 
-            // Map the spectrum to the desired width
-            float[] mapped = MapToWidth(spectrumFrame, _width);
+            // Determine current console size and clamp rendering dimensions
+            int effectiveWidth = Math.Min(_width, Console.WindowWidth);
+            int effectiveHeight = Math.Min(_height, Console.WindowHeight);
+
+            // Map the spectrum to the desired width (clamped)
+            float[] mapped = MapToWidth(spectrumFrame, effectiveWidth);
 
             // Find maximum value for scaling
             float max = 0f;
@@ -81,14 +85,14 @@ namespace NaudioVisualizer.Services
 
             // Build the chart line by line
             var sb = new StringBuilder();
-            for (int row = 0; row < _height; row++)
+            for (int row = 0; row < effectiveHeight; row++)
             {
-                int level = _height - row; // 1‑based level from bottom
-                for (int col = 0; col < _width; col++)
+                int level = effectiveHeight - row; // 1‑based level from bottom
+                for (int col = 0; col < effectiveWidth; col++)
                 {
                     float val = _logScale ? LogScale(mapped[col]) : mapped[col];
-                    int barHeight = (int)Math.Round((val / max) * _height);
-                    int peakHeight = (int)Math.Round((_peakValues[col] / max) * _height);
+                    int barHeight = (int)Math.Round((val / max) * effectiveHeight);
+                    int peakHeight = (int)Math.Round((_peakValues[col] / max) * effectiveHeight);
 
                     char ch;
                     if (_peakHoldEnabled && peakHeight >= level && level > barHeight)
@@ -125,7 +129,7 @@ namespace NaudioVisualizer.Services
             // Convert fall rate from dB/s to a linear decay factor
             double decayFactor = Math.Pow(10.0, -_peakFallRateDbPerSec * elapsedSec / 20.0);
 
-            for (int i = 0; i < _width; i++)
+            for (int i = 0; i < currentValues.Length; i++)
             {
                 float current = currentValues[i];
                 if (current > _peakValues[i])
