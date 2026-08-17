@@ -1,0 +1,2 @@
+    private readonly Dictionary<Guid, VisualizationData> _store = [];
+    private readonly Dictionary<Guid, List<VisualizationData>> _sessionIndex = [];
