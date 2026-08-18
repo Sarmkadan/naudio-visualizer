@@ -25,7 +25,7 @@ public sealed class ColorScheme
     /// </summary>
     public VisualizerTheme Theme { get; }
 
-    private ColorScheme(string name, VisualizerTheme theme)
+    internal ColorScheme(string name, VisualizerTheme theme)
     {
         Name = name;
         Theme = theme;
