@@ -16,6 +16,11 @@ namespace NAudioVisualizer.Services;
 /// <summary>
 /// Service for performing FFT and frequency spectrum analysis on audio data.
 /// </summary>
+/// <remarks>
+/// The frequency for each bin is calculated as <c>frequency = binIndex * (sampleRate / fftSize)</c>,
+/// where <c>binIndex</c> is the index of the bin (0-based), <c>sampleRate</c> is the audio sample rate in Hz,
+/// and <c>fftSize</c> is the FFT window size.
+/// </remarks>
 /// <example>
 /// <code>
 /// var analyzer = new SpectrumAnalyzer { PeakHoldDecayDbPerSecond = 10f };
