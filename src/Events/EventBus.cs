@@ -31,6 +31,10 @@ public sealed class EventBus : IDisposable
     /// <summary>
     /// Subscribes to events of a specific type.
     /// </summary>
+    /// <typeparam name="T">The type of event to subscribe to.</typeparam>
+    /// <param name="handler">The action invoked whenever an event of type <typeparamref name="T"/> is published.</param>
+    /// <returns>A disposable subscription handle; disposing it removes the subscription from the bus.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="handler"/> is null.</exception>
     public IDisposable Subscribe<T>(Action<T> handler) where T : class
     {
         if (handler is null)
@@ -56,6 +60,9 @@ public sealed class EventBus : IDisposable
     /// <summary>
     /// Publishes an event to all subscribers.
     /// </summary>
+    /// <typeparam name="T">The type of event being published.</typeparam>
+    /// <param name="eventData">The event data delivered to each subscriber.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="eventData"/> is null.</exception>
     public void Publish<T>(T eventData) where T : class
     {
         if (eventData is null)
@@ -113,6 +120,8 @@ public sealed class EventBus : IDisposable
     /// <summary>
     /// Gets the number of subscribers for a specific event type.
     /// </summary>
+    /// <typeparam name="T">The type of event to inspect.</typeparam>
+    /// <returns>The number of registered subscriptions for the specified event type.</returns>
     public int GetSubscriberCount<T>() where T : class
     {
         lock (_lockObject)
@@ -126,6 +135,7 @@ public sealed class EventBus : IDisposable
     /// <summary>
     /// Unsubscribes all handlers for a specific event type.
     /// </summary>
+    /// <typeparam name="T">The type of event whose subscribers should be removed.</typeparam>
     public void UnsubscribeAll<T>() where T : class
     {
         lock (_lockObject)
@@ -135,7 +145,7 @@ public sealed class EventBus : IDisposable
     }
 
     /// <summary>
-    /// Clears all subscriptions.
+    /// Clears all subscriptions for every event type.
     /// </summary>
     public void Clear()
     {
@@ -145,6 +155,9 @@ public sealed class EventBus : IDisposable
         }
     }
 
+    /// <summary>
+    /// Releases all resources used by the event bus by clearing every subscription.
+    /// </summary>
     public void Dispose()
     {
         if (_disposed)
