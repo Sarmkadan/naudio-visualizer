@@ -18,7 +18,7 @@ namespace NAudioVisualizer.Workers;
 /// </summary>
 public sealed class AudioProcessingWorker : IDisposable
 {
-    private readonly Logger _logger;
+    private readonly ILogger? _logger;
     private readonly Queue<ProcessingTask> _taskQueue;
     private CancellationTokenSource? _cancellationTokenSource;
     private Task? _workerTask;
@@ -28,9 +28,9 @@ public sealed class AudioProcessingWorker : IDisposable
     /// <summary>
     /// Initializes a new instance of the audio processing worker.
     /// </summary>
-    public AudioProcessingWorker(Logger logger)
+    public AudioProcessingWorker(ILogger? logger = null)
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _logger = logger;
         _taskQueue = new Queue<ProcessingTask>();
     }
 
@@ -48,7 +48,8 @@ public sealed class AudioProcessingWorker : IDisposable
             _cancellationTokenSource = new CancellationTokenSource();
             _workerTask = ProcessQueueAsync(_cancellationTokenSource.Token);
 
-            _logger.Info("Audio processing worker started.");
+            if (_logger is not null)
+                _logger.Info("AudioProcessingWorker started (state=running, pollingInterval=10ms).");
         }
     }
 
@@ -78,7 +79,8 @@ public sealed class AudioProcessingWorker : IDisposable
             }
         }
 
-        _logger.Info("Audio processing worker stopped.");
+        if (_logger is not null)
+            _logger.Info("AudioProcessingWorker stopped (state=stopped).");
     }
 
     /// <summary>
@@ -115,6 +117,10 @@ public sealed class AudioProcessingWorker : IDisposable
         {
             int count = _taskQueue.Count;
             _taskQueue.Clear();
+
+            if (count > 0 && _logger is not null)
+                _logger.Warn($"AudioProcessingWorker cleared pending queue (state={(_isRunning ? "running" : "stopped")}, droppedTasks={count}).");
+
             return count;
         }
     }
@@ -146,7 +152,8 @@ public sealed class AudioProcessingWorker : IDisposable
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error($"Error processing task: {ex.Message}");
+                    if (_logger is not null)
+                        _logger.Error($"AudioProcessingWorker processing cycle failed (state={(_isRunning ? "running" : "stopped")}, task='{task.Name}').", ex);
                 }
             }
             else
@@ -169,13 +176,17 @@ public sealed class AudioProcessingWorker : IDisposable
             await task.ExecuteAsync(cancellationToken).ConfigureAwait(false);
             stopwatch.Stop();
 
-            _logger.Debug($"Task '{task.Name}' completed in {stopwatch.ElapsedMilliseconds}ms");
+            if (_logger is not null)
+                _logger.Debug($"AudioProcessingWorker task completed (state={(_isRunning ? "running" : "stopped")}, task='{task.Name}', elapsed={stopwatch.ElapsedMilliseconds}ms).");
+
             task.OnComplete?.Invoke();
         }
         catch (Exception ex)
         {
             stopwatch.Stop();
-            _logger.Error($"Task '{task.Name}' failed after {stopwatch.ElapsedMilliseconds}ms: {ex.Message}");
+
+            if (_logger is not null)
+                _logger.Error($"AudioProcessingWorker processing cycle failed (state={(_isRunning ? "running" : "stopped")}, task='{task.Name}', elapsed={stopwatch.ElapsedMilliseconds}ms).", ex);
 
             // Call error handler if provided
             task.OnError?.Invoke(ex);
@@ -189,6 +200,9 @@ public sealed class AudioProcessingWorker : IDisposable
 
         _cancellationTokenSource?.Dispose();
         _workerTask?.Dispose();
+
+        if (_logger is not null)
+            _logger.Info("AudioProcessingWorker disposed (state=disposed).");
     }
 }
 
