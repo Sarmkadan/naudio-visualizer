@@ -12,6 +12,7 @@ namespace NaudioVisualizer.Services
         private readonly int _width;
         private readonly int _height;
         private readonly bool _logScale;
+        private readonly StringBuilder _renderBuffer;
 
         // Peak‑hold support
         private readonly bool _peakHoldEnabled;
@@ -19,6 +20,10 @@ namespace NaudioVisualizer.Services
         private readonly float[] _peakValues;
         private DateTime _lastRenderTime;
         private const char PeakChar = '^';
+        private const float DefaultPeakFallRateDbPerSec = 10f;
+        private const float LogScaleOffset = 1e-6f;
+        private const double DecibelsPerAmplitudeDecade = 20.0;
+        private const double LinearAmplitudeBase = 10.0;
 
         /// <summary>
         /// Characters used for drawing bars from bottom to top.
@@ -43,10 +48,11 @@ namespace NaudioVisualizer.Services
             _width = width;
             _height = height;
             _logScale = logScale;
+            _renderBuffer = new StringBuilder(_width * (_height + Environment.NewLine.Length));
 
             // Initialise peak‑hold state
             _peakHoldEnabled = config?.GetValue<bool>("visualization.peakHoldEnabled", false) ?? false;
-            _peakFallRateDbPerSec = config?.GetValue<float>("visualization.peakHoldFallRateDbPerSec", 10f) ?? 10f;
+            _peakFallRateDbPerSec = config?.GetValue<float>("visualization.peakHoldFallRateDbPerSec", DefaultPeakFallRateDbPerSec) ?? DefaultPeakFallRateDbPerSec;
             _peakValues = new float[_width];
             _lastRenderTime = DateTime.UtcNow;
         }
@@ -72,7 +78,7 @@ namespace NaudioVisualizer.Services
             float max = 0f;
             foreach (var v in mapped)
             {
-                float val = _logScale ? LogScale(v) : v;
+                float val = ScaleValue(v);
                 if (val > max) max = val;
             }
 
@@ -84,13 +90,13 @@ namespace NaudioVisualizer.Services
                 UpdatePeakValues(mapped, max);
 
             // Build the chart line by line
-            var sb = new StringBuilder();
+            _renderBuffer.Clear();
             for (int row = 0; row < effectiveHeight; row++)
             {
                 int level = effectiveHeight - row; // 1‑based level from bottom
                 for (int col = 0; col < effectiveWidth; col++)
                 {
-                    float val = _logScale ? LogScale(mapped[col]) : mapped[col];
+                    float val = ScaleValue(mapped[col]);
                     int barHeight = (int)Math.Round((val / max) * effectiveHeight);
                     int peakHeight = (int)Math.Round((_peakValues[col] / max) * effectiveHeight);
 
@@ -109,12 +115,12 @@ namespace NaudioVisualizer.Services
                         ch = ' ';
                     }
 
-                    sb.Append(ch);
+                    _renderBuffer.Append(ch);
                 }
-                sb.AppendLine();
+                _renderBuffer.AppendLine();
             }
 
-            return sb.ToString();
+            return _renderBuffer.ToString();
         }
 
         /// <summary>
@@ -127,7 +133,7 @@ namespace NaudioVisualizer.Services
             _lastRenderTime = now;
 
             // Convert fall rate from dB/s to a linear decay factor
-            double decayFactor = Math.Pow(10.0, -_peakFallRateDbPerSec * elapsedSec / 20.0);
+            double decayFactor = Math.Pow(LinearAmplitudeBase, -_peakFallRateDbPerSec * elapsedSec / DecibelsPerAmplitudeDecade);
 
             for (int i = 0; i < currentValues.Length; i++)
             {
@@ -179,12 +185,27 @@ namespace NaudioVisualizer.Services
         }
 
         /// <summary>
-        /// Logarithmic scaling (base 10) with a small offset to avoid log(0).
+        /// Applies the configured scaling method to a spectrum magnitude.
         /// </summary>
-        private static float LogScale(float value)
+        private float ScaleValue(float value)
         {
-            const float offset = 1e-6f;
-            return (float)Math.Log10(value + offset);
+            return _logScale ? ApplyLogarithmicScale(value) : ApplyLinearScale(value);
+        }
+
+        /// <summary>
+        /// Leaves a spectrum magnitude on its linear scale.
+        /// </summary>
+        private static float ApplyLinearScale(float value)
+        {
+            return value;
+        }
+
+        /// <summary>
+        /// Applies base-10 logarithmic scaling with an offset to avoid log(0).
+        /// </summary>
+        private static float ApplyLogarithmicScale(float value)
+        {
+            return (float)Math.Log10(value + LogScaleOffset);
         }
     }
 }
