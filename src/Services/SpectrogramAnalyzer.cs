@@ -121,6 +121,8 @@ public sealed class SpectrogramAnalyzer
     /// When the buffer is full the oldest frame is silently dropped so that
     /// high-rate audio callbacks (e.g. 192 kHz) never block the render thread.
     /// </summary>
+    /// <param name="spectrum">The spectrum frame to add to the rolling buffer.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="spectrum"/> is null.</exception>
     public void AddSpectrumFrame(SpectrumData spectrum)
     {
         if (spectrum is null)
@@ -264,11 +266,14 @@ public sealed class SpectrogramAnalyzer
     /// at the nearest frequency bin for each time frame.
     /// </returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="spectrogram"/> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="frequencyHz"/> is negative.</exception>
     /// <exception cref="ArgumentException">Thrown when <paramref name="frequencyHz"/> maps to an out-of-range bin.</exception>
     public float[] GetFrequencySlice(SpectrogramData spectrogram, float frequencyHz)
     {
         if (spectrogram is null)
             throw new ArgumentNullException(nameof(spectrogram));
+        if (frequencyHz < 0)
+            throw new ArgumentOutOfRangeException(nameof(frequencyHz));
 
         float frequencyResolution = (float)spectrogram.SampleRate / spectrogram.FftSize;
         int frequencyIndex = (int)(frequencyHz / frequencyResolution);
@@ -292,11 +297,14 @@ public sealed class SpectrogramAnalyzer
     /// magnitude at every frequency bin for the nearest time frame.
     /// </returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="spectrogram"/> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="timeSeconds"/> is negative.</exception>
     /// <exception cref="ArgumentException">Thrown when <paramref name="timeSeconds"/> maps to an out-of-range frame.</exception>
     public float[] GetTimeSlice(SpectrogramData spectrogram, double timeSeconds)
     {
         if (spectrogram is null)
             throw new ArgumentNullException(nameof(spectrogram));
+        if (timeSeconds < 0)
+            throw new ArgumentOutOfRangeException(nameof(timeSeconds));
 
         int timeIndex = (int)(timeSeconds / spectrogram.TimePerFrame);
 
@@ -365,10 +373,13 @@ public sealed class SpectrogramAnalyzer
     /// An empty list is returned when no onsets exceed the threshold.
     /// </returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="spectrogram"/> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="threshold"/> is outside (0, 1].</exception>
     public List<int> DetectTransients(SpectrogramData spectrogram, float threshold = 0.5f)
     {
         if (spectrogram is null)
             throw new ArgumentNullException(nameof(spectrogram));
+        if (float.IsNaN(threshold) || threshold <= 0 || threshold > 1)
+            throw new ArgumentOutOfRangeException(nameof(threshold));
 
         var transients = new List<int>();
         var flux = CalculateSpectralFlux(spectrogram);
