@@ -19,6 +19,10 @@ public class CacheManager<TKey, TValue> where TKey : notnull
     private readonly int _maxSize;
     private readonly TimeSpan _defaultExpiration;
     private readonly object _lockObject = new();
+    private long _hits;
+    private long _misses;
+    private long _evictions;
+    private long _expirations;
 
     /// <summary>
     /// Initializes a new instance of the cache manager.
@@ -71,18 +75,24 @@ public class CacheManager<TKey, TValue> where TKey : notnull
         lock (_lockObject)
         {
             if (!_cache.TryGetValue(key, out var entry))
+            {
+                _misses++;
                 return false;
+            }
 
             // Check if expired
             if (DateTime.UtcNow > entry.ExpiresAt)
             {
                 _cache.Remove(key);
+                _misses++;
+                _expirations++;
                 return false;
             }
 
             // Update last accessed time for LRU
             entry.LastAccessedAt = DateTime.UtcNow;
             value = entry.Value;
+            _hits++;
             return true;
         }
     }
@@ -108,7 +118,9 @@ public class CacheManager<TKey, TValue> where TKey : notnull
             // Check if expired
             if (DateTime.UtcNow > entry.ExpiresAt)
             {
-                _cache.Remove(key);
+                if (_cache.Remove(key))
+                    _expirations++;
+
                 return false;
             }
 
@@ -171,7 +183,10 @@ public class CacheManager<TKey, TValue> where TKey : notnull
             }
 
             foreach (var key in expiredKeys)
-                _cache.Remove(key);
+            {
+                if (_cache.Remove(key))
+                    _expirations++;
+            }
 
             return expiredKeys.Count;
         }
@@ -197,8 +212,8 @@ public class CacheManager<TKey, TValue> where TKey : notnull
             }
         }
 
-        if (oldestKey is not null)
-            _cache.Remove(oldestKey);
+        if (oldestKey is not null && _cache.Remove(oldestKey))
+            _evictions++;
     }
 
     /// <summary>
@@ -212,8 +227,26 @@ public class CacheManager<TKey, TValue> where TKey : notnull
             {
                 CurrentSize = _cache.Count,
                 MaxSize = _maxSize,
-                FillPercentage = (double)_cache.Count / _maxSize * 100
+                FillPercentage = (double)_cache.Count / _maxSize * 100,
+                Hits = _hits,
+                Misses = _misses,
+                Evictions = _evictions,
+                Expirations = _expirations
             };
+        }
+    }
+
+    /// <summary>
+    /// Resets all cache statistics counters.
+    /// </summary>
+    public void ResetStatistics()
+    {
+        lock (_lockObject)
+        {
+            _hits = 0;
+            _misses = 0;
+            _evictions = 0;
+            _expirations = 0;
         }
     }
 
@@ -234,7 +267,43 @@ public class CacheManager<TKey, TValue> where TKey : notnull
 /// </summary>
 public class CacheStatistics
 {
+    /// <summary>
+    /// Gets the current number of cached entries.
+    /// </summary>
     public int CurrentSize { get; init; }
+
+    /// <summary>
+    /// Gets the maximum number of cached entries.
+    /// </summary>
     public int MaxSize { get; init; }
+
+    /// <summary>
+    /// Gets the percentage of the cache currently in use.
+    /// </summary>
     public double FillPercentage { get; init; }
+
+    /// <summary>
+    /// Gets the number of successful cache retrievals.
+    /// </summary>
+    public long Hits { get; init; }
+
+    /// <summary>
+    /// Gets the number of unsuccessful cache retrievals.
+    /// </summary>
+    public long Misses { get; init; }
+
+    /// <summary>
+    /// Gets the number of entries removed by the eviction policy.
+    /// </summary>
+    public long Evictions { get; init; }
+
+    /// <summary>
+    /// Gets the number of expired entries removed from the cache.
+    /// </summary>
+    public long Expirations { get; init; }
+
+    /// <summary>
+    /// Gets the ratio of successful retrievals to total retrieval attempts.
+    /// </summary>
+    public double HitRate => Hits == 0 && Misses == 0 ? 0 : Hits / ((double)Hits + Misses);
 }
