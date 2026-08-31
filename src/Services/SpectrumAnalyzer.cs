@@ -238,6 +238,62 @@ public sealed class SpectrumAnalyzer
         return CalculateCentroidFromData(magnitudes, frequencies);
     }
 
+    /// <summary>
+    /// Groups the magnitude bins in <paramref name="spectrum"/> into logarithmically
+    /// spaced frequency bands and returns the average magnitude of each band.
+    /// </summary>
+    /// <param name="spectrum">The spectrum data to group into bands.</param>
+    /// <param name="bandCount">
+    /// Number of logarithmic bands to produce. Must be at least 1 and no greater
+    /// than the number of magnitude bins. Defaults to 8.
+    /// </param>
+    /// <returns>An array containing the average magnitude for each frequency band.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="spectrum"/> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Thrown when <paramref name="bandCount"/> is less than 1 or greater than the number of bins.
+    /// </exception>
+    /// <example>
+    /// <code>
+    /// var analyzer = new SpectrumAnalyzer();
+    /// SpectrumData spectrum = analyzer.AnalyzeSpectrum(audioFrame);
+    /// float[] bandEnergies = analyzer.CalculateBandEnergies(spectrum, bandCount: 8);
+    /// </code>
+    /// </example>
+    public float[] CalculateBandEnergies(SpectrumData spectrum, int bandCount = 8)
+    {
+        if (spectrum is null)
+            throw new ArgumentNullException(nameof(spectrum));
+
+        var magnitudes = spectrum.GetData();
+        if (bandCount < 1 || bandCount > magnitudes.Length)
+            throw new ArgumentOutOfRangeException(nameof(bandCount),
+                "Band count must be at least 1 and no greater than the number of bins.");
+
+        var bandEnergies = new float[bandCount];
+        int startBin = 0;
+
+        for (int band = 0; band < bandCount; band++)
+        {
+            double logarithmicBoundary = Math.Pow(magnitudes.Length + 1, (double)(band + 1) / bandCount) - 1;
+            int remainingBands = bandCount - band - 1;
+            int endBin = band == bandCount - 1
+                ? magnitudes.Length
+                : Math.Clamp((int)Math.Round(logarithmicBoundary), startBin + 1,
+                    magnitudes.Length - remainingBands);
+
+            float sum = 0f;
+            for (int bin = startBin; bin < endBin; bin++)
+            {
+                sum += magnitudes[bin];
+            }
+
+            bandEnergies[band] = sum / (endBin - startBin);
+            startBin = endBin;
+        }
+
+        return bandEnergies;
+    }
+
     private float CalculateCentroidFromData(float[] magnitudes, float[] frequencies)
     {
         double weightedSum = 0;
