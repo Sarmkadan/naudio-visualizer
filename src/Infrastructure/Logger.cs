@@ -15,9 +15,11 @@ namespace NAudioVisualizer.Infrastructure
     /// </summary>
     public sealed class Logger : IDisposable, ILogger
     {
+        private readonly object _writeLock = new object();
         private readonly string _logFilePath;
         private StreamWriter? _writer;
         private readonly bool _writeToConsole;
+        private bool _logFileInitializationFailed;
         private bool _isDisposed;
 
         public LogLevel MinimumLevel { get; set; } = LogLevel.Info;
@@ -51,6 +53,7 @@ namespace NAudioVisualizer.Infrastructure
             catch
             {
                 _writer = null;
+                _logFileInitializationFailed = true;
             }
         }
 
@@ -106,14 +109,18 @@ namespace NAudioVisualizer.Infrastructure
         /// </summary>
         private void Log(LogLevel level, string message)
         {
-            ThrowIfDisposed();
+            lock (_writeLock)
+            {
+                if (_isDisposed)
+                    return;
 
-            if (level < MinimumLevel)
-                return;
+                if (level < MinimumLevel)
+                    return;
 
-            string logMessage = FormatLogMessage(level, message);
+                string logMessage = FormatLogMessage(level, message);
 
-            WriteLogMessage(logMessage);
+                WriteLogMessage(logMessage);
+            }
         }
 
         private string FormatLogMessage(LogLevel level, string message)
@@ -129,22 +136,23 @@ namespace NAudioVisualizer.Infrastructure
                 Console.WriteLine(message);
             }
 
-            _writer?.WriteLine(message);
-        }
-
-        private void ThrowIfDisposed()
-        {
-            if (_isDisposed)
-                throw new ObjectDisposedException(GetType().Name);
+            if (!_logFileInitializationFailed)
+            {
+                _writer?.WriteLine(message);
+            }
         }
 
         public void Dispose()
         {
-            if (_isDisposed)
-                return;
+            lock (_writeLock)
+            {
+                if (_isDisposed)
+                    return;
 
-            _writer?.Dispose();
-            _isDisposed = true;
+                _writer?.Dispose();
+                _isDisposed = true;
+            }
+
             GC.SuppressFinalize(this);
         }
     }
