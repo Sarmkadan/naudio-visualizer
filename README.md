@@ -970,3 +970,41 @@ Color complementary = ColorUtility.GetComplementaryColor(midpoint);
 string hex = ColorUtility.ColorToHex(complementary);
 Color parsed = ColorUtility.HexToColor(hex);
 ```
+
+## MidiInputService
+
+`MidiInputService` discovers MIDI input devices with `GetAvailableDevicesAsync(CancellationToken)`, opens and closes a selected device with `StartAsync(int, CancellationToken)` and `StopAsync()`, and raises the `NoteReceived` event with a `MidiNoteEventArgs.Note` value for each received note message. Call `Dispose()` when finished to release the active device and other resources; `MidiNoteEvent.GetNoteName(int)` returns a note name with its octave, while `MidiNoteEvent.GetFrequency(int)` calculates its equal-tempered frequency in hertz.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Domain.Models;
+using NAudioVisualizer.Services;
+
+var midiInput = new MidiInputService();
+
+IReadOnlyList<MidiDeviceInfo> devices =
+    await midiInput.GetAvailableDevicesAsync();
+
+midiInput.NoteReceived += (_, args) =>
+{
+    MidiNoteEvent note = args.Note;
+    Console.WriteLine(
+        $"{note.NoteName}: {note.Frequency:F2} Hz, velocity {note.Velocity}");
+};
+
+if (devices.Count > 0)
+{
+    await midiInput.StartAsync(devices[0].Index);
+
+    // Receive note events until MIDI capture is no longer needed.
+    await Task.Delay(TimeSpan.FromSeconds(10));
+
+    await midiInput.StopAsync();
+}
+
+string middleCName = MidiNoteEvent.GetNoteName(60);
+float concertPitchFrequency = MidiNoteEvent.GetFrequency(69);
+
+midiInput.Dispose();
+```
