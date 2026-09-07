@@ -896,3 +896,43 @@ ColorScheme grayscaleScheme = ColorScheme.Grayscale;
 
 VisualizerTheme darkTheme = darkScheme.Theme;
 ```
+
+## AudioDataConverter
+
+`AudioDataConverter` provides static helpers for converting between decibel and linear amplitude values, formatting frequencies, durations, and audio levels, converting float samples to and from 16-bit PCM, extracting and interleaving audio channels, calculating RMS and peak levels, normalizing samples, and applying gain.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Infrastructure;
+
+// Convert between decibels and linear amplitude.
+float linear = AudioDataConverter.DbToLinear(-6f);
+float referencedLinear = AudioDataConverter.DbToLinear(-6f, 0.5f);
+float decibels = AudioDataConverter.LinearToDb(linear);
+float referencedDecibels = AudioDataConverter.LinearToDb(referencedLinear, 0.5f);
+
+// Format frequency, duration, and audio levels for display.
+string frequency = AudioDataConverter.FormatFrequency(440f);
+string duration = AudioDataConverter.FormatDuration(90d);
+string level = AudioDataConverter.FormatAudioLevel(0.75f);
+string levelDb = AudioDataConverter.FormatAudioLevelDb(0.5f);
+
+float[] samples = [0.25f, -0.5f, 0.75f, -1f];
+
+// Convert float samples to little-endian 16-bit PCM and back.
+byte[] pcmBytes = AudioDataConverter.FloatToInt16Pcm(samples);
+float[] decodedSamples = AudioDataConverter.Int16PcmToFloat(pcmBytes);
+
+// Extract channels from interleaved audio and combine them again.
+float[] interleaved = [0.1f, 0.2f, 0.3f, 0.4f];
+float[] leftChannel = AudioDataConverter.ExtractChannel(interleaved, 0, 2);
+float[] rightChannel = AudioDataConverter.ExtractChannel(interleaved, 1, 2);
+float[] combinedChannels = AudioDataConverter.InterleaveChannels([leftChannel, rightChannel]);
+
+// Measure, normalize, and adjust sample levels.
+float rmsLevel = AudioDataConverter.CalculateRmsLevel(samples);
+float peakLevel = AudioDataConverter.CalculatePeakLevel(samples);
+float[] normalizedSamples = AudioDataConverter.NormalizeSamples(samples);
+float[] gainedSamples = AudioDataConverter.ApplyGain(samples, -3f);
+```
