@@ -1106,3 +1106,34 @@ var settings = new ApplicationSettings
 ServiceContainer configuredServices =
     ApplicationConfiguration.ConfigureServices(settings);
 ```
+
+## ConfigurationManager
+
+`ConfigurationManager` stores typed configuration values with `GetValue<T>(string, T?)` and `SetValue<T>(string, T)`, loads and persists the configured JSON file with `LoadSettings()` and `SaveSettings()`, restores built-in settings with `ResetToDefaults()`, describes the current values with `GetConfigurationSummary()`, and transfers settings to or from another JSON file with `ExportSettings(string)` and `ImportSettings(string)`.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Configuration;
+using NAudioVisualizer.Infrastructure;
+
+var logger = new Logger();
+var configuration = new ConfigurationManager(logger, "settings.json");
+
+// Read and update typed values.
+int sampleRate = configuration.GetValue<int>("audio.sampleRate", 44100);
+configuration.SetValue("audio.sampleRate", 48000);
+
+// Reload values from, or save values to, the configured JSON file.
+configuration.LoadSettings();
+configuration.SaveSettings();
+
+// Restore the built-in defaults and inspect the current configuration.
+configuration.ResetToDefaults();
+string summary = configuration.GetConfigurationSummary();
+Console.WriteLine(summary);
+
+// Export the current values and import values from another JSON file.
+configuration.ExportSettings("settings-backup.json");
+configuration.ImportSettings("settings-backup.json");
+```
