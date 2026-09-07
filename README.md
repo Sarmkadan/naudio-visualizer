@@ -750,3 +750,40 @@ bool deleted = repository.Delete(waveform.Id);
 int deletedForSession = repository.DeleteBySession(sessionId);
 repository.Clear();
 ```
+
+## FileSystemUtility
+
+`FileSystemUtility` provides static helpers for common file system operations, including creating and validating directories, measuring and formatting file sizes, generating unique file names, safely deleting files and directories, asynchronously reading and writing text files, cleaning up files based on retention time, and calculating directory sizes.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Utilities;
+
+// Create a directory only when it does not already exist
+bool created = FileSystemUtility.CreateDirectoryIfNotExists("output");
+
+// Ensure a directory exists
+FileSystemUtility.EnsureDirectoryExists("output/archive");
+
+// Get and format a file's size
+long fileSize = FileSystemUtility.GetFileSize("output/report.txt");
+string formattedFileSize = FileSystemUtility.FormatFileSize(fileSize);
+
+// Generate an available file name when the requested file already exists
+string uniqueFileName = FileSystemUtility.GenerateUniqueFileName("output/report.txt");
+
+// Write and read text asynchronously
+await FileSystemUtility.WriteFileAsync(uniqueFileName, "Analysis complete.");
+string content = await FileSystemUtility.ReadFileAsync(uniqueFileName);
+
+// Safely delete a file or a directory and all its contents
+bool fileDeleted = FileSystemUtility.SafeDeleteFile(uniqueFileName);
+FileSystemUtility.SafeDeleteDirectory("output/archive");
+
+// Delete files older than the retention period
+int deletedFileCount = FileSystemUtility.CleanupOldFiles("output", 30);
+
+// Calculate the total size of a directory and its contents
+long directorySize = FileSystemUtility.GetDirectorySize("output");
+```
