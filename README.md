@@ -936,3 +936,37 @@ float peakLevel = AudioDataConverter.CalculatePeakLevel(samples);
 float[] normalizedSamples = AudioDataConverter.NormalizeSamples(samples);
 float[] gainedSamples = AudioDataConverter.ApplyGain(samples, -3f);
 ```
+
+## ColorUtility
+
+`ColorUtility` provides static helpers for converting between RGB and HSV color spaces, interpolating colors, mapping normalized values to viridis, jet, and grayscale palettes, adjusting brightness and saturation, finding complementary colors, and converting colors to and from six-digit hexadecimal strings.
+
+### Usage Example
+
+```csharp
+using System.Drawing;
+using NAudioVisualizer.Utilities;
+
+// Convert normalized RGB components to HSV and back to 0-255 RGB components.
+ColorUtility.RgbToHsv(0.2f, 0.4f, 0.8f, out float hue, out float saturation, out float value);
+ColorUtility.HsvToRgb(hue, saturation, value, out float red, out float green, out float blue);
+
+// Interpolate halfway between two colors.
+Color midpoint = ColorUtility.LerpColor(Color.Blue, Color.Red, 0.5f);
+
+// Map normalized values to visualization palettes.
+Color viridis = ColorUtility.GetViririsColor(0.75f);
+Color jet = ColorUtility.GetJetColor(0.5f);
+Color grayscale = ColorUtility.GetGrayscale(0.25f);
+
+// Adjust a color's brightness and saturation.
+Color brighter = ColorUtility.AdjustBrightness(midpoint, 1.2f);
+Color lessSaturated = ColorUtility.AdjustSaturation(midpoint, 0.5f);
+
+// Find the opposite hue on the color wheel.
+Color complementary = ColorUtility.GetComplementaryColor(midpoint);
+
+// Convert between Color and #RRGGBB strings.
+string hex = ColorUtility.ColorToHex(complementary);
+Color parsed = ColorUtility.HexToColor(hex);
+```
