@@ -787,3 +787,41 @@ int deletedFileCount = FileSystemUtility.CleanupOldFiles("output", 30);
 // Calculate the total size of a directory and its contents
 long directorySize = FileSystemUtility.GetDirectorySize("output");
 ```
+
+## Logger
+
+`Logger` writes diagnostic messages to a log file and, optionally, the console. Its constructor accepts an optional log file path and console-output flag, while `MinimumLevel` filters messages below the selected `LogLevel`; it provides `Debug`, `Info`, `Warn`, `Error`, and `Critical` methods, supports exception details for error and critical messages, implements the `ILogger` abstraction, and implements `IDisposable` so the underlying log writer can be released with `Dispose`.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Infrastructure;
+
+var logger = new Logger(
+    logFilePath: "logs/application.log",
+    writeToConsole: true)
+{
+    MinimumLevel = LogLevel.Debug
+};
+
+logger.Debug("Starting audio analysis.");
+logger.Info("Audio analysis is running.");
+logger.Warn("The input signal is close to clipping.");
+
+try
+{
+    throw new InvalidOperationException("The audio device is unavailable.");
+}
+catch (Exception exception)
+{
+    logger.Error("Audio processing failed.", exception);
+    logger.Critical("The application cannot continue.", exception);
+}
+
+// Logger can be supplied wherever the ILogger abstraction is expected.
+ILogger applicationLogger = logger;
+applicationLogger.Info("Logged through ILogger.");
+
+// Release the underlying log writer when logging is complete.
+logger.Dispose();
+```
