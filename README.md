@@ -569,3 +569,76 @@ zeroCrossings.Should().Be(3); // Three sign changes in the signal
 Action invalidPeakCount = () => tests.CalculatePeakValues(new float[] { 0.1f, 0.2f }, 0);
 invalidPeakCount.Should().Throw<ArgumentException>();
 ```
+
+## VstPluginInfo
+
+`VstPluginInfo` and related classes provide a comprehensive model for VST plugin metadata, parameter management, automation lanes, and presets. `VstPluginInfo` captures immutable plugin identity and capabilities. `VstParameter` represents live automatable controls with normalization utilities. `VstParameterAutomationLane` manages timed automation points with support for linear, step, cosine, and cubic spline interpolation. `VstPreset` stores complete parameter snapshots for saving, loading, and categorizing plugin states.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Domain.Models;
+
+// Create a plugin info snapshot
+var pluginInfo = new VstPluginInfo(
+    Id: Guid.NewGuid(),
+    Name: "SuperReverb",
+    Vendor: "AudioCorp",
+    Version: "1.0.0",
+    PluginPath: "/plugins/superreverb.dll",
+    Category: VstPluginCategory.Reverb,
+    ParameterCount: 12,
+    IsSynth: false);
+
+// Check validity
+bool isValid = pluginInfo.IsValid();
+
+// Work with parameters
+var cutoffParam = new VstParameter(
+    id: 0,
+    name: "Cutoff",
+    label: "Hz",
+    units: "Hz",
+    minValue: 20f,
+    maxValue: 20000f,
+    defaultValue: 1000f);
+
+// Normalize and denormalize values
+float normalized = cutoffParam.NormalizedValue;
+float denormalized = cutoffParam.DenormalizeValue(0.5f); // Returns 10010f
+
+// Manage automation lanes
+var lane = new VstParameterAutomationLane
+{
+    PluginId = pluginInfo.Id,
+    ParameterId = 0,
+    ParameterName = "Cutoff"
+};
+
+// Add automation points
+lane.AddPoint(0.0, 0.0f, VstAutomationInterpolation.Linear);
+lane.AddPoint(2.5, 0.8f, VstAutomationInterpolation.Cosine);
+lane.AddPoint(5.0, 0.2f, VstAutomationInterpolation.Step);
+
+// Evaluate at a specific time
+float? valueAt3s = lane.Evaluate(3.0);
+
+// Remove a point
+lane.RemovePoint(2.5);
+
+// Clear all points
+lane.Clear();
+
+// Create and manage presets
+var preset = new VstPreset
+{
+    PluginId = pluginInfo.Id,
+    Name: "Warm Pad",
+    Description: "Soft, atmospheric reverb setting",
+    Category: "Pads",
+    Tags = ["warm", "atmospheric", "reverb"],
+    ParameterValues = new Dictionary<int, float> { [0] = 0.5f, [1] = 0.3f }
+};
+
+bool presetValid = preset.IsValid();
+```
