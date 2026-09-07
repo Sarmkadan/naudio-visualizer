@@ -702,3 +702,51 @@ var preset = new VstPreset
 
 bool presetValid = preset.IsValid();
 ```
+
+## VisualizationDataRepository
+
+`VisualizationDataRepository` provides thread-safe, in-memory storage for visualization data. It supports storing and retrieving visualizations by ID, source-frame session ID, or visualization type; finding the most recent entry; deleting individual entries or complete sessions; clearing the repository; collecting repository statistics; pruning older entries; and exporting a session to an indented JSON file.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Data.Repositories;
+using NAudioVisualizer.Domain.Models;
+
+var repository = new VisualizationDataRepository();
+var sessionId = Guid.NewGuid();
+var sourceFrame = new AudioFrame([0.1f, -0.2f, 0.3f], 1, 44100, 0)
+{
+    Id = sessionId
+};
+
+var waveform = new WaveformData([0.1f, -0.2f, 0.3f], 1, 44100)
+{
+    SourceFrame = sourceFrame
+};
+
+// Store visualization data
+repository.Store(waveform);
+
+// Retrieve entries
+VisualizationData? byId = repository.GetById(waveform.Id);
+IReadOnlyList<VisualizationData> bySession = repository.GetBySession(sessionId);
+IReadOnlyList<VisualizationData> byType = repository.GetByType(VisualizationType.Waveform);
+VisualizationData? mostRecent = repository.GetMostRecent(VisualizationType.Waveform);
+IReadOnlyList<VisualizationData> all = repository.GetAll();
+
+// Inspect repository statistics
+RepositoryStats stats = repository.GetStats();
+Console.WriteLine($"{stats.TotalCount} visualizations across {stats.SessionCount} sessions");
+
+// Keep only the most recently generated entries
+int prunedCount = repository.PruneOldest(100);
+
+// Export all entries associated with a source-frame session ID
+repository.ExportSessionToJson(sessionId, "visualization-session.json");
+
+// Delete entries
+bool deleted = repository.Delete(waveform.Id);
+int deletedForSession = repository.DeleteBySession(sessionId);
+repository.Clear();
+```
