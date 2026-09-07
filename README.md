@@ -1008,3 +1008,54 @@ float concertPitchFrequency = MidiNoteEvent.GetFrequency(69);
 
 midiInput.Dispose();
 ```
+
+## AudioCaptureService
+
+`AudioCaptureService` discovers audio input devices with `GetAvailableDevices()`, configures a selected device with `Initialize(int deviceIndex, int sampleRate, int channelCount)`, and controls capture with `StartRecordingAsync()` and `StopRecordingAsync()`. During capture, `GetCurrentMetadata()` returns the current `AudioMetadata`, `GetBufferedAudio()` returns a copy of the captured samples, `GetAudioBuffer()` provides the current `AudioBuffer`, and `ClearBuffer()` removes buffered samples. Subscribe to `FrameCaptured` to receive each `AudioFrameEventArgs.Frame` and to `DeviceStatusChanged` to receive availability and error details through `AudioDeviceEventArgs`; call `Dispose()` when finished to stop capture and release device and buffer resources.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Services;
+
+var audioCapture = new AudioCaptureService();
+
+audioCapture.FrameCaptured += (_, args) =>
+{
+    if (args.Frame is not null)
+    {
+        Console.WriteLine("Captured an audio frame.");
+    }
+};
+
+audioCapture.DeviceStatusChanged += (_, args) =>
+{
+    Console.WriteLine($"Device available: {args.IsAvailable}");
+
+    if (args.Exception is not null)
+    {
+        Console.WriteLine(args.Exception.Message);
+    }
+};
+
+var devices = audioCapture.GetAvailableDevices();
+
+if (devices.Count > 0)
+{
+    audioCapture.Initialize(deviceIndex: 0, sampleRate: 48000, channelCount: 2);
+    await audioCapture.StartRecordingAsync();
+
+    await Task.Delay(TimeSpan.FromSeconds(5));
+
+    var metadata = audioCapture.GetCurrentMetadata();
+    float[]? samples = audioCapture.GetBufferedAudio();
+    var buffer = audioCapture.GetAudioBuffer();
+
+    Console.WriteLine($"Buffered samples: {samples?.Length ?? 0}");
+    audioCapture.ClearBuffer();
+
+    await audioCapture.StopRecordingAsync();
+}
+
+audioCapture.Dispose();
+```
