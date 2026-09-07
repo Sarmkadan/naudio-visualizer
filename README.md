@@ -825,3 +825,37 @@ applicationLogger.Info("Logged through ILogger.");
 // Release the underlying log writer when logging is complete.
 logger.Dispose();
 ```
+
+## AudioProcessingWorker
+
+`AudioProcessingWorker` runs queued `ProcessingTask` instances asynchronously in the background. Use `Start` to begin processing, `EnqueueTask(ProcessingTask)` to add work, `GetQueueDepth` to inspect pending work, `ClearQueue` to remove and count pending tasks, `StopAsync` to stop gracefully, and `Dispose` to release the worker's resources.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Workers;
+
+var worker = new AudioProcessingWorker();
+
+worker.Start();
+
+worker.EnqueueTask(new ProcessingTask
+{
+    Name = "Analyze audio frame",
+    ExecuteAsync = async cancellationToken =>
+    {
+        await ProcessAudioFrameAsync(cancellationToken);
+    },
+    OnComplete = () => Console.WriteLine("Audio frame processed."),
+    OnError = exception => Console.WriteLine(exception.Message)
+});
+
+int pendingTasks = worker.GetQueueDepth();
+Console.WriteLine($"Pending tasks: {pendingTasks}");
+
+// Remove any work that has not started and get the number of removed tasks.
+int clearedTasks = worker.ClearQueue();
+
+await worker.StopAsync();
+worker.Dispose();
+```
