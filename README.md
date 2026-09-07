@@ -859,3 +859,40 @@ int clearedTasks = worker.ClearQueue();
 await worker.StopAsync();
 worker.Dispose();
 ```
+
+## VisualizerTheme
+
+`VisualizerTheme` defines the background, waveform gradient, and spectrogram palette used by a visualizer. Each `GradientStop(float position, uint color)` pairs a normalized position from `0` through `1` with an ARGB color (`0xAARRGGBB`); `VisualizerTheme(string name, uint backgroundColor, IReadOnlyList<GradientStop> waveformGradient, IReadOnlyList<GradientStop> spectrogramPalette)` requires a non-null, non-whitespace name and at least two stops in both gradient collections. Built-in themes are available through `VisualizerTheme.Presets.Classic`, `Accessible`, and `Monochrome`, while `ColorScheme.Dark`, `Light`, `Neon`, and `Grayscale` provide named wrappers whose `Theme` property exposes a `VisualizerTheme`.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Domain.Models;
+using NAudioVisualizer.Themes;
+
+var customTheme = new VisualizerTheme(
+    name: "Ocean",
+    backgroundColor: 0xFF001122,
+    waveformGradient: new[]
+    {
+        new GradientStop(0f, 0xFF006699),
+        new GradientStop(1f, 0xFFCCFFFF)
+    },
+    spectrogramPalette: new[]
+    {
+        new GradientStop(0f, 0xFF001122),
+        new GradientStop(0.5f, 0xFF0088CC),
+        new GradientStop(1f, 0xFFFFFFFF)
+    });
+
+VisualizerTheme classic = VisualizerTheme.Presets.Classic;
+VisualizerTheme accessible = VisualizerTheme.Presets.Accessible;
+VisualizerTheme monochrome = VisualizerTheme.Presets.Monochrome;
+
+ColorScheme darkScheme = ColorScheme.Dark;
+ColorScheme lightScheme = ColorScheme.Light;
+ColorScheme neonScheme = ColorScheme.Neon;
+ColorScheme grayscaleScheme = ColorScheme.Grayscale;
+
+VisualizerTheme darkTheme = darkScheme.Theme;
+```
