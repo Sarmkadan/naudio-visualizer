@@ -1137,3 +1137,38 @@ Console.WriteLine(summary);
 configuration.ExportSettings("settings-backup.json");
 configuration.ImportSettings("settings-backup.json");
 ```
+
+## CacheManager
+
+`CacheManager<TKey, TValue>` stores typed values in a size-limited LRU cache. `Set(TKey, TValue, TimeSpan?)` adds or replaces an entry with an optional expiration, `TryGetValue(TKey, out TValue?)` and `GetOrDefault(TKey, TValue?)` retrieve values, `Contains(TKey)` checks for an unexpired entry, `Remove(TKey)` removes an entry, and `RemoveExpiredEntries()` clears expired entries. `GetStatistics()` returns cache usage, hit, miss, eviction, and expiration statistics, while `ResetStatistics()` resets those counters.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Caching;
+
+var cache = new CacheManager<string, string>(
+    maxSize: 100,
+    defaultExpiration: TimeSpan.FromMinutes(30));
+
+// Store an entry with a custom expiration.
+cache.Set("current-track", "Example Song", TimeSpan.FromMinutes(5));
+
+if (cache.TryGetValue("current-track", out string? track))
+{
+    Console.WriteLine(track);
+}
+
+string? artist = cache.GetOrDefault("current-artist", "Unknown Artist");
+bool hasCurrentTrack = cache.Contains("current-track");
+bool removed = cache.Remove("current-track");
+
+int expiredEntryCount = cache.RemoveExpiredEntries();
+
+CacheStatistics statistics = cache.GetStatistics();
+Console.WriteLine(
+    $"Hits: {statistics.Hits}, misses: {statistics.Misses}, " +
+    $"evictions: {statistics.Evictions}, expirations: {statistics.Expirations}");
+
+cache.ResetStatistics();
+```
