@@ -1059,3 +1059,50 @@ if (devices.Count > 0)
 
 audioCapture.Dispose();
 ```
+
+## ServiceContainer
+
+`ServiceContainer` is a lightweight dependency injection container that registers singleton instances with `Register<T>(T)`, registers lazily created services with `RegisterFactory<T>(Func<ServiceContainer, T>)`, retrieves services with `Resolve<T>()`, checks registrations with `IsRegistered<T>()`, and removes them with `Unregister<T>()`. `ApplicationConfiguration.ConfigureServices()` creates the default application container, while `ApplicationConfiguration.ConfigureServices(ApplicationSettings)` accepts settings such as buffer size, sample rate, FFT size, target frame rate, logging, and session frame limits.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Configuration;
+using NAudioVisualizer.Data.Repositories;
+using NAudioVisualizer.Services;
+
+var container = new ServiceContainer();
+
+// Register an existing singleton instance.
+container.Register(new AudioSessionRepository());
+
+// Register a service factory; the first resolved instance is cached.
+container.RegisterFactory<AudioCaptureService>(
+    serviceContainer => new AudioCaptureService());
+
+bool hasRepository = container.IsRegistered<AudioSessionRepository>();
+AudioSessionRepository? repository =
+    container.Resolve<AudioSessionRepository>();
+AudioCaptureService? captureService =
+    container.Resolve<AudioCaptureService>();
+
+bool removed = container.Unregister<AudioCaptureService>();
+
+// Create the default application service container.
+ServiceContainer defaultServices =
+    ApplicationConfiguration.ConfigureServices();
+
+// Or configure it with application settings.
+var settings = new ApplicationSettings
+{
+    MaxAudioBufferSize = 384000,
+    DefaultSampleRate = 48000,
+    DefaultFftSize = 4096,
+    TargetFps = 60,
+    EnableLogging = true,
+    MaxFramesPerSession = 10000
+};
+
+ServiceContainer configuredServices =
+    ApplicationConfiguration.ConfigureServices(settings);
+```
