@@ -570,6 +570,66 @@ Action invalidPeakCount = () => tests.CalculatePeakValues(new float[] { 0.1f, 0.
 invalidPeakCount.Should().Throw<ArgumentException>();
 ```
 
+## AudioSessionRepository
+
+`AudioSessionRepository` manages audio session metadata and frame data storage. It provides thread-safe operations for creating sessions, adding audio frames, retrieving frame data with various filtering options, managing session lifecycle, and obtaining repository statistics.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Data.Repositories;
+using NAudioVisualizer.Domain.Models;
+
+// Create repository instance
+var repository = new AudioSessionRepository();
+
+// Create a new audio session
+var metadata = new AudioMetadata
+{
+    SessionId = Guid.NewGuid(),
+    StartTime = DateTime.UtcNow,
+    AudioDevice = AudioDevice.GetDefaultDevice(),
+    SampleRate = 44100,
+    ChannelCount = 2
+};
+var session = repository.CreateSession(metadata);
+
+// Add audio frames to the session
+var frame = new AudioFrame
+{
+    Timestamp = DateTime.UtcNow,
+    Samples = new float[] { 0.1f, 0.2f, 0.3f },
+    ChannelCount = 2
+};
+repository.AddFrameToSession(session.SessionId, frame);
+
+// Retrieve session frames
+var allFrames = repository.GetSessionFrames(session.SessionId);
+var recentFrames = repository.GetRecentFrames(session.SessionId, 100);
+var timeRangeFrames = repository.GetFramesInTimeRange(
+    session.SessionId,
+    DateTime.UtcNow.AddMinutes(-5),
+    DateTime.UtcNow
+);
+
+// Get specific frame
+var firstFrame = repository.GetFrame(session.SessionId, 0);
+
+// Update session limits
+repository.SetMaxFramesPerSession(10000);
+
+// End session
+repository.EndSession(session.SessionId);
+
+// Get repository statistics
+var stats = repository.GetStats();
+Console.WriteLine($"Total sessions: {stats.TotalSessionCount}");
+Console.WriteLine($"Total frames: {stats.TotalFrameCount}");
+
+// Clean up (optional)
+// repository.DeleteSession(session.SessionId);
+```
+
 ## VstPluginInfo
 
 `VstPluginInfo` and related classes provide a comprehensive model for VST plugin metadata, parameter management, automation lanes, and presets. `VstPluginInfo` captures immutable plugin identity and capabilities. `VstParameter` represents live automatable controls with normalization utilities. `VstParameterAutomationLane` manages timed automation points with support for linear, step, cosine, and cubic spline interpolation. `VstPreset` stores complete parameter snapshots for saving, loading, and categorizing plugin states.
