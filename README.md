@@ -1202,3 +1202,37 @@ Console.WriteLine(
 
 cache.ResetStatistics();
 ```
+
+## EventBus
+
+`EventBus` is a central, thread-safe event bus for the application that implements the pub-sub pattern. It decouples event publishers from subscribers and uses weak references internally to automatically clean up dead subscriptions and prevent memory leaks. It provides `Subscribe<T>(Action<T>)` to register handlers (returning an `IDisposable` for easy unsubscription), `Publish<T>(T)` to broadcast events to all active subscribers, `GetSubscriberCount<T>()` to inspect registration counts, `UnsubscribeAll<T>()` to remove handlers for a specific event type, `Clear()` to remove all subscriptions, and `Dispose()` to release resources.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Events;
+
+// Create an event bus instance
+var eventBus = new EventBus();
+
+// Subscribe to events (returns an IDisposable for cleanup)
+var subscription = eventBus.Subscribe<MyEvent>(e =>
+{
+    Console.WriteLine($"Received event: {e.Data}");
+});
+
+// Publish an event to all subscribers
+eventBus.Publish(new MyEvent { Data = "Hello" });
+
+// Check subscriber count
+int count = eventBus.GetSubscriberCount<MyEvent>();
+
+// Unsubscribe all handlers for a specific event type
+eventBus.UnsubscribeAll<MyEvent>();
+
+// Clear all subscriptions
+eventBus.Clear();
+
+// Dispose the event bus to release resources and clean up weak references
+eventBus.Dispose();
+```
