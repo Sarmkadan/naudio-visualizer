@@ -1326,3 +1326,36 @@ bool isZoomed = waveformService.GetZoomWindow(
     out long startSample,
     out long lengthSamples);
 ```
+
+## SpectrumAnalyzer
+
+`SpectrumAnalyzer` creates FFT magnitude data from an `AudioFrame` with `AnalyzeSpectrum(AudioFrame, int)`, converts and smooths spectrum data in place with `ConvertToLogScale(SpectrumData, float)` and `SmoothSpectrum(SpectrumData, int)`, identifies its strongest frequency with `FindDominantFrequency(SpectrumData)`, and calculates its center of mass with `CalculateSpectralCentroid(SpectrumData)`. It also summarizes the spectrum through logarithmically spaced averages with `CalculateBandEnergies(SpectrumData, int)` and normalized bass, mid, and treble energy with `ExtractFrequencyBands(SpectrumData)`. Per-bin peak holds are controlled by `PeakHoldDecayDbPerSecond`, updated with `UpdatePeakHolds(SpectrumData, double)`, read with `GetPeakHolds()`, and cleared with `ResetPeakHolds()`.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Domain.Models;
+using NAudioVisualizer.Services;
+
+var analyzer = new SpectrumAnalyzer
+{
+    PeakHoldDecayDbPerSecond = 10f
+};
+
+AudioFrame audioFrame = GetAudioFrame();
+SpectrumData spectrum = analyzer.AnalyzeSpectrum(audioFrame, fftSize: 2048);
+
+// Convert magnitudes to dB and reduce visual noise between adjacent bins.
+analyzer.ConvertToLogScale(spectrum, referenceValue: 1f);
+analyzer.SmoothSpectrum(spectrum, windowSize: 3);
+
+float dominantFrequency = analyzer.FindDominantFrequency(spectrum);
+float spectralCentroid = analyzer.CalculateSpectralCentroid(spectrum);
+float[] bandEnergies = analyzer.CalculateBandEnergies(spectrum, bandCount: 8);
+FrequencyBands frequencyBands = analyzer.ExtractFrequencyBands(spectrum);
+
+// Update peak holds once per rendered frame, then read or reset them.
+analyzer.UpdatePeakHolds(spectrum, elapsedSeconds: 1.0 / 60.0);
+float[]? peakHolds = analyzer.GetPeakHolds();
+analyzer.ResetPeakHolds();
+```
