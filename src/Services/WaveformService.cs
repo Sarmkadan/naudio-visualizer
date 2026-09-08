@@ -460,11 +460,11 @@ public sealed class WaveformService
         float[] samples = waveform.GetData();
         long currentLength = samples.Length;
 
-        if (currentLength >= 1000000) // Reasonable upper limit
+        if (currentLength >= MaxZoomLengthSamples) // Reasonable upper limit
             return; // Cannot zoom out further
 
         long centerSample = zoomCenterSample ?? currentLength / 2;
-        long newLength = Math.Min(1000000, currentLength * 2);
+        long newLength = Math.Min(MaxZoomLengthSamples, currentLength * ZoomStepFactor);
 
         // Calculate new start position, ensuring we don't go out of bounds
         long startSample = Math.Max(0, centerSample - newLength / 2);
