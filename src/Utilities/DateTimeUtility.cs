@@ -15,6 +15,12 @@ namespace NAudioVisualizer.Utilities;
 /// </summary>
 public static class DateTimeUtility
 {
+    private const int SecondsPerMinute = 60;
+    private const int MinutesPerHour = 60;
+    private const int HoursPerDay = 24;
+    private const int DaysPerMonthApprox = 30;
+    private const int DaysPerYearApprox = 365;
+
     /// <summary>
     /// Gets the current time in milliseconds since epoch.
     /// </summary>
@@ -115,25 +121,25 @@ public static class DateTimeUtility
         var now = DateTime.UtcNow;
         var diff = now - dateTime;
 
-        if (diff.TotalSeconds < 60)
+        if (diff.TotalSeconds < SecondsPerMinute)
             return $"{diff.TotalSeconds:F0} seconds ago";
 
-        if (diff.TotalMinutes < 60)
+        if (diff.TotalMinutes < MinutesPerHour)
             return $"{diff.TotalMinutes:F0} minutes ago";
 
-        if (diff.TotalHours < 24)
+        if (diff.TotalHours < HoursPerDay)
             return $"{diff.TotalHours:F0} hours ago";
 
         if (diff.TotalDays < 7)
             return $"{diff.TotalDays:F0} days ago";
 
-        if (diff.TotalDays < 30)
+        if (diff.TotalDays < DaysPerMonthApprox)
             return $"{diff.TotalDays / 7:F0} weeks ago";
 
-        if (diff.TotalDays < 365)
-            return $"{diff.TotalDays / 30:F0} months ago";
+        if (diff.TotalDays < DaysPerYearApprox)
+            return $"{diff.TotalDays / DaysPerMonthApprox:F0} months ago";
 
-        return $"{diff.TotalDays / 365:F0} years ago";
+        return $"{diff.TotalDays / DaysPerYearApprox:F0} years ago";
     }
 
     /// <summary>
