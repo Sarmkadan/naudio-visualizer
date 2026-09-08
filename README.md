@@ -927,6 +927,47 @@ ColorScheme grayscaleScheme = ColorScheme.Grayscale;
 VisualizerTheme darkTheme = darkScheme.Theme;
 ```
 
+## AudioBuffer
+
+`AudioBuffer` is a circular buffer for storing audio data with efficient memory usage. It provides thread-safe operations for writing, reading, and managing audio samples with automatic overwriting of oldest samples when the buffer is full. The buffer tracks sample rate and channel count to enable duration calculations and provides statistics about buffer usage.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Domain.Models;
+
+// Create a buffer for stereo audio at 44.1kHz with capacity for 1 second of audio
+var buffer = new AudioBuffer(capacity: 44100 * 2, sampleRate: 44100, channelCount: 2);
+
+// Write audio samples to the buffer
+float[] samples = new float[] { 0.1f, 0.2f, 0.3f, 0.4f };
+buffer.Write(samples);
+
+// Peek at samples without removing them
+float[] peeked = buffer.Peek(2); // Returns first 2 samples
+
+// Read and remove samples from the buffer
+int actualRead;
+float[] readSamples = buffer.Read(2, out actualRead); // Returns 2 samples, actualRead = 2
+
+// Get all available samples
+float[] allSamples = buffer.GetAll();
+
+// Check buffer status
+bool isFull = buffer.IsFull();
+bool isEmpty = buffer.IsEmpty();
+int availableSpace = buffer.AvailableSpace();
+
+// Get duration of audio in buffer
+double durationSeconds = buffer.GetDurationSeconds();
+
+// Get buffer statistics
+AudioBufferStats stats = buffer.GetStats();
+
+// Clear the buffer
+buffer.Clear();
+```
+
 ## AudioDataConverter
 
 `AudioDataConverter` provides static helpers for converting between decibel and linear amplitude values, formatting frequencies, durations, and audio levels, converting float samples to and from 16-bit PCM, extracting and interleaving audio channels, calculating RMS and peak levels, normalizing samples, and applying gain.
