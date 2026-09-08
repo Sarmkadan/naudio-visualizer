@@ -1236,3 +1236,47 @@ eventBus.Clear();
 // Dispose the event bus to release resources and clean up weak references
 eventBus.Dispose();
 ```
+
+## SpectrogramAnalyzer
+
+`SpectrogramAnalyzer` builds time-frequency data from ordered audio frames with `BuildSpectrogram(AudioFrame[], int, int)` and supports streaming analysis through a bounded rolling buffer using `AddSpectrumFrame(SpectrumData)`, `GetCurrentSpectrogram()`, and `SetBufferSize(int)`. It can extract frequency and time slices with `GetFrequencySlice(SpectrogramData, float)` and `GetTimeSlice(SpectrogramData, double)`, calculate frame-to-frame spectral change with `CalculateSpectralFlux(SpectrogramData)`, and locate transient onset frame indices with `DetectTransients(SpectrogramData, float)`.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Domain.Models;
+using NAudioVisualizer.Services;
+
+var spectrogramAnalyzer = new SpectrogramAnalyzer();
+
+// Build a spectrogram from an ordered array of captured audio frames.
+AudioFrame[] audioFrames = GetAudioFrames();
+SpectrogramData spectrogram = spectrogramAnalyzer.BuildSpectrogram(
+    audioFrames,
+    fftSize: 2048,
+    hopSize: 512);
+
+// Extract magnitudes over time at 1 kHz and across frequencies at 0.25 seconds.
+float[] frequencySlice = spectrogramAnalyzer.GetFrequencySlice(
+    spectrogram,
+    frequencyHz: 1000f);
+float[] timeSlice = spectrogramAnalyzer.GetTimeSlice(
+    spectrogram,
+    timeSeconds: 0.25);
+
+// Measure spectral change and detect strong local peaks in that curve.
+float[] spectralFlux = spectrogramAnalyzer.CalculateSpectralFlux(spectrogram);
+List<int> transientFrames = spectrogramAnalyzer.DetectTransients(
+    spectrogram,
+    threshold: 0.5f);
+
+// Streaming mode keeps only the newest spectrum frames.
+var spectrumAnalyzer = new SpectrumAnalyzer();
+spectrogramAnalyzer.SetBufferSize(maxFrames: 200);
+
+SpectrumData spectrumFrame = spectrumAnalyzer.AnalyzeSpectrum(audioFrames[0]);
+spectrogramAnalyzer.AddSpectrumFrame(spectrumFrame);
+
+SpectrogramData? currentSpectrogram =
+    spectrogramAnalyzer.GetCurrentSpectrogram();
+```
