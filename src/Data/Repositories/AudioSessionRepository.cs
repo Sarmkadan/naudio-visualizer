@@ -283,6 +283,11 @@ public class AudioSessionData
         var end = EndTime ?? DateTime.UtcNow;
         return end - StartTime;
     }
+
+    public override string ToString()
+    {
+        return $"SessionId={SessionId}, Start={StartTime}, End={EndTime ?? DateTime.MinValue}, Frames={FrameCount}";
+    }
 }
 
 /// <summary>
@@ -295,4 +300,9 @@ public class SessionRepositoryStats
     public int ActiveSessionCount { get; set; }
     public int CompletedSessionCount { get; set; }
     public int MaxFramesPerSession { get; set; }
+
+    public override string ToString()
+    {
+        return $"TotalSessions={TotalSessionCount}, Active={ActiveSessionCount}, Completed={CompletedSessionCount}, TotalFrames={TotalFrameCount}, MaxFramesPerSession={MaxFramesPerSession}";
+    }
 }
