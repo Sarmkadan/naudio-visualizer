@@ -14,6 +14,10 @@ namespace NAudioVisualizer.Infrastructure;
 /// </summary>
 public class AudioDataConverter
 {
+    private const int Int16MaxValue = 32767;
+    private const int HzPerKilohertz = 1000;
+    private const int PercentScale = 100;
+
     /// <summary>
     /// Converts decibels to linear amplitude.
     /// </summary>
@@ -35,9 +39,9 @@ public class AudioDataConverter
     /// Formats a frequency value as a human-readable string.
     /// </summary>
     public static string FormatFrequency(float frequencyHz)
-        => frequencyHz < 1000
+        => frequencyHz < HzPerKilohertz
             ? $"{frequencyHz:F1} Hz"
-            : $"{frequencyHz / 1000:F2} kHz";
+            : $"{frequencyHz / HzPerKilohertz:F2} kHz";
 
     /// <summary>
     /// Formats a time duration as a human-readable string.
@@ -51,7 +55,7 @@ public class AudioDataConverter
     /// Formats an audio level as a percentage string.
     /// </summary>
     public static string FormatAudioLevel(float level)
-        => $"{Math.Clamp(level * 100, 0, 100):F1}%";
+        => $"{Math.Clamp(level * PercentScale, 0, PercentScale):F1}%";
 
     /// <summary>
     /// Formats an audio level in decibels.
@@ -80,7 +84,7 @@ public class AudioDataConverter
             float sample = Math.Clamp(samples[i], -1f, 1f);
 
             // Convert to 16-bit integer
-            short value = (short)(sample * 32767);
+            short value = (short)(sample * Int16MaxValue);
 
             // Convert to bytes (little-endian)
             bytes[i * 2] = (byte)(value & 0xFF);
