@@ -1,5 +1,5 @@
 #if false
-// This file is intentionally excluded from compilation in the main project.
+// The canonical test lives in tests/Infrastructure/AudioDataConverterTests.cs; this copy is intentionally excluded from the main project.
 using System;
 using NAudioVisualizer.Infrastructure;
 using Xunit;
