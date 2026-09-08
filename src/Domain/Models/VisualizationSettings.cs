@@ -117,6 +117,16 @@ public class VisualizationSettings
                TimeScale > 0 &&
                MaxFrequencyDisplay > 0;
     }
+
+    /// <summary>
+    /// Returns a summary of the top-level scalar visualization settings.
+    /// </summary>
+    public override string ToString() =>
+        $"Id: {Id}, RenderingQuality: {RenderingQuality}, TargetFPS: {TargetFPS}, " +
+        $"EnableAntiAliasing: {EnableAntiAliasing}, BackgroundColor: 0x{BackgroundColor:X8}, " +
+        $"ShowGrid: {ShowGrid}, ShowFrequencyLabels: {ShowFrequencyLabels}, " +
+        $"ShowTimeLabels: {ShowTimeLabels}, TimeScale: {TimeScale}, " +
+        $"MaxFrequencyDisplay: {MaxFrequencyDisplay}";
 }
 
 /// <summary>
