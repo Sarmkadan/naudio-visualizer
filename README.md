@@ -525,6 +525,36 @@ MathUtility.MapRange(0.5f, 0f, 1f, 10f, 20f).Should().Be(15f); // Midpoint of ta
 MathUtility.MapRange(0.5f, 0f, 0.5f, 10f, 20f).Should().Be(10f); // Clamped to target minimum
 ```
 
+## EventPublisher
+
+`EventPublisher` is a static facade for the EventBus that provides convenient helper methods for publishing events throughout the application. It simplifies event publishing by offering strongly-typed Publish* methods for each event type, along with a generic Subscribe<T> method and a Reset method to clear all subscriptions.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Events;
+using NAudioVisualizer.Domain.Models;
+
+// Publish an audio capture started event
+EventPublisher.PublishAudioCaptureStarted(
+    deviceId: 0,
+    sampleRate: 44100,
+    channelCount: 2);
+
+// Publish a waveform generated event
+var waveform = new WaveformData(new float[] { 0.1f, 0.5f, -0.3f }, 1, 44100);
+EventPublisher.PublishWaveformGenerated(waveform, generationTimeMs: 10, frameCount: 1024);
+
+// Subscribe to audio capture started events
+using var subscription = EventPublisher.Subscribe<AudioCaptureStartedEvent>(e =>
+{
+    Console.WriteLine($"Capture started: device {e.DeviceId}, {e.SampleRate}Hz, {e.ChannelCount} channels");
+});
+
+// Later, reset the event bus (e.g., during application shutdown)
+EventPublisher.Reset();
+```
+
 ## WaveformServiceTests
 
 `WaveformServiceTests` is a comprehensive test class that verifies the behavior of the `WaveformService` class. It contains unit tests for waveform processing operations including downsampling, peak calculation, smoothing filters, frame energy calculation, and zero-crossing detection. The tests use FluentAssertions for readable assertions and Xunit as the testing framework.
