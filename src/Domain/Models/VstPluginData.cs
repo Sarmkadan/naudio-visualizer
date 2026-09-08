@@ -374,6 +374,12 @@ public sealed class VstParameterAutomationLane
         lock (_lock) _points.Clear();
     }
 
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+        lock (_lock) return $"Parameter {ParameterId}: {_points.Count} points";
+    }
+
     // ── Interpolation helpers ─────────────────────────────────────────────
 
     private static float InterpolateCosine(float v0, float v1, double t) =>
