@@ -24,6 +24,9 @@ namespace NAudioVisualizer.Services;
 /// </example>
 public sealed class WaveformService
 {
+    private const long MaxZoomLengthSamples = 1000000;
+    private const int ZoomStepFactor = 2;
+
     /// <summary>
     /// Generates waveform visualization from an audio frame.
     /// </summary>
