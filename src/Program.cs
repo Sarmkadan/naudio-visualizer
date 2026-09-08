@@ -5,6 +5,7 @@
 // =============================================================================
 
 using System;
+using System.Drawing;
 using System.Windows.Forms;
 using NAudioVisualizer.Configuration;
 using NAudioVisualizer.Constants;
@@ -75,166 +76,171 @@ static class Program
 /// </summary>
 public sealed partial class MainForm : Form
 {
-        private readonly ServiceContainer _serviceContainer;
-        private readonly ApplicationSettings _settings;
+    // UI default values extracted as static readonly fields
+    private static readonly Size DefaultWindowSize = new Size(1280, 720);
+    private static readonly Color WindowBackgroundColor = Color.FromArgb(26, 26, 26);
+    private static readonly Color ChromeBackgroundColor = Color.FromArgb(40, 40, 40);
 
-        public MainForm(ServiceContainer serviceContainer, ApplicationSettings settings)
+    private readonly ServiceContainer _serviceContainer;
+    private readonly ApplicationSettings _settings;
+
+    public MainForm(ServiceContainer serviceContainer, ApplicationSettings settings)
+    {
+        _serviceContainer = serviceContainer ?? throw new ArgumentNullException(nameof(serviceContainer));
+        _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+
+        InitializeComponent();
+        LoadApplicationSettings();
+    }
+
+    /// <summary>
+    /// Initializes the form components.
+    /// </summary>
+    private void InitializeComponent()
+    {
+        this.SuspendLayout();
+
+        this.Name = "MainForm";
+        this.Text = "NAudio Visualizer - Real-time Audio Visualization";
+        this.Size = DefaultWindowSize;
+        this.StartPosition = FormStartPosition.CenterScreen;
+        this.BackColor = WindowBackgroundColor;
+        this.DoubleBuffered = true;
+
+        // Create menu bar
+        var menuStrip = new MenuStrip();
+        menuStrip.BackColor = ChromeBackgroundColor;
+        menuStrip.ForeColor = Color.White;
+
+        // File menu
+        var fileMenu = new ToolStripMenuItem("&File");
+        fileMenu.DropDownItems.Add(new ToolStripMenuItem("E&xit", null, (s, e) => this.Close()));
+        menuStrip.Items.Add(fileMenu);
+
+        // Audio menu
+        var audioMenu = new ToolStripMenuItem("&Audio");
+        audioMenu.DropDownItems.Add(new ToolStripMenuItem("&Start Capture", null, OnStartCapture));
+        audioMenu.DropDownItems.Add(new ToolStripMenuItem("S&top Capture", null, OnStopCapture));
+        audioMenu.DropDownItems.Add(new ToolStripSeparator());
+        audioMenu.DropDownItems.Add(new ToolStripMenuItem("&Devices", null, OnShowDevices));
+        menuStrip.Items.Add(audioMenu);
+
+        // View menu
+        var viewMenu = new ToolStripMenuItem("&View");
+        viewMenu.DropDownItems.Add(new ToolStripMenuItem("&Waveform", null, OnShowWaveform));
+        viewMenu.DropDownItems.Add(new ToolStripMenuItem("&Spectrum", null, OnShowSpectrum));
+        viewMenu.DropDownItems.Add(new ToolStripMenuItem("&Spectrogram", null, OnShowSpectrogram));
+        menuStrip.Items.Add(viewMenu);
+
+        // Help menu
+        var helpMenu = new ToolStripMenuItem("&Help");
+        helpMenu.DropDownItems.Add(new ToolStripMenuItem("&About", null, OnShowAbout));
+        menuStrip.Items.Add(helpMenu);
+
+        this.MainMenuStrip = menuStrip;
+        this.Controls.Add(menuStrip);
+
+        // Create status bar
+        var statusStrip = new StatusStrip();
+        statusStrip.BackColor = ChromeBackgroundColor;
+        statusStrip.ForeColor = Color.White;
+
+        var statusLabel = new ToolStripStatusLabel("Ready");
+        statusLabel.Name = "StatusLabel";
+        statusStrip.Items.Add(statusLabel);
+
+        this.Controls.Add(statusStrip);
+
+        // Create main panel for visualizations
+        var mainPanel = new Panel();
+        mainPanel.Dock = DockStyle.Fill;
+        mainPanel.BackColor = WindowBackgroundColor;
+        mainPanel.Margin = new Padding(0);
+        mainPanel.Name = "MainVisualizationPanel";
+        this.Controls.Add(mainPanel);
+
+        this.ResumeLayout(false);
+        this.PerformLayout();
+    }
+
+    /// <summary>
+    /// Loads application settings and initializes UI.
+    /// </summary>
+    private void LoadApplicationSettings()
+    {
+        // Apply settings to UI
+    }
+
+    /// <summary>
+    /// Handles start capture event.
+    /// </summary>
+    private void OnStartCapture(object? sender, EventArgs e)
+    {
+        // TODO: Implement audio capture start
+    }
+
+    /// <summary>
+    /// Handles stop capture event.
+    /// </summary>
+    private void OnStopCapture(object? sender, EventArgs e)
+    {
+        // TODO: Implement audio capture stop
+    }
+
+    /// <summary>
+    /// Handles show devices event.
+    /// </summary>
+    private void OnShowDevices(object? sender, EventArgs e)
+    {
+        // TODO: Show audio devices dialog
+    }
+
+    /// <summary>
+    /// Handles show waveform visualization.
+    /// </summary>
+    private void OnShowWaveform(object? sender, EventArgs e)
+    {
+        // TODO: Switch to waveform view
+    }
+
+    /// <summary>
+    /// Handles show spectrum visualization.
+    /// </summary>
+    private void OnShowSpectrum(object? sender, EventArgs e)
+    {
+        // TODO: Switch to spectrum view
+    }
+
+    /// <summary>
+    /// Handles show spectrogram visualization.
+    /// </summary>
+    private void OnShowSpectrogram(object? sender, EventArgs e)
+    {
+        // TODO: Switch to spectrogram view
+    }
+
+    /// <summary>
+    /// Handles show about dialog.
+    /// </summary>
+    private void OnShowAbout(object? sender, EventArgs e)
+    {
+        MessageBox.Show(
+            "NAudio Visualizer v1.0\n\n" +
+            "Real-time audio visualization with NAudio and SkiaSharp.\n\n" +
+            "Author: Vladyslav Zaiets\n" +
+            "https://sarmkadan.com",
+            "About NAudio Visualizer",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Information
+        );
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
         {
-            _serviceContainer = serviceContainer ?? throw new ArgumentNullException(nameof(serviceContainer));
-            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
-
-            InitializeComponent();
-            LoadApplicationSettings();
+            _serviceContainer?.Dispose();
         }
-
-        /// <summary>
-        /// Initializes the form components.
-        /// </summary>
-        private void InitializeComponent()
-        {
-            this.SuspendLayout();
-
-            this.Name = "MainForm";
-            this.Text = "NAudio Visualizer - Real-time Audio Visualization";
-            this.Size = new System.Drawing.Size(1280, 720);
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.BackColor = System.Drawing.Color.FromArgb(26, 26, 26);
-            this.DoubleBuffered = true;
-
-            // Create menu bar
-            var menuStrip = new MenuStrip();
-            menuStrip.BackColor = System.Drawing.Color.FromArgb(40, 40, 40);
-            menuStrip.ForeColor = System.Drawing.Color.White;
-
-            // File menu
-            var fileMenu = new ToolStripMenuItem("&File");
-            fileMenu.DropDownItems.Add(new ToolStripMenuItem("E&xit", null, (s, e) => this.Close()));
-            menuStrip.Items.Add(fileMenu);
-
-            // Audio menu
-            var audioMenu = new ToolStripMenuItem("&Audio");
-            audioMenu.DropDownItems.Add(new ToolStripMenuItem("&Start Capture", null, OnStartCapture));
-            audioMenu.DropDownItems.Add(new ToolStripMenuItem("S&top Capture", null, OnStopCapture));
-            audioMenu.DropDownItems.Add(new ToolStripSeparator());
-            audioMenu.DropDownItems.Add(new ToolStripMenuItem("&Devices", null, OnShowDevices));
-            menuStrip.Items.Add(audioMenu);
-
-            // View menu
-            var viewMenu = new ToolStripMenuItem("&View");
-            viewMenu.DropDownItems.Add(new ToolStripMenuItem("&Waveform", null, OnShowWaveform));
-            viewMenu.DropDownItems.Add(new ToolStripMenuItem("&Spectrum", null, OnShowSpectrum));
-            viewMenu.DropDownItems.Add(new ToolStripMenuItem("&Spectrogram", null, OnShowSpectrogram));
-            menuStrip.Items.Add(viewMenu);
-
-            // Help menu
-            var helpMenu = new ToolStripMenuItem("&Help");
-            helpMenu.DropDownItems.Add(new ToolStripMenuItem("&About", null, OnShowAbout));
-            menuStrip.Items.Add(helpMenu);
-
-            this.MainMenuStrip = menuStrip;
-            this.Controls.Add(menuStrip);
-
-            // Create status bar
-            var statusStrip = new StatusStrip();
-            statusStrip.BackColor = System.Drawing.Color.FromArgb(40, 40, 40);
-            statusStrip.ForeColor = System.Drawing.Color.White;
-
-            var statusLabel = new ToolStripStatusLabel("Ready");
-            statusLabel.Name = "StatusLabel";
-            statusStrip.Items.Add(statusLabel);
-
-            this.Controls.Add(statusStrip);
-
-            // Create main panel for visualizations
-            var mainPanel = new Panel();
-            mainPanel.Dock = DockStyle.Fill;
-            mainPanel.BackColor = System.Drawing.Color.FromArgb(26, 26, 26);
-            mainPanel.Margin = new Padding(0);
-            mainPanel.Name = "MainVisualizationPanel";
-            this.Controls.Add(mainPanel);
-
-            this.ResumeLayout(false);
-            this.PerformLayout();
-        }
-
-        /// <summary>
-        /// Loads application settings and initializes UI.
-        /// </summary>
-        private void LoadApplicationSettings()
-        {
-            // Apply settings to UI
-        }
-
-        /// <summary>
-        /// Handles start capture event.
-        /// </summary>
-        private void OnStartCapture(object? sender, EventArgs e)
-        {
-            // TODO: Implement audio capture start
-        }
-
-        /// <summary>
-        /// Handles stop capture event.
-        /// </summary>
-        private void OnStopCapture(object? sender, EventArgs e)
-        {
-            // TODO: Implement audio capture stop
-        }
-
-        /// <summary>
-        /// Handles show devices event.
-        /// </summary>
-        private void OnShowDevices(object? sender, EventArgs e)
-        {
-            // TODO: Show audio devices dialog
-        }
-
-        /// <summary>
-        /// Handles show waveform visualization.
-        /// </summary>
-        private void OnShowWaveform(object? sender, EventArgs e)
-        {
-            // TODO: Switch to waveform view
-        }
-
-        /// <summary>
-        /// Handles show spectrum visualization.
-        /// </summary>
-        private void OnShowSpectrum(object? sender, EventArgs e)
-        {
-            // TODO: Switch to spectrum view
-        }
-
-        /// <summary>
-        /// Handles show spectrogram visualization.
-        /// </summary>
-        private void OnShowSpectrogram(object? sender, EventArgs e)
-        {
-            // TODO: Switch to spectrogram view
-        }
-
-        /// <summary>
-        /// Handles show about dialog.
-        /// </summary>
-        private void OnShowAbout(object? sender, EventArgs e)
-        {
-            MessageBox.Show(
-                "NAudio Visualizer v1.0\n\n" +
-                "Real-time audio visualization with NAudio and SkiaSharp.\n\n" +
-                "Author: Vladyslav Zaiets\n" +
-                "https://sarmkadan.com",
-                "About NAudio Visualizer",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information
-            );
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                _serviceContainer?.Dispose();
-            }
-            base.Dispose(disposing);
-        }
+        base.Dispose(disposing);
+    }
 }
