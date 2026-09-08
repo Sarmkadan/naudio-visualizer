@@ -1280,3 +1280,49 @@ spectrogramAnalyzer.AddSpectrumFrame(spectrumFrame);
 SpectrogramData? currentSpectrogram =
     spectrogramAnalyzer.GetCurrentSpectrogram();
 ```
+
+## WaveformService
+
+`WaveformService` creates renderable waveform data with `GenerateWaveform(AudioFrame, int)`, reduces sample data with `DownsampleSamples(float[], int)` or min/max buckets with `DownsampleMinMax(float[], int)`, normalizes waveforms with `NormalizeWaveform(WaveformData)`, calculates peaks with `CalculatePeakValues(float[], int)`, smooths samples with `ApplySmoothingFilter(float[], int)`, and counts signal transitions with `CountZeroCrossings(float[])`. It also provides waveform navigation through `ApplyZoomWindow(WaveformData, long, long)`, `ZoomIn(WaveformData, long?)`, `ZoomOut(WaveformData, long?)`, `Pan(WaveformData, long)`, and `GetZoomWindow(WaveformData, out long, out long)`.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Domain.Models;
+using NAudioVisualizer.Services;
+
+var waveformService = new WaveformService();
+var frame = new AudioFrame(
+    samples: new[] { -0.8f, -0.2f, 0.4f, 1.0f, 0.3f, -0.5f, -1.0f, 0.2f },
+    channelCount: 1,
+    sampleRate: 48000,
+    frameIndex: 0);
+
+// Generate and normalize waveform data.
+WaveformData waveform = waveformService.GenerateWaveform(
+    frame,
+    downsamplingFactor: 1);
+waveformService.NormalizeWaveform(waveform);
+
+float[] samples = waveform.GetData();
+
+// Prepare reduced and analyzed representations for rendering.
+float[] averaged = waveformService.DownsampleSamples(samples, factor: 2);
+(float min, float max)[] minMax = waveformService.DownsampleMinMax(
+    samples,
+    targetBuckets: 4);
+float[] peaks = waveformService.CalculatePeakValues(samples, peakCount: 4);
+float[] smoothed = waveformService.ApplySmoothingFilter(samples, windowSize: 3);
+int zeroCrossings = waveformService.CountZeroCrossings(samples);
+
+// Apply and inspect zoom and pan operations.
+waveformService.ApplyZoomWindow(waveform, startSample: 1, lengthSamples: 4);
+waveformService.ZoomIn(waveform, zoomCenterSample: 2);
+waveformService.ZoomOut(waveform);
+waveformService.Pan(waveform, samplesToMove: 1);
+
+bool isZoomed = waveformService.GetZoomWindow(
+    waveform,
+    out long startSample,
+    out long lengthSamples);
+```
