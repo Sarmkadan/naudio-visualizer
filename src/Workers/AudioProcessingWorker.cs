@@ -216,4 +216,9 @@ public sealed class ProcessingTask
     public Action<Exception>? OnError { get; init; }
     public Action? OnComplete { get; init; }
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
+
+    public override string ToString()
+    {
+        return $"{Name} (CreatedAt: {CreatedAt:O})";
+    }
 }
