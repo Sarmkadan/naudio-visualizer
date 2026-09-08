@@ -188,6 +188,14 @@ public class ApplicationSettings
     public int MaxFramesPerSession { get; set; } = 5000;
 
     /// <summary>
+    /// Returns a summary of the application settings.
+    /// </summary>
+    public override string ToString()
+    {
+        return $"MaxAudioBufferSize={MaxAudioBufferSize}, DefaultSampleRate={DefaultSampleRate}, DefaultFftSize={DefaultFftSize}, TargetFps={TargetFps}, EnableLogging={EnableLogging}, MaxFramesPerSession={MaxFramesPerSession}";
+    }
+
+    /// <summary>
     /// Validates settings for consistency.
     /// </summary>
     public bool IsValid()
