@@ -66,6 +66,12 @@ public sealed class MidiNoteEvent
         NoteNumber is >= 0 and <= 127 &&
         Velocity is >= 0 and <= 127 &&
         Channel is >= 1 and <= 16;
+
+    public override string ToString()
+    {
+        string noteOnOff = IsNoteOn ? "NoteOn" : "NoteOff";
+        return $"{noteOnOff} {NoteName} ({NoteNumber}) vel={Velocity} ch={Channel}";
+    }
 }
 
 /// <summary>
@@ -87,4 +93,10 @@ public sealed class MidiDeviceInfo
     /// </summary>
     /// <returns><see langword="true"/> when the device can be opened.</returns>
     public bool IsValid() => !string.IsNullOrWhiteSpace(ProductName) && Index >= 0;
+
+    public override string ToString()
+    {
+        string availability = IsAvailable ? "available" : "unavailable";
+        return $"[{Index}] {ProductName} ({availability})";
+    }
 }
