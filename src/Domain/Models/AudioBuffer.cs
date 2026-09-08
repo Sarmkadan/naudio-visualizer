@@ -262,4 +262,7 @@ public class AudioBufferStats
     public int Capacity { get; set; }
     public float FillPercentage { get; set; }
     public double DurationSeconds { get; set; }
+
+    public override string ToString() =>
+        $"{CurrentCount}/{Capacity} ({FillPercentage:F1}%) written={SamplesWritten} duration={DurationSeconds:F2}s";
 }
