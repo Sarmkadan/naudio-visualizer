@@ -440,11 +440,26 @@ public sealed class SpectrumAnalyzer
 }
 
 /// <summary>
-/// Frequency band energy data.
+/// Represents normalized energy values for the bass, midrange, and treble frequency bands.
 /// </summary>
 public sealed class FrequencyBands
 {
+    /// <summary>
+    /// Gets or sets the normalized energy in the bass frequency band.
+    /// </summary>
     public float BassEnergy { get; set; }
+
+    /// <summary>
+    /// Gets or sets the normalized energy in the midrange frequency band.
+    /// </summary>
     public float MidEnergy { get; set; }
+
+    /// <summary>
+    /// Gets or sets the normalized energy in the treble frequency band.
+    /// </summary>
     public float TrebleEnergy { get; set; }
+
+    /// <inheritdoc/>
+    public override string ToString() =>
+        $"BassEnergy: {BassEnergy:F3}, MidEnergy: {MidEnergy:F3}, TrebleEnergy: {TrebleEnergy:F3}";
 }
