@@ -31,6 +31,9 @@ public sealed class ColorScheme
         Theme = theme;
     }
 
+    /// <inheritdoc />
+    public override string ToString() => $"{Name} (theme: {Theme.Name})";
+
     /// <summary>
     /// Dark background with a blue-to-white gradient — suited for dark UIs.
     /// </summary>
