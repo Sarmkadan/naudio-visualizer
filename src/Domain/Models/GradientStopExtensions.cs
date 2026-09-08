@@ -16,6 +16,12 @@ namespace NAudioVisualizer.Domain.Models;
 /// </summary>
 public static class GradientStopExtensions
 {
+    private const int BrightnessMidpoint = 128;
+    private const double RedLumaCoefficient = 0.299;
+    private const double GreenLumaCoefficient = 0.587;
+    private const double BlueLumaCoefficient = 0.114;
+    private const int ColorComponentMaxValue = 255;
+
     /// <summary>
     /// Creates a new <see cref="GradientStop"/> with the same position but a modified color.
     /// </summary>
@@ -126,9 +132,9 @@ public static class GradientStopExtensions
         GetArgbComponents(stop, out var alpha, out var red, out var green, out var blue);
 
         // Apply contrast formula: result = (value - 128) * contrastFactor + 128
-        red = (byte)Math.Clamp((int)((red - 128) * contrastFactor + 128), 0, 255);
-        green = (byte)Math.Clamp((int)((green - 128) * contrastFactor + 128), 0, 255);
-        blue = (byte)Math.Clamp((int)((blue - 128) * contrastFactor + 128), 0, 255);
+        red = (byte)Math.Clamp((int)((red - BrightnessMidpoint) * contrastFactor + BrightnessMidpoint), 0, ColorComponentMaxValue);
+        green = (byte)Math.Clamp((int)((green - BrightnessMidpoint) * contrastFactor + BrightnessMidpoint), 0, ColorComponentMaxValue);
+        blue = (byte)Math.Clamp((int)((blue - BrightnessMidpoint) * contrastFactor + BrightnessMidpoint), 0, ColorComponentMaxValue);
 
         var newColor = (uint)((alpha << 24) | (red << 16) | (green << 8) | blue);
         return new GradientStop(stop.Position, newColor);
@@ -283,7 +289,7 @@ public static class GradientStopExtensions
     {
         ArgumentNullException.ThrowIfNull(stop);
         GetArgbComponents(stop, out _, out var red, out var green, out var blue);
-        return (byte)(0.299 * red + 0.587 * green + 0.114 * blue);
+        return (byte)(RedLumaCoefficient * red + GreenLumaCoefficient * green + BlueLumaCoefficient * blue);
     }
 
     /// <summary>
@@ -295,7 +301,7 @@ public static class GradientStopExtensions
     public static bool IsDark(this GradientStop stop)
     {
         ArgumentNullException.ThrowIfNull(stop);
-        return GetBrightness(stop) < 128;
+        return GetBrightness(stop) < BrightnessMidpoint;
     }
 
     /// <summary>
@@ -307,6 +313,6 @@ public static class GradientStopExtensions
     public static bool IsLight(this GradientStop stop)
     {
         ArgumentNullException.ThrowIfNull(stop);
-        return GetBrightness(stop) >= 128;
+        return GetBrightness(stop) >= BrightnessMidpoint;
     }
 }
