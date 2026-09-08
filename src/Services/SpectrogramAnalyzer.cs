@@ -44,11 +44,16 @@ public sealed class SpectrogramAnalyzer
     // faster than the canvas can be flushed.
     private readonly object _bufferLock = new();
 
+    // Default values for configurable parameters
+    private const int DefaultMaxFramesInBuffer = 100;
+    private const int DefaultHopSize = 512;
+    private const float DefaultTransientThreshold = 0.5f;
+
     public SpectrogramAnalyzer()
     {
         _spectrumAnalyzer = new SpectrumAnalyzer();
         _spectrumBuffer = new Queue<SpectrumData>();
-        _maxFramesInBuffer = 100;
+        _maxFramesInBuffer = DefaultMaxFramesInBuffer;
     }
 
     /// <summary>
@@ -67,7 +72,7 @@ public sealed class SpectrogramAnalyzer
     /// </param>
     /// <param name="hopSize">
     /// Number of samples between consecutive FFT windows (overlap stride).
-    /// Defaults to 512. Smaller values increase time resolution at higher CPU cost.
+    /// Defaults to <see cref="DefaultHopSize"/> (512). Smaller values increase time resolution at higher CPU cost.
     /// </param>
     /// <returns>
     /// A <see cref="SpectrogramData"/> whose matrix has dimensions
@@ -78,7 +83,7 @@ public sealed class SpectrogramAnalyzer
     public SpectrogramData BuildSpectrogram(
         AudioFrame[] frames,
         int fftSize = AudioConstants.DEFAULT_FFT_SIZE,
-        int hopSize = 512)
+        int hopSize = DefaultHopSize)
     {
         if (frames is null || frames.Length == 0)
             throw new ArgumentException("Frames collection cannot be null or empty", nameof(frames));
@@ -365,7 +370,7 @@ public sealed class SpectrogramAnalyzer
     /// <param name="spectrogram">The source spectrogram.</param>
     /// <param name="threshold">
     /// Fraction of the maximum spectral flux value used as the detection threshold.
-    /// Must be in (0, 1]. Defaults to 0.5 (50 % of peak flux).
+    /// Must be in (0, 1]. Defaults to <see cref="DefaultTransientThreshold"/> (0.5).
     /// Lower values are more sensitive; higher values require stronger onsets.
     /// </param>
     /// <returns>
@@ -374,7 +379,7 @@ public sealed class SpectrogramAnalyzer
     /// </returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="spectrogram"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="threshold"/> is outside (0, 1].</exception>
-    public List<int> DetectTransients(SpectrogramData spectrogram, float threshold = 0.5f)
+    public List<int> DetectTransients(SpectrogramData spectrogram, float threshold = DefaultTransientThreshold)
     {
         if (spectrogram is null)
             throw new ArgumentNullException(nameof(spectrogram));
