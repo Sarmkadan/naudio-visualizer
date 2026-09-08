@@ -5,6 +5,7 @@
 // =============================================================================
 
 using System;
+using System.Globalization;
 
 namespace NAudioVisualizer.Domain.Models;
 
@@ -167,5 +168,19 @@ public class AudioMetadata
                CurrentLevel >= 0f && CurrentLevel <= 1.0f &&
                PeakLevel >= 0f && PeakLevel <= 1.0f &&
                AverageLevel >= 0f && AverageLevel <= 1.0f;
+    }
+
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        return string.Format(
+            CultureInfo.InvariantCulture,
+            "SessionId={0}, SampleRate={1}, ChannelCount={2}, BitDepth={3}, DurationSeconds={4:F2}, IsCapturing={5}",
+            SessionId,
+            SampleRate,
+            ChannelCount,
+            BitDepth,
+            CurrentDurationSeconds,
+            IsCapturing);
     }
 }
