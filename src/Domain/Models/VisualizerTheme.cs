@@ -39,6 +39,9 @@ public sealed class GradientStop
         Position = position;
         Color = color;
     }
+
+    /// <inheritdoc />
+    public override string ToString() => $"{Position:F2} @ #{Color:X8}";
 }
 
 /// <summary>
@@ -187,4 +190,7 @@ public sealed class VisualizerTheme
                 new GradientStop(1.00f, 0xFFFFFFFF)
             });
     }
+
+    /// <inheritdoc />
+    public override string ToString() => $"{Name} ({WaveformGradient.Count} waveform stops, {SpectrogramPalette.Count} palette stops)";
 }
