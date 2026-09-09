@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using NAudioVisualizer.Domain.Models;
+using System.Globalization;
 
 namespace NAudioVisualizer.Data.Repositories;
 
@@ -257,11 +258,57 @@ public class VisualizationDataRepository
 /// </summary>
 public class RepositoryStats
 {
+    /// <summary>
+    /// Total number of visualization entries.
+    /// </summary>
     public int TotalCount { get; set; }
+
+    /// <summary>
+    /// Number of waveform visualizations.
+    /// </summary>
     public int WaveformCount { get; set; }
+
+    /// <summary>
+    /// Number of spectrum visualizations.
+    /// </summary>
     public int SpectrumCount { get; set; }
+
+    /// <summary>
+    /// Number of spectrogram visualizations.
+    /// </summary>
     public int SpectrogramCount { get; set; }
+
+    /// <summary>
+    /// Number of unique sessions.
+    /// </summary>
     public int SessionCount { get; set; }
+
+    /// <summary>
+    /// Timestamp of the oldest entry.
+    /// </summary>
     public DateTime? OldestEntry { get; set; }
+
+    /// <summary>
+    /// Timestamp of the newest entry.
+    /// </summary>
     public DateTime? NewestEntry { get; set; }
+
+    /// <summary>
+    /// Returns a single-line summary of repository statistics.
+    /// </summary>
+    /// <returns>A formatted string with key statistics.</returns>
+    public override string ToString()
+    {
+        return string.Format(
+            CultureInfo.InvariantCulture,
+            "Total={0} Waveform={1} Spectrum={2} Spectrogram={3} Sessions={4} Oldest={5} Newest={6}",
+            TotalCount,
+            WaveformCount,
+            SpectrumCount,
+            SpectrogramCount,
+            SessionCount,
+            OldestEntry?.ToString("o", CultureInfo.InvariantCulture) ?? "null",
+            NewestEntry?.ToString("o", CultureInfo.InvariantCulture) ?? "null"
+        );
+    }
 }
