@@ -50,8 +50,11 @@ public static class StringUtility
     /// <summary>
     /// Pads a string to a specific width with a character.
     /// </summary>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="text"/> is <see langword="null"/>.</exception>
     public static string PadCenter(string text, int totalWidth, char paddingChar = ' ')
     {
+        ArgumentNullException.ThrowIfNull(text, nameof(text));
+
         if (text.Length >= totalWidth)
             return text;
 
@@ -126,8 +129,11 @@ public static class StringUtility
     /// <summary>
     /// Capitalizes the first letter of each word.
     /// </summary>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="text"/> is <see langword="null"/>.</exception>
     public static string ToTitleCase(string text)
     {
+        ArgumentNullException.ThrowIfNull(text, nameof(text));
+
         if (string.IsNullOrEmpty(text))
             return text;
 
@@ -138,8 +144,11 @@ public static class StringUtility
     /// <summary>
     /// Converts a string to snake_case format.
     /// </summary>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="text"/> is <see langword="null"/>.</exception>
     public static string ToSnakeCase(string text)
     {
+        ArgumentNullException.ThrowIfNull(text, nameof(text));
+
         if (string.IsNullOrEmpty(text))
             return text;
 
@@ -168,8 +177,11 @@ public static class StringUtility
     /// <summary>
     /// Converts a string to camelCase format.
     /// </summary>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="text"/> is <see langword="null"/>.</exception>
     public static string ToCamelCase(string text)
     {
+        ArgumentNullException.ThrowIfNull(text, nameof(text));
+
         if (string.IsNullOrEmpty(text))
             return text;
 
@@ -196,8 +208,11 @@ public static class StringUtility
     /// <summary>
     /// Removes all whitespace from a string.
     /// </summary>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="text"/> is <see langword="null"/>.</exception>
     public static string RemoveWhitespace(string text)
     {
+        ArgumentNullException.ThrowIfNull(text, nameof(text));
+
         return string.IsNullOrEmpty(text)
             ? text
             : System.Text.RegularExpressions.Regex.Replace(text, @"\s+", "");
@@ -206,8 +221,11 @@ public static class StringUtility
     /// <summary>
     /// Checks if a string contains only alphanumeric characters.
     /// </summary>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="text"/> is <see langword="null"/>.</exception>
     public static bool IsAlphanumeric(string text)
     {
+        ArgumentNullException.ThrowIfNull(text, nameof(text));
+
         if (string.IsNullOrEmpty(text))
             return false;
 
@@ -223,8 +241,13 @@ public static class StringUtility
     /// <summary>
     /// Counts the occurrences of a substring in a string.
     /// </summary>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="text"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="substring"/> is <see langword="null"/>.</exception>
     public static int CountOccurrences(string text, string substring)
     {
+        ArgumentNullException.ThrowIfNull(text, nameof(text));
+        ArgumentNullException.ThrowIfNull(substring);
+
         if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(substring))
             return 0;
 
