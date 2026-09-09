@@ -40,10 +40,11 @@ namespace NaudioVisualizer.Services
         /// <param name="height">Number of rows in the output.</param>
         /// <param name="logScale">If true, values are log‑scaled before rendering.</param>
         /// <param name="config">Optional configuration manager for peak‑hold settings.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when width or height is less than or equal to zero.</exception>
         public AsciiSpectrumRenderer(int width = 80, int height = 20, bool logScale = false, ConfigurationManager? config = null)
         {
-            if (width <= 0) throw new ArgumentOutOfRangeException(nameof(width));
-            if (height <= 0) throw new ArgumentOutOfRangeException(nameof(height));
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
 
             _width = width;
             _height = height;
@@ -62,9 +63,10 @@ namespace NaudioVisualizer.Services
         /// </summary>
         /// <param name="spectrumFrame">Array of spectrum magnitudes.</param>
         /// <returns>String containing the rendered chart.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when spectrumFrame is null.</exception>
         public string Render(float[] spectrumFrame)
         {
-            if (spectrumFrame == null) throw new ArgumentNullException(nameof(spectrumFrame));
+            ArgumentNullException.ThrowIfNull(spectrumFrame);
             if (spectrumFrame.Length == 0) return string.Empty;
 
             // Determine current console size and clamp rendering dimensions
