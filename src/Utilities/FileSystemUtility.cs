@@ -43,8 +43,11 @@ public static class FileSystemUtility
     /// <summary>
     /// Ensures a directory exists, creating it if necessary.
     /// </summary>
+    /// <exception cref="ArgumentException"><paramref name="path"/> is null, empty, or consists only of white-space characters.</exception>
     public static void EnsureDirectoryExists(string path)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(path);
+
         if (!Directory.Exists(path))
             Directory.CreateDirectory(path);
     }
@@ -52,8 +55,11 @@ public static class FileSystemUtility
     /// <summary>
     /// Gets the size of a file in bytes.
     /// </summary>
+    /// <exception cref="ArgumentException"><paramref name="filePath"/> is null, empty, or consists only of white-space characters.</exception>
     public static long GetFileSize(string filePath)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
+
         if (!File.Exists(filePath))
             throw new FileNotFoundException($"File not found: {filePath}");
 
@@ -82,8 +88,11 @@ public static class FileSystemUtility
     /// <summary>
     /// Generates a unique filename by adding a number suffix if the file exists.
     /// </summary>
+    /// <exception cref="ArgumentException"><paramref name="filePath"/> is null, empty, or consists only of white-space characters.</exception>
     public static string GenerateUniqueFileName(string filePath)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
+
         if (!File.Exists(filePath))
             return filePath;
 
@@ -107,8 +116,11 @@ public static class FileSystemUtility
     /// Safely deletes a file if it exists.
     /// Returns true if the file was deleted, false if it didn't exist.
     /// </summary>
+    /// <exception cref="ArgumentException"><paramref name="filePath"/> is null, empty, or consists only of white-space characters.</exception>
     public static bool SafeDeleteFile(string filePath)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
+
         if (!File.Exists(filePath))
             return false;
 
@@ -126,8 +138,11 @@ public static class FileSystemUtility
     /// <summary>
     /// Safely deletes a directory and all its contents.
     /// </summary>
+    /// <exception cref="ArgumentException"><paramref name="dirPath"/> is null, empty, or consists only of white-space characters.</exception>
     public static void SafeDeleteDirectory(string dirPath)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(dirPath);
+
         if (!Directory.Exists(dirPath))
             return;
 
@@ -144,16 +159,23 @@ public static class FileSystemUtility
     /// <summary>
     /// Checks if a path is a file or directory.
     /// </summary>
+    /// <exception cref="ArgumentException"><paramref name="path"/> is null, empty, or consists only of white-space characters.</exception>
     public static bool IsDirectory(string path)
     {
-        return !string.IsNullOrEmpty(path) && (File.GetAttributes(path) & FileAttributes.Directory) == FileAttributes.Directory;
+        ArgumentException.ThrowIfNullOrWhiteSpace(path);
+
+        return (File.GetAttributes(path) & FileAttributes.Directory) == FileAttributes.Directory;
     }
 
     /// <summary>
     /// Gets the relative path from one path to another.
     /// </summary>
+    /// <exception cref="ArgumentException"><paramref name="fromPath"/> or <paramref name="toPath"/> is null, empty, or consists only of white-space characters.</exception>
     public static string GetRelativePath(string fromPath, string toPath)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(fromPath);
+        ArgumentException.ThrowIfNullOrWhiteSpace(toPath);
+
         var fromUri = new Uri(Path.GetFullPath(fromPath));
         var toUri = new Uri(Path.GetFullPath(toPath));
 
@@ -164,8 +186,13 @@ public static class FileSystemUtility
     /// Writes text to a file asynchronously.
     /// Creates or overwrites the file.
     /// </summary>
+    /// <exception cref="ArgumentException"><paramref name="filePath"/> is null, empty, or consists only of white-space characters.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="content"/> is null.</exception>
     public static async Task WriteFileAsync(string filePath, string content)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
+        ArgumentNullException.ThrowIfNull(content);
+
         try
         {
             EnsureDirectoryExists(Path.GetDirectoryName(filePath) ?? ".");
@@ -180,8 +207,11 @@ public static class FileSystemUtility
     /// <summary>
     /// Reads text from a file asynchronously.
     /// </summary>
+    /// <exception cref="ArgumentException"><paramref name="filePath"/> is null, empty, or consists only of white-space characters.</exception>
     public static async Task<string> ReadFileAsync(string filePath)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
+
         if (!File.Exists(filePath))
             throw new FileNotFoundException($"File not found: {filePath}");
 
@@ -198,8 +228,11 @@ public static class FileSystemUtility
     /// <summary>
     /// Cleans up old files in a directory based on retention days.
     /// </summary>
+    /// <exception cref="ArgumentException"><paramref name="directoryPath"/> is null, empty, or consists only of white-space characters.</exception>
     public static int CleanupOldFiles(string directoryPath, int retentionDays)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(directoryPath);
+
         if (!Directory.Exists(directoryPath))
             return 0;
 
@@ -229,8 +262,11 @@ public static class FileSystemUtility
     /// <summary>
     /// Gets the total size of a directory and all its contents.
     /// </summary>
+    /// <exception cref="ArgumentException"><paramref name="directoryPath"/> is null, empty, or consists only of white-space characters.</exception>
     public static long GetDirectorySize(string directoryPath)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(directoryPath);
+
         if (!Directory.Exists(directoryPath))
             return 0;
 
