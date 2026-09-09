@@ -19,6 +19,12 @@ public static class ColorUtility
     /// <summary>
     /// Converts RGB color to HSV (Hue, Saturation, Value).
     /// </summary>
+    /// <param name="r">The red component (0-1).</param>
+    /// <param name="g">The green component (0-1).</param>
+    /// <param name="b">The blue component (0-1).</param>
+    /// <param name="h">The hue component (0-360).</param>
+    /// <param name="s">The saturation component (0-1).</param>
+    /// <param name="v">The value component (0-1).</param>
     public static void RgbToHsv(float r, float g, float b, out float h, out float s, out float v)
     {
         float max = MathF.Max(r, MathF.Max(g, b));
@@ -53,6 +59,12 @@ public static class ColorUtility
     /// <summary>
     /// Converts HSV color to RGB.
     /// </summary>
+    /// <param name="h">The hue component (0-360).</param>
+    /// <param name="s">The saturation component (0-1).</param>
+    /// <param name="v">The value component (0-1).</param>
+    /// <param name="r">The red component (0-255).</param>
+    /// <param name="g">The green component (0-255).</param>
+    /// <param name="b">The blue component (0-255).</param>
     public static void HsvToRgb(float h, float s, float v, out float r, out float g, out float b)
     {
         float c = v * s;
@@ -92,6 +104,10 @@ public static class ColorUtility
     /// <summary>
     /// Linearly interpolates between two colors.
     /// </summary>
+    /// <param name="a">The starting color.</param>
+    /// <param name="b">The ending color.</param>
+    /// <param name="t">The interpolation factor (0-1).</param>
+    /// <returns>The interpolated color.</returns>
     public static Color LerpColor(Color a, Color b, float t)
     {
         t = Math.Clamp(t, 0f, 1f);
@@ -107,6 +123,8 @@ public static class ColorUtility
     /// Gets a color from the viridis colormap.
     /// Useful for spectrograms. Value should be in range [0, 1].
     /// </summary>
+    /// <param name="value">The normalized value (0-1) to map to colormap range).</param>
+    /// <returns>The color from the viridis colormap at the specified value.</returns>
     public static Color GetViririsColor(float value)
     {
         value = Math.Clamp(value, 0f, 1f);
