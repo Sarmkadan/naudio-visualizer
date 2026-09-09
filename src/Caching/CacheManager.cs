@@ -68,8 +68,10 @@ public class CacheManager<TKey, TValue> where TKey : notnull
     /// Gets a value from the cache.
     /// Returns false if the key doesn't exist or the entry has expired.
     /// </summary>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="key"/> is null.</exception>
     public bool TryGetValue(TKey key, out TValue? value)
     {
+        ArgumentNullException.ThrowIfNull(key);
         value = default;
 
         lock (_lockObject)
@@ -100,16 +102,20 @@ public class CacheManager<TKey, TValue> where TKey : notnull
     /// <summary>
     /// Gets a value with a default fallback.
     /// </summary>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="key"/> is null.</exception>
     public TValue? GetOrDefault(TKey key, TValue? defaultValue = default)
     {
+        ArgumentNullException.ThrowIfNull(key);
         return TryGetValue(key, out var value) ? value : defaultValue;
     }
 
     /// <summary>
     /// Checks if a key exists in the cache.
     /// </summary>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="key"/> is null.</exception>
     public bool Contains(TKey key)
     {
+        ArgumentNullException.ThrowIfNull(key);
         lock (_lockObject)
         {
             if (!_cache.TryGetValue(key, out var entry))
@@ -131,8 +137,10 @@ public class CacheManager<TKey, TValue> where TKey : notnull
     /// <summary>
     /// Removes a value from the cache.
     /// </summary>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="key"/> is null.</exception>
     public bool Remove(TKey key)
     {
+        ArgumentNullException.ThrowIfNull(key);
         lock (_lockObject)
         {
             return _cache.Remove(key);
