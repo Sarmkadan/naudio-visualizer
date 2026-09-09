@@ -40,6 +40,7 @@ public sealed class AudioCaptureService : IDisposable
     /// <summary>
     /// Gets all available audio input devices.
     /// </summary>
+    /// <returns>A read-only list of available audio input devices.</returns>
     public IReadOnlyList<AudioDevice> GetAvailableDevices()
     {
         UpdateDeviceList();
@@ -212,6 +213,7 @@ public sealed class AudioCaptureService : IDisposable
     /// <summary>
     /// Gets the current audio metadata.
     /// </summary>
+    /// <returns>The current audio metadata, or null if not initialized.</returns>
     public AudioMetadata? GetCurrentMetadata()
     {
         return _currentMetadata;
@@ -220,6 +222,7 @@ public sealed class AudioCaptureService : IDisposable
     /// <summary>
     /// Gets a copy of buffered audio data.
     /// </summary>
+    /// <returns>A copy of the buffered audio data as float array, or null if buffer is not initialized.</returns>
     public float[]? GetBufferedAudio()
     {
         return _audioBuffer?.GetAll();
@@ -441,6 +444,9 @@ public sealed class AudioCaptureService : IDisposable
 /// </summary>
 public sealed class AudioFrameEventArgs : EventArgs
 {
+    /// <summary>
+    /// Gets or sets the captured audio frame.
+    /// </summary>
     public AudioFrame? Frame { get; set; }
 }
 
@@ -449,6 +455,13 @@ public sealed class AudioFrameEventArgs : EventArgs
 /// </summary>
 public sealed class AudioDeviceEventArgs : EventArgs
 {
+    /// <summary>
+    /// Gets or sets a value indicating whether the audio device is available.
+    /// </summary>
     public bool IsAvailable { get; set; }
+
+    /// <summary>
+    /// Gets or sets the exception that occurred, if any.
+    /// </summary>
     public Exception? Exception { get; set; }
 }
