@@ -15,6 +15,12 @@ namespace NaudioVisualizer.Utilities
         /// </summary>
         /// <param name="buffer">The audio buffer.</param>
         /// <returns>Peak level in dB.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
+        /// <remarks>
+        /// The level is computed as <c>20 * log10(peak)</c>, where <c>peak</c> is the largest
+        /// absolute sample value, clamped to a minimum of <see cref="MinAmplitude"/> to avoid
+        /// taking the logarithm of zero.
+        /// </remarks>
         public static float PeakDb(this float[] buffer)
         {
             if (buffer == null) throw new ArgumentNullException(nameof(buffer));
@@ -30,6 +36,12 @@ namespace NaudioVisualizer.Utilities
         /// </summary>
         /// <param name="buffer">The audio buffer.</param>
         /// <returns>RMS level in dB.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
+        /// <remarks>
+        /// The level is computed as <c>20 * log10(rms)</c>, where <c>rms</c> is the root-mean-square
+        /// of the sample values, clamped to a minimum of <see cref="MinAmplitude"/> to avoid
+        /// taking the logarithm of zero.
+        /// </remarks>
         public static float RmsDb(this float[] buffer)
         {
             if (buffer == null) throw new ArgumentNullException(nameof(buffer));
@@ -51,6 +63,12 @@ namespace NaudioVisualizer.Utilities
         /// </summary>
         /// <param name="buffer">The audio buffer to normalise.</param>
         /// <param name="targetPeak">The desired peak amplitude (linear, not dB).</param>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="targetPeak"/> is less than or equal to zero.</exception>
+        /// <remarks>
+        /// Each sample is multiplied by <c>targetPeak / currentPeak</c>, where <c>currentPeak</c> is
+        /// the largest absolute sample value. A silent buffer (peak of zero) is left unchanged.
+        /// </remarks>
         public static void NormalizeInPlace(this float[] buffer, float targetPeak)
         {
             if (buffer == null) throw new ArgumentNullException(nameof(buffer));
