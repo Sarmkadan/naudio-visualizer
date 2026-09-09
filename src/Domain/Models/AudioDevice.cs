@@ -77,6 +77,9 @@ public class AudioDevice
     /// <summary>
     /// Initializes a new audio device.
     /// </summary>
+    /// <param name="name">Human-readable device name.</param>
+    /// <param name="deviceIndex">Device index used by NAudio.</param>
+    /// <param name="channelCount">Number of input channels.</param>
     public AudioDevice(string name, int deviceIndex, int channelCount)
     {
         Name = name ?? throw new ArgumentNullException(nameof(name));
@@ -87,6 +90,7 @@ public class AudioDevice
     /// <summary>
     /// Validates that the device configuration is valid.
     /// </summary>
+    /// <returns>True if the device configuration is valid, false otherwise.</returns>
     public bool IsValid()
     {
         return !string.IsNullOrWhiteSpace(Name) &&
@@ -100,6 +104,8 @@ public class AudioDevice
     /// <summary>
     /// Checks if a specific sample rate is supported.
     /// </summary>
+    /// <param name="sampleRate">The sample rate to check.</param>
+    /// <returns>True if the sample rate is supported, false otherwise.</returns>
     public bool SupportsSampleRate(int sampleRate)
     {
         return SupportedSampleRates.Contains(sampleRate);
@@ -108,6 +114,7 @@ public class AudioDevice
     /// <summary>
     /// Adds a supported sample rate.
     /// </summary>
+    /// <param name="sampleRate">The sample rate to add.</param>
     public void AddSupportedSampleRate(int sampleRate)
     {
         if (!SupportedSampleRates.Contains(sampleRate))
@@ -120,6 +127,8 @@ public class AudioDevice
     /// <summary>
     /// Updates the device availability status.
     /// </summary>
+    /// <param name="available">Whether the device is available.</param>
+    /// <returns>None.</returns>
     public void UpdateStatus(bool available)
     {
         IsAvailable = available;
@@ -135,11 +144,18 @@ public class AudioDevice
 [Flags]
 public enum DeviceCapabilities
 {
+    /// <summary>No capabilities.</summary>
     None = 0,
+    /// <summary>Device is a microphone.</summary>
     Microphone = 1,
+    /// <summary>Device is a line-in input.</summary>
     LineIn = 2,
+    /// <summary>Device supports stereo input.</summary>
     Stereo = 4,
+    /// <summary>Device supports mono input.</summary>
     Mono = 8,
+    /// <summary>Device supports high-resolution audio.</summary>
     HighResolution = 16,
+    /// <summary>Device supports real-time processing.</summary>
     RealTime = 32
 }
