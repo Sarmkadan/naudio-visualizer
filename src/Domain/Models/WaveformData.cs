@@ -47,6 +47,11 @@ public class WaveformData : VisualizationData
     /// <summary>
     /// Initializes a new waveform data with samples.
     /// </summary>
+    /// <param name="samples">The waveform amplitude values.</param>
+    /// <param name="channelCount">Number of channels (mono=1, stereo=2).</param>
+    /// <param name="sampleRate">Sample rate of the source audio.</param>
+    /// <param name="downsamplingFactor">Downsampling factor applied to create this waveform.</param>
+    /// <exception cref="ArgumentNullException">Thrown when samples is null.</exception>
     public WaveformData(float[] samples, int channelCount, int sampleRate, int downsamplingFactor = 1)
     {
         _waveformSamples = samples ?? throw new ArgumentNullException(nameof(samples));
@@ -67,6 +72,8 @@ public class WaveformData : VisualizationData
     /// <summary>
     /// Sets the waveform samples and recalculates metrics.
     /// </summary>
+    /// <param name="samples">The waveform amplitude values.</param>
+    /// <exception cref="ArgumentNullException">Thrown when samples is null.</exception>
     public void SetSamples(float[] samples)
     {
         _waveformSamples = samples ?? throw new ArgumentNullException(nameof(samples));
@@ -117,6 +124,7 @@ public class WaveformData : VisualizationData
     /// <summary>
     /// Downsamples the waveform data to reduce point count.
     /// </summary>
+    /// <param name="factor">The downsampling factor.</param>
     public void Downsample(int factor)
     {
         if (factor <= 1 || _waveformSamples.Length <= factor)
@@ -153,6 +161,7 @@ public class WaveformData : VisualizationData
     /// <summary>
     /// Validates the waveform data integrity.
     /// </summary>
+    /// <returns>true if the waveform data is valid; otherwise, false.</returns>
     public override bool IsValid()
     {
         return _waveformSamples.Length > 0 &&
