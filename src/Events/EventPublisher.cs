@@ -74,8 +74,11 @@ public static class EventPublisher
     /// <param name="frame">The audio frame that was captured.</param>
     /// <param name="sequenceNumber">The monotonically increasing sequence number of the frame.</param>
     /// <param name="elapsed">The elapsed time since the capture session started.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="frame"/> is <see langword="null"/>.</exception>
     public static void PublishAudioFrameCaptured(Domain.Models.AudioFrame frame, long sequenceNumber, TimeSpan elapsed)
     {
+        ArgumentNullException.ThrowIfNull(frame);
+
         Instance.Publish(new AudioFrameCapturedEvent
         {
             Frame = frame,
@@ -90,8 +93,11 @@ public static class EventPublisher
     /// <param name="waveform">The waveform data that was generated.</param>
     /// <param name="generationTimeMs">The time taken to generate the waveform, in milliseconds.</param>
     /// <param name="frameCount">The number of frames included in the waveform.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="waveform"/> is <see langword="null"/>.</exception>
     public static void PublishWaveformGenerated(Domain.Models.WaveformData waveform, long generationTimeMs, int frameCount)
     {
+        ArgumentNullException.ThrowIfNull(waveform);
+
         Instance.Publish(new WaveformGeneratedEvent
         {
             Waveform = waveform,
@@ -106,8 +112,11 @@ public static class EventPublisher
     /// <param name="spectrum">The spectrum data produced by the analysis.</param>
     /// <param name="analysisTimeMs">The time taken to analyze the spectrum, in milliseconds.</param>
     /// <param name="peakMagnitude">The peak magnitude detected in the spectrum.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="spectrum"/> is <see langword="null"/>.</exception>
     public static void PublishSpectrumAnalyzed(Domain.Models.SpectrumData spectrum, long analysisTimeMs, float peakMagnitude)
     {
+        ArgumentNullException.ThrowIfNull(spectrum);
+
         Instance.Publish(new SpectrumAnalyzedEvent
         {
             Spectrum = spectrum,
@@ -122,8 +131,11 @@ public static class EventPublisher
     /// <param name="spectrogram">The spectrogram data that was generated.</param>
     /// <param name="generationTimeMs">The time taken to generate the spectrogram, in milliseconds.</param>
     /// <param name="timeFrames">The number of time frames processed.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="spectrogram"/> is <see langword="null"/>.</exception>
     public static void PublishSpectrogramGenerated(Domain.Models.SpectrogramData spectrogram, long generationTimeMs, int timeFrames)
     {
+        ArgumentNullException.ThrowIfNull(spectrogram);
+
         Instance.Publish(new SpectrogramGeneratedEvent
         {
             Spectrogram = spectrogram,
@@ -171,8 +183,12 @@ public static class EventPublisher
     /// <param name="exception">The exception that caused the error, if any.</param>
     /// <param name="componentName">The name of the component that raised the error.</param>
     /// <param name="errorCode">An optional numeric error code identifying the failure.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="errorMessage"/> or <paramref name="exception"/> is <see langword="null"/>.</exception>
     public static void PublishVisualizationError(string errorMessage, Exception exception, string componentName, int errorCode = 0)
     {
+        ArgumentNullException.ThrowIfNull(errorMessage);
+        ArgumentNullException.ThrowIfNull(exception);
+
         Instance.Publish(new VisualizationErrorEvent
         {
             ErrorMessage = errorMessage,
@@ -188,8 +204,11 @@ public static class EventPublisher
     /// <param name="deviceId">The identifier of the connected audio device.</param>
     /// <param name="deviceName">The display name of the connected audio device.</param>
     /// <param name="maxChannels">The maximum number of channels supported by the device.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="deviceName"/> is <see langword="null"/>.</exception>
     public static void PublishAudioDeviceConnected(int deviceId, string deviceName, int maxChannels)
     {
+        ArgumentNullException.ThrowIfNull(deviceName);
+
         Instance.Publish(new AudioDeviceConnectedEvent
         {
             DeviceId = deviceId,
@@ -203,8 +222,11 @@ public static class EventPublisher
     /// </summary>
     /// <param name="deviceId">The identifier of the disconnected audio device.</param>
     /// <param name="deviceName">The display name of the disconnected audio device.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="deviceName"/> is <see langword="null"/>.</exception>
     public static void PublishAudioDeviceDisconnected(int deviceId, string deviceName)
     {
+        ArgumentNullException.ThrowIfNull(deviceName);
+
         Instance.Publish(new AudioDeviceDisconnectedEvent
         {
             DeviceId = deviceId,
@@ -218,8 +240,11 @@ public static class EventPublisher
     /// <param name="settingName">The name of the setting that changed.</param>
     /// <param name="oldValue">The previous value of the setting.</param>
     /// <param name="newValue">The new value of the setting.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="settingName"/> is <see langword="null"/>.</exception>
     public static void PublishVisualizationSettingsChanged(string settingName, object? oldValue, object? newValue)
     {
+        ArgumentNullException.ThrowIfNull(settingName);
+
         Instance.Publish(new VisualizationSettingsChangedEvent
         {
             SettingName = settingName,
@@ -252,8 +277,12 @@ public static class EventPublisher
     /// <param name="exportPath">The destination path of the export.</param>
     /// <param name="format">The identifier of the export format.</param>
     /// <param name="dataPointCount">The number of data points being exported.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="exportPath"/> or <paramref name="format"/> is <see langword="null"/>.</exception>
     public static void PublishDataExportStarted(string exportPath, string format, int dataPointCount)
     {
+        ArgumentNullException.ThrowIfNull(exportPath);
+        ArgumentNullException.ThrowIfNull(format);
+
         Instance.Publish(new DataExportStartedEvent
         {
             ExportPath = exportPath,
@@ -270,8 +299,12 @@ public static class EventPublisher
     /// <param name="fileSize">The size of the exported file, in bytes.</param>
     /// <param name="exportTimeMs">The time taken to perform the export, in milliseconds.</param>
     /// <param name="success">A value indicating whether the export completed successfully.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="exportPath"/> or <paramref name="format"/> is <see langword="null"/>.</exception>
     public static void PublishDataExportCompleted(string exportPath, string format, long fileSize, long exportTimeMs, bool success)
     {
+        ArgumentNullException.ThrowIfNull(exportPath);
+        ArgumentNullException.ThrowIfNull(format);
+
         Instance.Publish(new DataExportCompletedEvent
         {
             ExportPath = exportPath,
@@ -302,8 +335,11 @@ public static class EventPublisher
     /// <typeparam name="T">The type of event to subscribe to.</typeparam>
     /// <param name="handler">The action invoked whenever an event of type <typeparamref name="T"/> is published.</param>
     /// <returns>A disposable subscription handle; disposing it removes the subscription from the bus.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="handler"/> is <see langword="null"/>.</exception>
     public static IDisposable Subscribe<T>(Action<T> handler) where T : class
     {
+        ArgumentNullException.ThrowIfNull(handler);
+
         return Instance.Subscribe(handler);
     }
 
