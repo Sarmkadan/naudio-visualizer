@@ -86,6 +86,8 @@ public class PerformanceProfiler
     /// <summary>
     /// Gets the average execution time for an operation.
     /// </summary>
+    /// <param name="operationName">The name of the operation.</param>
+    /// <returns>The average execution time in milliseconds, or 0 if the operation was not found.</returns>
     public double GetAverageTime(string operationName)
     {
         lock (_metrics)
@@ -100,6 +102,8 @@ public class PerformanceProfiler
     /// <summary>
     /// Gets the total execution time for an operation.
     /// </summary>
+    /// <param name="operationName">The name of the operation.</param>
+    /// <returns>The total execution time in milliseconds, or 0 if the operation was not found.</returns>
     public long GetTotalTime(string operationName)
     {
         lock (_metrics)
@@ -111,6 +115,8 @@ public class PerformanceProfiler
     /// <summary>
     /// Gets the number of times an operation was called.
     /// </summary>
+    /// <param name="operationName">The name of the operation.</param>
+    /// <returns>The number of times the operation was called, or 0 if the operation was not found.</returns>
     public int GetCallCount(string operationName)
     {
         lock (_metrics)
@@ -122,6 +128,8 @@ public class PerformanceProfiler
     /// <summary>
     /// Gets the minimum execution time for an operation.
     /// </summary>
+    /// <param name="operationName">The name of the operation.</param>
+    /// <returns>The minimum execution time in milliseconds, or 0 if the operation was not found or has no samples.</returns>
     public long GetMinTime(string operationName)
     {
         lock (_metrics)
@@ -136,6 +144,8 @@ public class PerformanceProfiler
     /// <summary>
     /// Gets the maximum execution time for an operation.
     /// </summary>
+    /// <param name="operationName">The name of the operation.</param>
+    /// <returns>The maximum execution time in milliseconds, or 0 if the operation was not found or has no samples.</returns>
     public long GetMaxTime(string operationName)
     {
         lock (_metrics)
@@ -150,6 +160,8 @@ public class PerformanceProfiler
     /// <summary>
     /// Gets the median execution time for an operation.
     /// </summary>
+    /// <param name="operationName">The name of the operation.</param>
+    /// <returns>The median execution time in milliseconds, or 0 if the operation was not found or has no samples.</returns>
     public long GetMedianTime(string operationName)
     {
         lock (_metrics)
@@ -168,6 +180,7 @@ public class PerformanceProfiler
     /// <summary>
     /// Gets all recorded metrics as a formatted string.
     /// </summary>
+    /// <returns>A formatted string containing the performance report.</returns>
     public string GetReport()
     {
         var lines = new List<string>();
@@ -224,6 +237,11 @@ public class PerformanceProfiler
         private readonly Stopwatch _stopwatch;
         private bool _disposed;
 
+        /// <summary>
+        /// Initializes a new instance of the TimingToken class.
+        /// </summary>
+        /// <param name="profiler">The performance profiler instance.</param>
+        /// <param name="operationName">The name of the operation to time.</param>
         public TimingToken(PerformanceProfiler profiler, string operationName)
         {
             _profiler = profiler;
@@ -231,6 +249,9 @@ public class PerformanceProfiler
             _stopwatch = Stopwatch.StartNew();
         }
 
+        /// <summary>
+        /// Stops the timer and records the elapsed time.
+        /// </summary>
         public void Dispose()
         {
             if (_disposed)
