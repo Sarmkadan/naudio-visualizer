@@ -75,10 +75,10 @@ public sealed class ConfigurationManager
     /// <summary>
     /// Sets a configuration value.
     /// </summary>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="key"/> is null, empty, or consists only of white-space characters.</exception>
     public void SetValue<T>(string key, T value)
     {
-        if (string.IsNullOrWhiteSpace(key))
-            throw new ArgumentException("Key cannot be null or empty.", nameof(key));
+        ArgumentException.ThrowIfNullOrWhiteSpace(key);
 
         _settings[key] = value ?? throw new ArgumentNullException(nameof(value));
         _logger.Debug($"Configuration value set: {key}");
@@ -263,8 +263,13 @@ public sealed class ConfigurationManager
     /// <summary>
     /// Imports settings from a JSON file.
     /// </summary>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="filePath"/> is null, empty, or consists only of white-space characters.</exception>
+    /// <exception cref="FileNotFoundException">Thrown when the specified file does not exist.</exception>
+    /// <exception cref="IOException">Thrown when an I/O error occurs.</exception>
+    /// <exception cref="JsonException">Thrown when the JSON is invalid.</exception>
     public void ImportSettings(string filePath)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
         if (!File.Exists(filePath))
             throw new FileNotFoundException($"Settings file not found: {filePath}");
 
