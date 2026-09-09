@@ -62,6 +62,11 @@ public class AudioFrame
     /// <summary>
     /// Initializes a new audio frame with the specified samples and metadata.
     /// </summary>
+    /// <param name="samples">The raw audio samples as floats, normalized between -1.0 and 1.0.</param>
+    /// <param name="channelCount">Number of channels in this audio frame (mono=1, stereo=2).</param>
+    /// <param name="sampleRate">Sample rate of the audio (e.g., 44100 Hz, 48000 Hz).</param>
+    /// <param name="frameIndex">Frame index in the audio stream sequence.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="samples"/> is null.</exception>
     public AudioFrame(float[] samples, int channelCount, int sampleRate, long frameIndex)
     {
         Samples = samples ?? throw new ArgumentNullException(nameof(samples));
@@ -105,6 +110,9 @@ public class AudioFrame
     /// <summary>
     /// Gets the audio data for a specific channel.
     /// </summary>
+    /// <param name="channelIndex">The zero-based index of the channel to retrieve.</param>
+    /// <returns>An array containing the audio samples for the specified channel.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="channelIndex"/> is less than zero or greater than or equal to <see cref="ChannelCount"/>.</exception>
     public float[] GetChannelData(int channelIndex)
     {
         if (channelIndex < 0 || channelIndex >= ChannelCount)
@@ -121,6 +129,7 @@ public class AudioFrame
     /// <summary>
     /// Validates that the frame data is consistent and valid.
     /// </summary>
+    /// <returns>True if the frame data is valid; otherwise, false.</returns>
     public bool IsValid()
     {
         return Samples.Length > 0 &&
