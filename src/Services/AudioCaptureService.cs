@@ -231,6 +231,7 @@ public sealed class AudioCaptureService : IDisposable
     /// <summary>
     /// Gets the current audio buffer.
     /// </summary>
+    /// <returns>The current audio buffer, or null if not initialized.</returns>
     public AudioBuffer? GetAudioBuffer()
     {
         return _audioBuffer;
