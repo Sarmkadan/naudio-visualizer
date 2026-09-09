@@ -69,6 +69,7 @@ public sealed class MidiInputService : IDisposable
     /// <exception cref="InvalidOperationException">Thrown when a MIDI session is already active.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="deviceIndex"/> exceeds the available range.</exception>
     /// <exception cref="AudioDeviceException">Thrown when the underlying MIDI device cannot be opened.</exception>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public async Task StartAsync(int deviceIndex, CancellationToken cancellationToken = default)
     {
         ThrowIfDisposed();
@@ -107,6 +108,7 @@ public sealed class MidiInputService : IDisposable
     /// <summary>
     /// Stops the active MIDI session and releases the device handle.
     /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public async Task StopAsync()
     {
         CleanupDevice();
@@ -192,5 +194,6 @@ public sealed class MidiInputService : IDisposable
 public sealed class MidiNoteEventArgs : EventArgs
 {
     /// <summary>Gets the MIDI note event that was received.</summary>
+    /// <value>The MIDI note event containing note details such as channel, note number, velocity, and frequency.</value>
     public required MidiNoteEvent Note { get; init; }
 }
