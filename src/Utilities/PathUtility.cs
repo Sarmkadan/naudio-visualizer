@@ -19,10 +19,10 @@ public static class PathUtility
     /// <summary>
     /// Normalizes a path to use forward slashes regardless of platform.
     /// </summary>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="path"/> is null, empty, or consists only of white-space characters.</exception>
     public static string NormalizePath(string path)
     {
-        if (string.IsNullOrEmpty(path))
-            return path;
+        ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
         return path.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
     }
@@ -47,21 +47,22 @@ public static class PathUtility
     /// <summary>
     /// Gets the absolute path for a relative path.
     /// </summary>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="relativePath"/> is null, empty, or consists only of white-space characters.</exception>
     public static string GetAbsolutePath(string relativePath)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(relativePath);
+
         return Path.GetFullPath(relativePath);
     }
 
     /// <summary>
     /// Gets the relative path from one directory to another.
     /// </summary>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="fromPath"/> or <paramref name="toPath"/> is null, empty, or consists only of white-space characters.</exception>
     public static string GetRelativePath(string fromPath, string toPath)
     {
-        if (string.IsNullOrEmpty(fromPath))
-            throw new ArgumentException("From path cannot be null or empty.", nameof(fromPath));
-
-        if (string.IsNullOrEmpty(toPath))
-            throw new ArgumentException("To path cannot be null or empty.", nameof(toPath));
+        ArgumentException.ThrowIfNullOrWhiteSpace(fromPath);
+        ArgumentException.ThrowIfNullOrWhiteSpace(toPath);
 
         var fromUri = new Uri(Path.GetFullPath(fromPath));
         var toUri = new Uri(Path.GetFullPath(toPath));
@@ -72,10 +73,10 @@ public static class PathUtility
     /// <summary>
     /// Ensures a path ends with a directory separator.
     /// </summary>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="path"/> is null, empty, or consists only of white-space characters.</exception>
     public static string EnsureTrailingSeparator(string path)
     {
-        if (string.IsNullOrEmpty(path))
-            return path;
+        ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
         if (!path.EndsWith(Path.DirectorySeparatorChar.ToString()))
             path += Path.DirectorySeparatorChar;
@@ -86,10 +87,10 @@ public static class PathUtility
     /// <summary>
     /// Removes the trailing directory separator from a path.
     /// </summary>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="path"/> is null, empty, or consists only of white-space characters.</exception>
     public static string RemoveTrailingSeparator(string path)
     {
-        if (string.IsNullOrEmpty(path))
-            return path;
+        ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
         return path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
     }
@@ -97,10 +98,10 @@ public static class PathUtility
     /// <summary>
     /// Checks if a path is absolute.
     /// </summary>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="path"/> is null, empty, or consists only of white-space characters.</exception>
     public static bool IsAbsolute(string path)
     {
-        if (string.IsNullOrEmpty(path))
-            return false;
+        ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
         return Path.IsPathRooted(path);
     }
@@ -108,16 +109,22 @@ public static class PathUtility
     /// <summary>
     /// Checks if a path is relative.
     /// </summary>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="path"/> is null, empty, or consists only of white-space characters.</exception>
     public static bool IsRelative(string path)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(path);
+
         return !IsAbsolute(path);
     }
 
     /// <summary>
     /// Gets all files in a directory recursively with a specific pattern.
     /// </summary>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="directoryPath"/> is null, empty, or consists only of white-space characters.</exception>
     public static IEnumerable<string> GetFilesRecursive(string directoryPath, string pattern = "*.*")
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(directoryPath);
+
         if (!Directory.Exists(directoryPath))
             yield break;
 
@@ -207,8 +214,11 @@ public static class PathUtility
     /// <summary>
     /// Gets the size of a directory in bytes.
     /// </summary>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="directoryPath"/> is null, empty, or consists only of white-space characters.</exception>
     public static long GetDirectorySize(string directoryPath)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(directoryPath);
+
         if (!Directory.Exists(directoryPath))
             return 0;
 
@@ -231,8 +241,11 @@ public static class PathUtility
     /// <summary>
     /// Generates a unique filename by appending a number if the file exists.
     /// </summary>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="filePath"/> is null, empty, or consists only of white-space characters.</exception>
     public static string GenerateUniqueFileName(string filePath)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
+
         if (!File.Exists(filePath))
             return filePath;
 
