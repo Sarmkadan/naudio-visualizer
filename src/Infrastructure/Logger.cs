@@ -27,6 +27,8 @@ namespace NAudioVisualizer.Infrastructure
         /// <summary>
         /// Initializes a new logger instance.
         /// </summary>
+        /// <param name="logFilePath">The path to the log file. If null, defaults to a file named "app.log" in a "logs" subdirectory of the application base directory.</param>
+        /// <param name="writeToConsole">Whether to write log messages to the console.</param>
         public Logger(string? logFilePath = null, bool writeToConsole = true)
         {
             _logFilePath = logFilePath ?? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", "app.log");
@@ -60,21 +62,26 @@ namespace NAudioVisualizer.Infrastructure
         /// <summary>
         /// Logs a debug message.
         /// </summary>
+        /// <param name="message">The debug message to log.</param>
         public void Debug(string message) => Log(LogLevel.Debug, message);
 
         /// <summary>
         /// Logs an information message.
         /// </summary>
+        /// <param name="message">The information message to log.</param>
         public void Info(string message) => Log(LogLevel.Info, message);
 
         /// <summary>
         /// Logs a warning message.
         /// </summary>
+        /// <param name="message">The warning message to log.</param>
         public void Warn(string message) => Log(LogLevel.Warn, message);
 
         /// <summary>
         /// Logs an error message.
         /// </summary>
+        /// <param name="message">The error message to log.</param>
+        /// <param name="exception">The exception associated with the error, if any.</param>
         public void Error(string message, Exception? exception = null)
         {
             var formattedMessage = FormatExceptionMessage(message, exception);
@@ -84,6 +91,8 @@ namespace NAudioVisualizer.Infrastructure
         /// <summary>
         /// Logs a critical message.
         /// </summary>
+        /// <param name="message">The critical message to log.</param>
+        /// <param name="exception">The exception associated with the critical message, if any.</param>
         public void Critical(string message, Exception? exception = null)
         {
             var formattedMessage = FormatExceptionMessage(message, exception);
@@ -162,10 +171,25 @@ namespace NAudioVisualizer.Infrastructure
     /// </summary>
     public enum LogLevel
     {
+        /// <summary>
+        /// Debug level for detailed diagnostic information.
+        /// </summary>
         Debug = 0,
+        /// <summary>
+        /// Info level for general informational messages.
+        /// </summary>
         Info = 1,
+        /// <summary>
+        /// Warn level for warning messages.
+        /// </summary>
         Warn = 2,
+        /// <summary>
+        /// Error level for error messages.
+        /// </summary>
         Error = 3,
+        /// <summary>
+        /// Critical level for critical messages.
+        /// </summary>
         Critical = 4
     }
 }
