@@ -25,6 +25,7 @@ public static class ColorUtility
     /// <param name="h">The hue component (0-360).</param>
     /// <param name="s">The saturation component (0-1).</param>
     /// <param name="v">The value component (0-1).</param>
+    /// <returns></returns>
     public static void RgbToHsv(float r, float g, float b, out float h, out float s, out float v)
     {
         float max = MathF.Max(r, MathF.Max(g, b));
@@ -65,6 +66,7 @@ public static class ColorUtility
     /// <param name="r">The red component (0-255).</param>
     /// <param name="g">The green component (0-255).</param>
     /// <param name="b">The blue component (0-255).</param>
+    /// <returns></returns>
     public static void HsvToRgb(float h, float s, float v, out float r, out float g, out float b)
     {
         float c = v * s;
@@ -172,6 +174,8 @@ public static class ColorUtility
     /// Gets a color from the jet colormap.
     /// Classic blue-to-red colormap. Value should be in range [0, 1].
     /// </summary>
+    /// <param name="value">The normalized value (0-1) to map to colormap range.</param>
+    /// <returns>The color from the jet colormap at the specified value.</returns>
     public static Color GetJetColor(float value)
     {
         value = Math.Clamp(value, 0f, 1f);
@@ -207,6 +211,8 @@ public static class ColorUtility
     /// <summary>
     /// Gets a grayscale color (0 = black, 1 = white).
     /// </summary>
+    /// <param name="value">The normalized value (0-1).</param>
+    /// <returns>The grayscale color corresponding to the value.</returns>
     public static Color GetGrayscale(float value)
     {
         value = Math.Clamp(value, 0f, 1f);
@@ -217,6 +223,9 @@ public static class ColorUtility
     /// <summary>
     /// Adjusts color brightness. Values above 1.0 increase brightness, below 1.0 decrease it.
     /// </summary>
+    /// <param name="color">The original color.</param>
+    /// <param name="factor">The brightness adjustment factor.</param>
+    /// <returns>The adjusted color.</returns>
     public static Color AdjustBrightness(Color color, float factor)
     {
         int r = (int)Math.Clamp(color.R * factor, 0, 255);
@@ -228,6 +237,9 @@ public static class ColorUtility
     /// <summary>
     /// Adjusts color saturation. Values above 1.0 increase saturation, below 1.0 reduce it.
     /// </summary>
+    /// <param name="color">The original color.</param>
+    /// <param name="factor">The saturation adjustment factor.</param>
+    /// <returns>The adjusted color.</returns>
     public static Color AdjustSaturation(Color color, float factor)
     {
         RgbToHsv(color.R / 255f, color.G / 255f, color.B / 255f, out float h, out float s, out float v);
@@ -240,6 +252,8 @@ public static class ColorUtility
     /// <summary>
     /// Gets the complementary (opposite) color on the color wheel.
     /// </summary>
+    /// <param name="color">The original color.</param>
+    /// <returns>The complementary color.</returns>
     public static Color GetComplementaryColor(Color color)
     {
         RgbToHsv(color.R / 255f, color.G / 255f, color.B / 255f, out float h, out float s, out float v);
@@ -252,6 +266,8 @@ public static class ColorUtility
     /// <summary>
     /// Converts Color to hex string format (#RRGGBB).
     /// </summary>
+    /// <param name="color">The color to convert.</param>
+    /// <returns>The hex string representation of the color.</returns>
     public static string ColorToHex(Color color)
     {
         return $"#{color.R:X2}{color.G:X2}{color.B:X2}";
@@ -260,6 +276,8 @@ public static class ColorUtility
     /// <summary>
     /// Converts hex string to Color.
     /// </summary>
+    /// <param name="hex">The hex string to parse.</param>
+    /// <returns>The Color parsed from the hex string.</returns>
     public static Color HexToColor(string hex)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(hex);
