@@ -106,6 +106,8 @@ public class SpectrogramData : VisualizationData
     /// <summary>
     /// Gets a single time frame as a spectrum.
     /// </summary>
+    /// <param name="timeIndex">Index of the time frame to retrieve.</param>
+    /// <returns>A copy of the spectrum data for the specified time frame.</returns>
     public float[] GetTimeFrame(int timeIndex)
     {
         if (timeIndex < 0 || timeIndex >= TimeFrames)
@@ -117,6 +119,8 @@ public class SpectrogramData : VisualizationData
     /// <summary>
     /// Gets a frequency slice across all time frames.
     /// </summary>
+    /// <param name="frequencyIndex">Index of the frequency bin to retrieve.</param>
+    /// <returns>An array containing the magnitude values for the specified frequency across all time frames.</returns>
     public float[] GetFrequencySlice(int frequencyIndex)
     {
         if (frequencyIndex < 0 || frequencyIndex >= FrequencyBins)
@@ -145,6 +149,7 @@ public class SpectrogramData : VisualizationData
     /// <summary>
     /// Gets all spectrum frames.
     /// </summary>
+    /// <returns>A read-only list of all spectrum frames in the spectrogram.</returns>
     public IReadOnlyList<SpectrumData> GetSpectrumFrames() => _spectrumFrames.AsReadOnly();
 
     /// <summary>
@@ -175,6 +180,7 @@ public class SpectrogramData : VisualizationData
     /// <summary>
     /// Applies logarithmic scaling to spectrogram magnitudes.
     /// </summary>
+    /// <param name="referenceValue">Reference value for the log scale calculation (default: 1f).</param>
     public void ApplyLogScale(float referenceValue = 1f)
     {
         for (int t = 0; t < TimeFrames; t++)
@@ -238,10 +244,28 @@ public class SpectrogramData : VisualizationData
 /// </summary>
 public enum ColormapType
 {
+    /// <summary>
+    /// Viridis colormap.
+    /// </summary>
     Viridis = 0,
+    /// <summary>
+    /// Plasma colormap.
+    /// </summary>
     Plasma = 1,
+    /// <summary>
+    /// Inferno colormap.
+    /// </summary>
     Inferno = 2,
+    /// <summary>
+    /// Magma colormap.
+    /// </summary>
     Magma = 3,
+    /// <summary>
+    /// Turbo colormap.
+    /// </summary>
     Turbo = 4,
+    /// <summary>
+    /// Hot colormap.
+    /// </summary>
     Hot = 5
 }
