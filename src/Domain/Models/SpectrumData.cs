@@ -103,11 +103,13 @@ public class SpectrumData : VisualizationData
     /// <summary>
     /// Gets the frequency values for each magnitude bin.
     /// </summary>
+    /// <returns>Frequency values in Hz for each magnitude bin.</returns>
     public float[] GetFrequencies() => _frequencies;
 
     /// <summary>
     /// Converts magnitude values to logarithmic scale (dB).
     /// </summary>
+    /// <param name="referenceValue">Reference value for dB calculation (default 1.0).</param>
     public void ConvertToLogScale(float referenceValue = 1f)
     {
         if (IsLogScale)
@@ -150,6 +152,7 @@ public class SpectrumData : VisualizationData
     /// <summary>
     /// Applies smoothing to the spectrum using moving average.
     /// </summary>
+    /// <param name="windowSize">Size of the smoothing window (must be greater than 1).</param>
     public void SmoothSpectrum(int windowSize = 3)
     {
         if (windowSize <= 1 || _magnitudes.Length <= windowSize)
@@ -223,6 +226,7 @@ public class SpectrumData : VisualizationData
     /// <summary>
     /// Validates the spectrum data integrity.
     /// </summary>
+    /// <returns>True if spectrum data is valid; otherwise false.</returns>
     public override bool IsValid()
     {
         return _magnitudes.Length > 0 &&
@@ -239,8 +243,20 @@ public class SpectrumData : VisualizationData
 /// </summary>
 public enum WindowType
 {
+    /// <summary>
+    /// Hann window function.
+    /// </summary>
     Hann = 0,
+    /// <summary>
+    /// Hamming window function.
+    /// </summary>
     Hamming = 1,
+    /// <summary>
+    /// Blackman window function.
+    /// </summary>
     Blackman = 2,
+    /// <summary>
+    /// Rectangular window function.
+    /// </summary>
     Rectangular = 3
 }
