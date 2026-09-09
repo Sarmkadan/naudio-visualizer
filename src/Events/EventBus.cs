@@ -33,7 +33,7 @@ public sealed class EventBus : IDisposable
     /// </summary>
     /// <typeparam name="T">The type of event to subscribe to.</typeparam>
     /// <param name="handler">The action invoked whenever an event of type <typeparamref name="T"/> is published.</param>
-    /// <returns>A disposable subscription handle; disposing it removes the subscription from the bus.</returns>
+    /// <returns>An <see cref="IDisposable"/> subscription that removes the handler when disposed.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="handler"/> is null.</exception>
     public IDisposable Subscribe<T>(Action<T> handler) where T : class
     {
@@ -121,7 +121,7 @@ public sealed class EventBus : IDisposable
     /// Gets the number of subscribers for a specific event type.
     /// </summary>
     /// <typeparam name="T">The type of event to inspect.</typeparam>
-    /// <returns>The number of registered subscriptions for the specified event type.</returns>
+    /// <returns>The number of subscribers registered for events of type <typeparamref name="T"/>.</returns>
     public int GetSubscriberCount<T>() where T : class
     {
         lock (_lockObject)
