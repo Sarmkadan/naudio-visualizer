@@ -240,8 +240,11 @@ public sealed class ConfigurationManager
     /// <summary>
     /// Exports settings to a JSON file.
     /// </summary>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="filePath"/> is null, empty, or consists only of white-space characters.</exception>
+    /// <exception cref="IOException">Thrown when an I/O error occurs.</exception>
     public void ExportSettings(string filePath)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
         try
         {
             string json = JsonSerializer.Serialize(_settings, _jsonOptions);
