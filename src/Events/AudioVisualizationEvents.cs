@@ -34,6 +34,15 @@ namespace NAudioVisualizer.Events
         /// Gets the start time of the capture.
         /// </summary>
         public DateTime StartTime { get; init; } = DateTime.UtcNow;
+
+        /// <summary>
+        /// Returns a string representation of the event.
+        /// </summary>
+        /// <returns>A string with the property names and values in Key=Value format.</returns>
+        public override string ToString()
+        {
+            return $"DeviceId={DeviceId}, SampleRate={SampleRate}, ChannelCount={ChannelCount}, StartTime={StartTime}";
+        }
     }
 
     /// <summary>
@@ -57,6 +66,15 @@ namespace NAudioVisualizer.Events
         /// Gets the stop time of the capture.
         /// </summary>
         public DateTime StopTime { get; init; } = DateTime.UtcNow;
+
+        /// <summary>
+        /// Returns a string representation of the event.
+        /// </summary>
+        /// <returns>A string with the property names and values in Key=Value format.</returns>
+        public override string ToString()
+        {
+            return $"DeviceId={DeviceId}, TotalSamplesCaptured={TotalSamplesCaptured}, Duration={Duration}, StopTime={StopTime}";
+        }
     }
 
     /// <summary>
