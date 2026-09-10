@@ -131,8 +131,13 @@ namespace NAudioVisualizer.Infrastructure
         /// <summary>
         /// Core logging method.
         /// </summary>
+        /// <param name="level">The log level.</param>
+        /// <param name="message">The log message.</param>
+        /// <exception cref="ArgumentNullException">If <paramref name="message"/> is <see langword="null"/>.</exception>
         private void Log(LogLevel level, string message)
         {
+            ArgumentNullException.ThrowIfNull(message);
+
             lock (_writeLock)
             {
                 if (_isDisposed)
