@@ -76,6 +76,15 @@ namespace NAudioVisualizer.Events
         /// Gets the elapsed time since capture started.
         /// </summary>
         public TimeSpan ElapsedTime { get; init; }
+
+        /// <summary>
+        /// Returns a string representation of the event.
+        /// </summary>
+        /// <returns>A string with the property names and values in Key=Value format.</returns>
+        public override string ToString()
+        {
+            return $"Frame={Frame}, FrameSequenceNumber={FrameSequenceNumber}, ElapsedTime={ElapsedTime}";
+        }
     }
 
     /// <summary>
@@ -95,6 +104,15 @@ namespace NAudioVisualizer.Events
         /// Gets the number of frames used to generate the waveform.
         /// </summary>
         public int FrameCount { get; init; }
+
+        /// <summary>
+        /// Returns a string representation of the event.
+        /// </summary>
+        /// <returns>A string with the property names and values in Key=Value format.</returns>
+        public override string ToString()
+        {
+            return $"Waveform={Waveform}, GenerationTimeMs={GenerationTimeMs}, FrameCount={FrameCount}";
+        }
     }
 
     /// <summary>
@@ -114,6 +132,15 @@ namespace NAudioVisualizer.Events
         /// Gets the peak magnitude value.
         /// </summary>
         public float PeakMagnitude { get; init; }
+
+        /// <summary>
+        /// Returns a string representation of the event.
+        /// </summary>
+        /// <returns>A string with the property names and values in Key=Value format.</returns>
+        public override string ToString()
+        {
+            return $"Spectrum={Spectrum}, AnalysisTimeMs={AnalysisTimeMs}, PeakMagnitude={PeakMagnitude}";
+        }
     }
 
     /// <summary>
@@ -133,6 +160,15 @@ namespace NAudioVisualizer.Events
         /// Gets the number of time frames processed.
         /// </summary>
         public int TimeFramesProcessed { get; init; }
+
+        /// <summary>
+        /// Returns a string representation of the event.
+        /// </summary>
+        /// <returns>A string with the property names and values in Key=Value format.</returns>
+        public override string ToString()
+        {
+            return $"Spectrogram={Spectrogram}, GenerationTimeMs={GenerationTimeMs}, TimeFramesProcessed={TimeFramesProcessed}";
+        }
     }
 
     /// <summary>
