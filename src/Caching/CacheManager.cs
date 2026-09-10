@@ -32,7 +32,7 @@ public class CacheManager<TKey, TValue> where TKey : notnull
     private long _hits;
     private long _misses;
     private long _evictions;
-    private long _expirations
+    private long _expirations;
 
     /// <summary>
     /// Initializes a new instance of the cache manager.
