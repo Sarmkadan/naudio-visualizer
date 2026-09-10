@@ -321,6 +321,14 @@ namespace NAudioVisualizer.Events
         /// Gets the start time of the export.
         /// </summary>
         public DateTime StartTime { get; init; } = DateTime.UtcNow;
+        /// <summary>
+        /// Returns a string representation of the event.
+        /// </summary>
+        /// <returns>A string with the property names and values in Key=Value format.</returns>
+        public override string ToString()
+        {
+            return $"ExportPath={ExportPath}, Format={Format}, DataPointCount={DataPointCount}, StartTime={StartTime}";
+        }
     }
 
     /// <summary>
@@ -352,6 +360,14 @@ namespace NAudioVisualizer.Events
         /// Gets the completion time of the export.
         /// </summary>
         public DateTime CompletionTime { get; init; } = DateTime.UtcNow;
+        /// <summary>
+        /// Returns a string representation of the event.
+        /// </summary>
+        /// <returns>A string with the property names and values in Key=Value format.</returns>
+        public override string ToString()
+        {
+            return $"ExportPath={ExportPath}, Format={Format}, FileSize={FileSize}, ExportTimeMs={ExportTimeMs}, Success={Success}, CompletionTime={CompletionTime}";
+        }
     }
 
     /// <summary>
@@ -371,5 +387,13 @@ namespace NAudioVisualizer.Events
         /// Gets the shutdown time.
         /// </summary>
         public DateTime ShutdownTime { get; init; } = DateTime.UtcNow;
+        /// <summary>
+        /// Returns a string representation of the event.
+        /// </summary>
+        /// <returns>A string with the property names and values in Key=Value format.</returns>
+        public override string ToString()
+        {
+            return $"Reason={Reason}, UptimeMs={UptimeMs}, ShutdownTime={ShutdownTime}";
+        }
     }
 }
