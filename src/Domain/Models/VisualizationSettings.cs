@@ -163,6 +163,12 @@ public class WaveformRenderingSettings
     /// Whether to show peak indicators.
     /// </summary>
     public bool ShowPeakIndicators { get; set; } = true;
+
+    /// <summary>
+    /// Returns a string representation of the WaveformRenderingSettings.
+    /// </summary>
+    public override string ToString() =>
+        $"LineColor: 0x{LineColor:X8}, LineThickness: {LineThickness}, ShowStereoSeparate: {ShowStereoSeparate}, AmplitudeZoom: {AmplitudeZoom}, DownsamplingFactor: {DownsamplingFactor}, ShowPeakIndicators: {ShowPeakIndicators}";
 }
 
 /// <summary>
@@ -204,6 +210,12 @@ public class SpectrumRenderingSettings
     /// Bar gap size in pixels.
     /// </summary>
     public int BarGap { get; set; } = 1;
+
+    /// <summary>
+    /// Returns a string representation of the SpectrumRenderingSettings.
+    /// </summary>
+    public override string ToString() =>
+        $"BarColor: 0x{BarColor:X8}, UseLogFrequencyScale: {UseLogFrequencyScale}, UseLogMagnitudeScale: {UseLogMagnitudeScale}, FrequencySmoothing: {FrequencySmoothing}, TemporalSmoothing: {TemporalSmoothing}, ShowFrequencyGrid: {ShowFrequencyGrid}, BarGap: {BarGap}";
 }
 
 /// <summary>
@@ -245,4 +257,10 @@ public class SpectrogramRenderingSettings
     /// Whether to show intensity scale bar.
     /// </summary>
     public bool ShowIntensityScale { get; set; } = true;
+
+    /// <summary>
+    /// Returns a string representation of the SpectrogramRenderingSettings.
+    /// </summary>
+    public override string ToString() =>
+        $"Colormap: {Colormap}, UseLogFrequencyScale: {UseLogFrequencyScale}, UseLogMagnitudeScale: {UseLogMagnitudeScale}, TimeWindowSeconds: {TimeWindowSeconds}, Brightness: {Brightness}, Contrast: {Contrast}, ShowIntensityScale: {ShowIntensityScale}";
 }
