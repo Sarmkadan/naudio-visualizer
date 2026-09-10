@@ -72,10 +72,12 @@ public static class MathUtility
     /// RMS is a measure of signal energy.
     /// </summary>
     /// <param name="signal">The signal samples to measure.</param>
-    /// <returns>The root mean square of the samples, or 0 when <paramref name="signal"/> is null or empty.</returns>
+    /// <returns>The root mean square of the samples, or 0 when <paramref name="signal"/> is empty.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="signal"/> is null.</exception>
     public static float CalculateRms(float[] signal)
     {
-        if (signal is null || signal.Length == 0)
+        ArgumentNullException.ThrowIfNull(signal);
+        if (signal.Length == 0)
             return 0f;
 
         float sum = 0f;
@@ -91,10 +93,12 @@ public static class MathUtility
     /// Calculates peak amplitude in a signal.
     /// </summary>
     /// <param name="signal">The signal samples to measure.</param>
-    /// <returns>The greatest absolute sample value, or 0 when <paramref name="signal"/> is null or empty.</returns>
+    /// <returns>The greatest absolute sample value, or 0 when <paramref name="signal"/> is empty.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="signal"/> is null.</exception>
     public static float CalculatePeak(float[] signal)
     {
-        if (signal is null || signal.Length == 0)
+        ArgumentNullException.ThrowIfNull(signal);
+        if (signal.Length == 0)
             return 0f;
 
         float peak = 0f;
@@ -143,9 +147,11 @@ public static class MathUtility
     /// </summary>
     /// <param name="signal">The signal samples to modify in place.</param>
     /// <returns>No value is returned.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="signal"/> is null.</exception>
     public static void ApplyHannWindow(float[] signal)
     {
-        if (signal is null || signal.Length == 0)
+        ArgumentNullException.ThrowIfNull(signal);
+        if (signal.Length == 0)
             return;
 
         int n = signal.Length;
@@ -161,9 +167,11 @@ public static class MathUtility
     /// </summary>
     /// <param name="signal">The signal samples to modify in place.</param>
     /// <returns>No value is returned.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="signal"/> is null.</exception>
     public static void ApplyHammingWindow(float[] signal)
     {
-        if (signal is null || signal.Length == 0)
+        ArgumentNullException.ThrowIfNull(signal);
+        if (signal.Length == 0)
             return;
 
         int n = signal.Length;
