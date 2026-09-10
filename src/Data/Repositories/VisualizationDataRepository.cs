@@ -299,16 +299,8 @@ public class RepositoryStats
     /// <returns>A formatted string with key statistics.</returns>
     public override string ToString()
     {
-        return string.Format(
-            CultureInfo.InvariantCulture,
-            "Total={0} Waveform={1} Spectrum={2} Spectrogram={3} Sessions={4} Oldest={5} Newest={6}",
-            TotalCount,
-            WaveformCount,
-            SpectrumCount,
-            SpectrogramCount,
-            SessionCount,
-            OldestEntry?.ToString("o", CultureInfo.InvariantCulture) ?? "null",
-            NewestEntry?.ToString("o", CultureInfo.InvariantCulture) ?? "null"
-        );
+        string oldest = OldestEntry?.ToString("o", CultureInfo.InvariantCulture) ?? "null";
+        string newest = NewestEntry?.ToString("o", CultureInfo.InvariantCulture) ?? "null";
+        return $"Total={TotalCount} Waveform={WaveformCount} Spectrum={SpectrumCount} Spectrogram={SpectrogramCount} Sessions={SessionCount} Oldest={oldest} Newest={newest}";
     }
 }
