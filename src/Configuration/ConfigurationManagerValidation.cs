@@ -9,12 +9,103 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace NAudioVisualizer.Configuration;
+using NAudioVisualizer.Constants;
 
 /// <summary>
 /// Provides validation helpers for ConfigurationManager instances.
 /// </summary>
 public static class ConfigurationManagerValidation
 {
+    // Audio sample rate bounds
+    /// <summary>
+    /// Minimum allowed sample rate in Hz (8000).
+    /// </summary>
+    private const int MinSampleRate = 8000;
+    /// <summary>
+    /// Maximum allowed sample rate in Hz (96000).
+    /// </summary>
+    private const int MaxSampleRate = AudioConstants.SAMPLE_RATE_96000;
+
+    // Audio channel count bounds
+    /// <summary>
+    /// Minimum allowed audio channel count (1).
+    /// </summary>
+    private const int MinChannelCount = 1;
+    /// <summary>
+    /// Maximum allowed audio channel count (8).
+    /// </summary>
+    private const int MaxChannelCount = 8;
+
+    // Audio bit depth bounds
+    /// <summary>
+    /// Minimum allowed bit depth in bits (8).
+    /// </summary>
+    private const int MinBitDepth = 8;
+    /// <summary>
+    /// Maximum allowed bit depth in bits (32).
+    /// </summary>
+    private const int MaxBitDepth = 32;
+
+    // FFT size bounds
+    /// <summary>
+    /// Minimum allowed FFT size (64).
+    /// </summary>
+    private const int MinFftSize = 64;
+    /// <summary>
+    /// Maximum allowed FFT size (16384).
+    /// </summary>
+    private const int MaxFftSize = AudioConstants.FFT_MAXIMUM;
+
+    // Visualization target FPS bounds
+    /// <summary>
+    /// Minimum allowed target frames per second (1).
+    /// </summary>
+    private const int MinTargetFps = 1;
+    /// <summary>
+    /// Maximum allowed target frames per second (240).
+    /// </summary>
+    private const int MaxTargetFps = 240;
+
+    // Visualization brightness bounds
+    /// <summary>
+    /// Minimum allowed brightness value (0.0).
+    /// </summary>
+    private const float MinBrightness = 0.0f;
+    /// <summary>
+    /// Maximum allowed brightness value (2.0).
+    /// </summary>
+    private const float MaxBrightness = 2.0f;
+
+    // Visualization contrast bounds
+    /// <summary>
+    /// Minimum allowed contrast value (0.0).
+    /// </summary>
+    private const float MinContrast = 0.0f;
+    /// <summary>
+    /// Maximum allowed contrast value (2.0).
+    /// </summary>
+    private const float MaxContrast = 2.0f;
+
+    // Display width bounds
+    /// <summary>
+    /// Minimum allowed display width in pixels (320).
+    /// </summary>
+    private const int MinDisplayWidth = VisualizationConstants.MINIMUM_RENDER_WIDTH;
+    /// <summary>
+    /// Maximum allowed display width in pixels (7680).
+    /// </summary>
+    private const int MaxDisplayWidth = 7680;
+
+    // Display height bounds
+    /// <summary>
+    /// Minimum allowed display height in pixels (240).
+    /// </summary>
+    private const int MinDisplayHeight = VisualizationConstants.MINIMUM_RENDER_HEIGHT;
+    /// <summary>
+    /// Maximum allowed display height in pixels (4320).
+    /// </summary>
+    private const int MaxDisplayHeight = 4320;
+
     /// <summary>
     /// Validates the configuration manager and returns a list of human-readable problems.
     /// </summary>
@@ -41,15 +132,15 @@ public static class ConfigurationManagerValidation
         }
 
         // Validate known numeric settings ranges
-        ValidateNumericSetting(value, "audio.sampleRate", problems, min: 8000, max: 96000);
-        ValidateNumericSetting(value, "audio.channelCount", problems, min: 1, max: 8);
-        ValidateNumericSetting(value, "audio.bitDepth", problems, min: 8, max: 32);
-        ValidateNumericSetting(value, "audio.fftSize", problems, min: 64, max: 16384);
-        ValidateNumericSetting(value, "visualization.targetFps", problems, min: 1, max: 240);
-        ValidateNumericSetting(value, "visualization.brightness", problems, min: 0.0f, max: 2.0f);
-        ValidateNumericSetting(value, "visualization.contrast", problems, min: 0.0f, max: 2.0f);
-        ValidateNumericSetting(value, "display.width", problems, min: 320, max: 7680);
-        ValidateNumericSetting(value, "display.height", problems, min: 240, max: 4320);
+        ValidateNumericSetting(value, "audio.sampleRate", problems, min: MinSampleRate, max: MaxSampleRate);
+        ValidateNumericSetting(value, "audio.channelCount", problems, min: MinChannelCount, max: MaxChannelCount);
+        ValidateNumericSetting(value, "audio.bitDepth", problems, min: MinBitDepth, max: MaxBitDepth);
+        ValidateNumericSetting(value, "audio.fftSize", problems, min: MinFftSize, max: MaxFftSize);
+        ValidateNumericSetting(value, "visualization.targetFps", problems, min: MinTargetFps, max: MaxTargetFps);
+        ValidateNumericSetting(value, "visualization.brightness", problems, min: MinBrightness, max: MaxBrightness);
+        ValidateNumericSetting(value, "visualization.contrast", problems, min: MinContrast, max: MaxContrast);
+        ValidateNumericSetting(value, "display.width", problems, min: MinDisplayWidth, max: MaxDisplayWidth);
+        ValidateNumericSetting(value, "display.height", problems, min: MinDisplayHeight, max: MaxDisplayHeight);
 
         // Validate boolean settings
         ValidateBooleanSetting(value, "display.fullscreen", problems);
