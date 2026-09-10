@@ -454,6 +454,15 @@ public sealed class AudioFrameEventArgs : EventArgs
     /// Gets or sets the captured audio frame.
     /// </summary>
     public AudioFrame? Frame { get; set; }
+
+    /// <summary>
+    /// Returns a string representation of the event args.
+    /// </summary>
+    /// <returns>A string with the Frame value or null if Frame is null.</returns>
+    public override string ToString()
+    {
+        return Frame?.ToString() ?? "Frame=null";
+    }
 }
 
 /// <summary>
@@ -470,4 +479,13 @@ public sealed class AudioDeviceEventArgs : EventArgs
     /// Gets or sets the exception that occurred, if any.
     /// </summary>
     public Exception? Exception { get; set; }
+
+    /// <summary>
+    /// Returns a string representation of the event args.
+    /// </summary>
+    /// <returns>A string with the IsAvailable and Exception values.</returns>
+    public override string ToString()
+    {
+        return $"IsAvailable={IsAvailable}, Exception={(Exception != null ? Exception.Message : "null")}";
+    }
 }
