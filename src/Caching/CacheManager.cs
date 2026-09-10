@@ -15,6 +15,16 @@ namespace NAudioVisualizer.Caching;
 /// </summary>
 public class CacheManager<TKey, TValue> where TKey : notnull
 {
+    /// <summary>
+    /// Default maximum cache size.
+    /// </summary>
+    public const int DefaultMaxSize = 1000;
+
+    /// <summary>
+    /// Scale factor for percentage calculations.
+    /// </summary>
+    private const double PercentScale = 100;
+
     private readonly Dictionary<TKey, CacheEntry> _cache;
     private readonly int _maxSize;
     private readonly TimeSpan _defaultExpiration;
@@ -22,12 +32,12 @@ public class CacheManager<TKey, TValue> where TKey : notnull
     private long _hits;
     private long _misses;
     private long _evictions;
-    private long _expirations;
+    private long _expirations
 
     /// <summary>
     /// Initializes a new instance of the cache manager.
     /// </summary>
-    public CacheManager(int maxSize = 1000, TimeSpan? defaultExpiration = null)
+    public CacheManager(int maxSize = DefaultMaxSize, TimeSpan? defaultExpiration = null)
     {
         if (maxSize <= 0)
             throw new ArgumentException("Max cache size must be greater than 0.", nameof(maxSize));
@@ -235,7 +245,7 @@ public class CacheManager<TKey, TValue> where TKey : notnull
             {
                 CurrentSize = _cache.Count,
                 MaxSize = _maxSize,
-                FillPercentage = (double)_cache.Count / _maxSize * 100,
+                FillPercentage = (double)_cache.Count / _maxSize * PercentScale,
                 Hits = _hits,
                 Misses = _misses,
                 Evictions = _evictions,
