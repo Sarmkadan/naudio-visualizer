@@ -48,16 +48,23 @@ public static class DateTimeUtility
     /// <summary>
     /// Formats a DateTime with ISO 8601 format.
     /// </summary>
+    /// <exception cref="ArgumentNullException">If <paramref name="dateTime"/> is null.</exception>
     public static string ToIso8601(DateTime dateTime)
     {
+        ArgumentNullException.ThrowIfNull(dateTime);
         return dateTime.ToUniversalTime().ToString("o");
     }
 
     /// <summary>
     /// Parses an ISO 8601 formatted string to DateTime.
     /// </summary>
+    /// <exception cref="ArgumentNullException">If <paramref name="isoString"/> is null.</exception>
+    /// <exception cref="ArgumentException">If <paramref name="isoString"/> is empty or consists only of white-space characters.</exception>
+    /// <exception cref="FormatException">If <paramref name="isoString"/> is not in a valid ISO 8601 format.</exception>
     public static DateTime FromIso8601(string isoString)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(isoString);
+
         if (!DateTime.TryParse(isoString, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var result))
             throw new FormatException($"Invalid ISO 8601 format: {isoString}");
 
@@ -84,40 +91,52 @@ public static class DateTimeUtility
     /// <summary>
     /// Gets the number of days between two dates.
     /// </summary>
+    /// <exception cref="ArgumentNullException">If <paramref name="date1"/> is null.</exception>
+    /// <exception cref="ArgumentNullException">If <paramref name="date2"/> is null.</exception>
     public static int DaysBetween(DateTime date1, DateTime date2)
     {
+        ArgumentNullException.ThrowIfNull(date1);
+        ArgumentNullException.ThrowIfNull(date2);
         return Math.Abs((date2.Date - date1.Date).Days);
     }
 
     /// <summary>
     /// Checks if a date is today.
     /// </summary>
+    /// <exception cref="ArgumentNullException">If <paramref name="dateTime"/> is null.</exception>
     public static bool IsToday(DateTime dateTime)
     {
+        ArgumentNullException.ThrowIfNull(dateTime);
         return dateTime.Date == DateTime.Today;
     }
 
     /// <summary>
     /// Checks if a date is in the past.
     /// </summary>
+    /// <exception cref="ArgumentNullException">If <paramref name="dateTime"/> is null.</exception>
     public static bool IsInPast(DateTime dateTime)
     {
+        ArgumentNullException.ThrowIfNull(dateTime);
         return dateTime < DateTime.UtcNow;
     }
 
     /// <summary>
     /// Checks if a date is in the future.
     /// </summary>
+    /// <exception cref="ArgumentNullException">If <paramref name="dateTime"/> is null.</exception>
     public static bool IsInFuture(DateTime dateTime)
     {
+        ArgumentNullException.ThrowIfNull(dateTime);
         return dateTime > DateTime.UtcNow;
     }
 
     /// <summary>
     /// Gets a human-readable relative time string (e.g., "2 hours ago").
     /// </summary>
+    /// <exception cref="ArgumentNullException">If <paramref name="dateTime"/> is null.</exception>
     public static string GetRelativeTime(DateTime dateTime)
     {
+        ArgumentNullException.ThrowIfNull(dateTime);
         var now = DateTime.UtcNow;
         var diff = now - dateTime;
 
@@ -145,24 +164,30 @@ public static class DateTimeUtility
     /// <summary>
     /// Gets the start of the day for a given date.
     /// </summary>
+    /// <exception cref="ArgumentNullException">If <paramref name="dateTime"/> is null.</exception>
     public static DateTime GetStartOfDay(DateTime dateTime)
     {
+        ArgumentNullException.ThrowIfNull(dateTime);
         return dateTime.Date;
     }
 
     /// <summary>
     /// Gets the end of the day for a given date.
     /// </summary>
+    /// <exception cref="ArgumentNullException">If <paramref name="dateTime"/> is null.</exception>
     public static DateTime GetEndOfDay(DateTime dateTime)
     {
+        ArgumentNullException.ThrowIfNull(dateTime);
         return dateTime.Date.AddDays(1).AddTicks(-1);
     }
 
     /// <summary>
     /// Gets the start of the week (Monday).
     /// </summary>
+    /// <exception cref="ArgumentNullException">If <paramref name="dateTime"/> is null.</exception>
     public static DateTime GetStartOfWeek(DateTime dateTime)
     {
+        ArgumentNullException.ThrowIfNull(dateTime);
         int daysToMonday = ((int)dateTime.DayOfWeek - (int)DayOfWeek.Monday + 7) % 7;
         return dateTime.Date.AddDays(-daysToMonday);
     }
@@ -170,16 +195,20 @@ public static class DateTimeUtility
     /// <summary>
     /// Gets the start of the month.
     /// </summary>
+    /// <exception cref="ArgumentNullException">If <paramref name="dateTime"/> is null.</exception>
     public static DateTime GetStartOfMonth(DateTime dateTime)
     {
+        ArgumentNullException.ThrowIfNull(dateTime);
         return new DateTime(dateTime.Year, dateTime.Month, 1);
     }
 
     /// <summary>
     /// Gets the end of the month.
     /// </summary>
+    /// <exception cref="ArgumentNullException">If <paramref name="dateTime"/> is null.</exception>
     public static DateTime GetEndOfMonth(DateTime dateTime)
     {
+        ArgumentNullException.ThrowIfNull(dateTime);
         var lastDay = DateTime.DaysInMonth(dateTime.Year, dateTime.Month);
         return new DateTime(dateTime.Year, dateTime.Month, lastDay);
     }
@@ -187,8 +216,10 @@ public static class DateTimeUtility
     /// <summary>
     /// Calculates the age in years from a birth date.
     /// </summary>
+    /// <exception cref="ArgumentNullException">If <paramref name="birthDate"/> is null.</exception>
     public static int CalculateAge(DateTime birthDate)
     {
+        ArgumentNullException.ThrowIfNull(birthDate);
         var today = DateTime.Today;
         int age = today.Year - birthDate.Year;
 
@@ -201,8 +232,10 @@ public static class DateTimeUtility
     /// <summary>
     /// Gets the weekday name for a date.
     /// </summary>
+    /// <exception cref="ArgumentNullException">If <paramref name="dateTime"/> is null.</exception>
     public static string GetDayName(DateTime dateTime)
     {
+        ArgumentNullException.ThrowIfNull(dateTime);
         return dateTime.ToString("dddd");
     }
 
