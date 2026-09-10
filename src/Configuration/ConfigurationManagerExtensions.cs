@@ -6,6 +6,7 @@
 namespace NAudioVisualizer.Configuration
 {
     using System;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Provides extension methods for <see cref="ConfigurationManager"/>.
