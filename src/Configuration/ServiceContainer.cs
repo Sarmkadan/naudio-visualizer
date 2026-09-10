@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using NAudioVisualizer.Data.Repositories;
 using NAudioVisualizer.Services;
 using NAudioVisualizer.Infrastructure;
+using NAudioVisualizer.Constants;
 
 namespace NAudioVisualizer.Configuration;
 
@@ -157,25 +158,27 @@ public class ApplicationConfiguration
 /// </summary>
 public class ApplicationSettings
 {
+    private const int DEFAULT_MAX_FRAMES_PER_SESSION = 5000;
+
     /// <summary>
     /// Maximum audio buffer size in samples.
     /// </summary>
-    public int MaxAudioBufferSize { get; set; } = 192000;
+    public int MaxAudioBufferSize { get; set; } = AudioConstants.SAMPLE_RATE_192000;
 
     /// <summary>
     /// Default sample rate for audio capture.
     /// </summary>
-    public int DefaultSampleRate { get; set; } = 44100;
+    public int DefaultSampleRate { get; set; } = AudioConstants.DEFAULT_SAMPLE_RATE;
 
     /// <summary>
     /// Default FFT size for spectrum analysis.
     /// </summary>
-    public int DefaultFftSize { get; set; } = 2048;
+    public int DefaultFftSize { get; set; } = AudioConstants.DEFAULT_FFT_SIZE;
 
     /// <summary>
     /// Target frames per second for visualization.
     /// </summary>
-    public int TargetFps { get; set; } = 60;
+    public int TargetFps { get; set; } = VisualizationConstants.DEFAULT_TARGET_FPS;
 
     /// <summary>
     /// Enable audio logging.
@@ -185,7 +188,7 @@ public class ApplicationSettings
     /// <summary>
     /// Maximum frames to keep in memory per session.
     /// </summary>
-    public int MaxFramesPerSession { get; set; } = 5000;
+    public int MaxFramesPerSession { get; set; } = DEFAULT_MAX_FRAMES_PER_SESSION;
 
     /// <summary>
     /// Returns a summary of the application settings.
