@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using NAudio.Wave;
 using NAudioVisualizer.Domain.Models;
 using NAudioVisualizer.Exceptions;
+using NAudioVisualizer.Constants;
 
 namespace NAudioVisualizer.Services;
 
@@ -22,7 +23,11 @@ public sealed class AudioCaptureService : IDisposable
 {
     private const int DefaultBitDepth = 16;
     private const int BytesPerSample = 2; // 16 bits = 2 bytes
-    private static readonly int[] CommonSampleRates = { 44100, 48000, 96000, 192000 };
+    /// <summary>
+    /// Interval in milliseconds to poll for stop recording.
+    /// </summary>
+    private const int StopPollIntervalMs = 50;
+    private static readonly int[] CommonSampleRates = { AudioConstants.SAMPLE_RATE_44100, AudioConstants.SAMPLE_RATE_48000, AudioConstants.SAMPLE_RATE_96000, AudioConstants.SAMPLE_RATE_192000 };
 
     private WaveInEvent? _waveInput;
     private WaveFileWriter? _waveFileWriter;
