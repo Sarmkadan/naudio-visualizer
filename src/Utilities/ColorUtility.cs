@@ -8,7 +8,17 @@ using System;
 using System.Drawing;
 using System.Globalization;
 
-namespace NAudioVisualizer.Utilities;
+namespace NAudioVisualizer.Utilities
+{
+    /// <summary>
+    /// Provides utility methods for color manipulation and gradient generation.
+    /// Supports color space conversions, interpolation, and visualization color schemes.
+    /// </summary>
+    public static class ColorUtility
+    {
+        private const float ChannelMax = 255f;
+        private const float HueDegrees = 360f;
+        private const float HueSectorDegrees = 60f;;
 
 /// <summary>
 /// Provides utility methods for color manipulation and gradient generation.
@@ -45,15 +55,15 @@ public static class ColorUtility
         }
         else if (max == r)
         {
-            h = (60 * (((g - b) / delta) % 6) + 360) % 360;
+            h = (HueSectorDegrees * (((g - b) / delta) % 6) + HueDegrees) % HueDegrees;
         }
         else if (max == g)
         {
-            h = (60 * (((b - r) / delta) + 2)) % 360;
+            h = (HueSectorDegrees * (((b - r) / delta) + 2)) % HueDegrees;
         }
         else
         {
-            h = (60 * (((r - g) / delta) + 4)) % 360;
+            h = (HueSectorDegrees * (((r - g) / delta) + 4)) % HueDegrees;
         }
     }
 
