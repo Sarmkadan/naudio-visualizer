@@ -324,4 +324,13 @@ public class CacheStatistics
     /// Gets the ratio of successful retrievals to total retrieval attempts.
     /// </summary>
     public double HitRate => Hits == 0 && Misses == 0 ? 0 : Hits / ((double)Hits + Misses);
+
+    /// <summary>
+    /// Returns a string representation of the cache statistics.
+    /// </summary>
+    /// <returns>A string containing CurrentSize/MaxSize, FillPercentage, Hits, Misses, HitRate, Evictions, Expirations.</returns>
+    public override string ToString()
+    {
+        return $"CurrentSize={CurrentSize}/{MaxSize}, FillPercentage={FillPercentage:F1}%, Hits={Hits}, Misses={Misses}, HitRate={HitRate:P1}, Evictions={Evictions}, Expirations={Expirations}";
+    }
 }
