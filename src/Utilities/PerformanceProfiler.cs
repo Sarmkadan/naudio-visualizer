@@ -34,8 +34,11 @@ public class PerformanceProfiler
     /// <summary>
     /// Initializes a new instance of the performance profiler.
     /// </summary>
+    /// <param name="sessionName">The name of the session.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="sessionName"/> is null.</exception>
     public PerformanceProfiler(string sessionName = "Default")
     {
+        ArgumentNullException.ThrowIfNull(sessionName);
         _metrics = new Dictionary<string, PerformanceData>();
         _stopwatch = new Stopwatch();
         _sessionName = sessionName;
@@ -45,18 +48,24 @@ public class PerformanceProfiler
     /// Starts timing an operation.
     /// Returns a disposable token that stops timing when disposed.
     /// </summary>
+    /// <param name="operationName">The name of the operation.</param>
+    /// <returns>A timing token.</returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="operationName"/> is null, empty, or whitespace.</exception>
     public TimingToken StartTimer(string operationName)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(operationName);
         return new TimingToken(this, operationName);
     }
 
     /// <summary>
     /// Records the execution time for an operation.
     /// </summary>
+    /// <param name="operationName">The name of the operation.</param>
+    /// <param name="elapsedMs">The elapsed time in milliseconds.</param>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="operationName"/> is null, empty, or whitespace.</exception>
     public void RecordTime(string operationName, long elapsedMs)
     {
-        if (string.IsNullOrWhiteSpace(operationName))
-            throw new ArgumentException("Operation name cannot be null or empty.", nameof(operationName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(operationName);
 
         lock (_metrics)
         {
@@ -88,8 +97,10 @@ public class PerformanceProfiler
     /// </summary>
     /// <param name="operationName">The name of the operation.</param>
     /// <returns>The average execution time in milliseconds, or 0 if the operation was not found.</returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="operationName"/> is null, empty, or whitespace.</exception>
     public double GetAverageTime(string operationName)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(operationName);
         lock (_metrics)
         {
             if (!_metrics.TryGetValue(operationName, out var data))
@@ -104,8 +115,10 @@ public class PerformanceProfiler
     /// </summary>
     /// <param name="operationName">The name of the operation.</param>
     /// <returns>The total execution time in milliseconds, or 0 if the operation was not found.</returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="operationName"/> is null, empty, or whitespace.</exception>
     public long GetTotalTime(string operationName)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(operationName);
         lock (_metrics)
         {
             return _metrics.TryGetValue(operationName, out var data) ? data.TotalMs : 0;
@@ -117,8 +130,10 @@ public class PerformanceProfiler
     /// </summary>
     /// <param name="operationName">The name of the operation.</param>
     /// <returns>The number of times the operation was called, or 0 if the operation was not found.</returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="operationName"/> is null, empty, or whitespace.</exception>
     public int GetCallCount(string operationName)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(operationName);
         lock (_metrics)
         {
             return _metrics.TryGetValue(operationName, out var data) ? data.CallCount : 0;
@@ -130,8 +145,10 @@ public class PerformanceProfiler
     /// </summary>
     /// <param name="operationName">The name of the operation.</param>
     /// <returns>The minimum execution time in milliseconds, or 0 if the operation was not found or has no samples.</returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="operationName"/> is null, empty, or whitespace.</exception>
     public long GetMinTime(string operationName)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(operationName);
         lock (_metrics)
         {
             if (!_metrics.TryGetValue(operationName, out var data) || data.CallCount == 0)
@@ -146,8 +163,10 @@ public class PerformanceProfiler
     /// </summary>
     /// <param name="operationName">The name of the operation.</param>
     /// <returns>The maximum execution time in milliseconds, or 0 if the operation was not found or has no samples.</returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="operationName"/> is null, empty, or whitespace.</exception>
     public long GetMaxTime(string operationName)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(operationName);
         lock (_metrics)
         {
             if (!_metrics.TryGetValue(operationName, out var data) || data.CallCount == 0)
@@ -162,8 +181,10 @@ public class PerformanceProfiler
     /// </summary>
     /// <param name="operationName">The name of the operation.</param>
     /// <returns>The median execution time in milliseconds, or 0 if the operation was not found or has no samples.</returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="operationName"/> is null, empty, or whitespace.</exception>
     public long GetMedianTime(string operationName)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(operationName);
         lock (_metrics)
         {
             if (!_metrics.TryGetValue(operationName, out var data) || data.Samples.Count == 0)
@@ -184,9 +205,9 @@ public class PerformanceProfiler
     public string GetReport()
     {
         var lines = new List<string>();
-        lines.Add($"\n╔════════════════════════════════════════════════════════════════════════════════╗");
+        lines.Add($"\n╔═════════════════════════════════════════════════════════════════════════════════╗");
         lines.Add($"║ Performance Report: {_sessionName,-64} ║");
-        lines.Add($"╚════════════════════════════════════════════════════════════════════════════════╝\n");
+        lines.Add($"╚═════════════════════════════════════════════════════════════════════════════════╝\n");
 
         lock (_metrics)
         {
@@ -242,8 +263,12 @@ public class PerformanceProfiler
         /// </summary>
         /// <param name="profiler">The performance profiler instance.</param>
         /// <param name="operationName">The name of the operation to time.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="profiler"/> is null.</exception>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="operationName"/> is null, empty, or whitespace.</exception>
         public TimingToken(PerformanceProfiler profiler, string operationName)
         {
+            ArgumentNullException.ThrowIfNull(profiler);
+            ArgumentException.ThrowIfNullOrWhiteSpace(operationName);
             _profiler = profiler;
             _operationName = operationName;
             _stopwatch = Stopwatch.StartNew();
