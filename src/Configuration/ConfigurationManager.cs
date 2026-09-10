@@ -23,6 +23,103 @@ public sealed class ConfigurationManager
     private readonly string _configFilePath;
     private readonly Dictionary<string, object> _settings;
     private readonly JsonSerializerOptions _jsonOptions;
+    private const string DefaultConfigFileName = "settings.json";
+
+    /// <summary>
+    /// String constants for configuration keys.
+    /// </summary>
+    public static class Keys
+    {
+        /// <summary>
+        /// Audio sample rate in Hz.
+        /// </summary>
+        public const string AudioSampleRate = "audio.sampleRate";
+
+        /// <summary>
+        /// Number of audio channels.
+        /// </summary>
+        public const string AudioChannelCount = "audio.channelCount";
+
+        /// <summary>
+        /// Audio bit depth in bits.
+        /// </summary>
+        public const string AudioBitDepth = "audio.bitDepth";
+
+        /// <summary>
+        /// FFT size for audio analysis.
+        /// </summary>
+        public const string AudioFftSize = "audio.fftSize";
+
+        /// <summary>
+        /// Target frames per second for visualization.
+        /// </summary>
+        public const string VisualizationTargetFps = "visualization.targetFps";
+
+        /// <summary>
+        /// Brightness multiplier for visualization (0.0 to 2.0).
+        /// </summary>
+        public const string VisualizationBrightness = "visualization.brightness";
+
+        /// <summary>
+        /// Contrast multiplier for visualization (0.0 to 2.0).
+        /// </summary>
+        public const string VisualizationContrast = "visualization.contrast";
+
+        /// <summary>
+        /// Whether peak hold is enabled for visualization.
+        /// </summary>
+        public const string VisualizationPeakHoldEnabled = "visualization.peakHoldEnabled";
+
+        /// <summary>
+        /// Peak hold fall rate in dB per second.
+        /// </summary>
+        public const string VisualizationPeakHoldFallRateDbPerSec = "visualization.peakHoldFallRateDbPerSec";
+
+        /// <summary>
+        /// Display width in pixels.
+        /// </summary>
+        public const string DisplayWidth = "display.width";
+
+        /// <summary>
+        /// Display height in pixels.
+        /// </summary>
+        public const string DisplayHeight = "display.height";
+
+        /// <summary>
+        /// Whether display should be fullscreen.
+        /// </summary>
+        public const string DisplayFullscreen = "display.fullscreen";
+
+        /// <summary>
+        /// Default export format (json, csv, etc.).
+        /// </summary>
+        public const string ExportDefaultFormat = "export.defaultFormat";
+
+        /// <summary>
+        /// Whether to compress exported data.
+        /// </summary>
+        public const string ExportCompress = "export.compress";
+
+        /// <summary>
+        /// Whether to include metadata in exported data.
+        /// </summary>
+        public const string ExportIncludeMetadata = "export.includeMetadata";
+
+        /// <summary>
+        /// Logging level (Trace, Debug, Info, Warn, Error, Fatal).
+        /// </summary>
+        public const string LoggingLevel = "logging.level";
+
+        /// <summary>
+        /// Whether to write logs to console.
+        /// </summary>
+        public const string LoggingWriteToConsole = "logging.writeToConsole";
+
+        /// <summary>
+        /// Whether to write logs to file.
+        /// </summary>
+        public const string LoggingWriteToFile = "logging.writeToFile";
+    }
 
     /// <summary>
     /// Initializes a new instance of the configuration manager.
@@ -33,7 +130,7 @@ public sealed class ConfigurationManager
 
         _configFilePath = configFilePath ?? Path.Combine(
             PathUtility.GetApplicationDataDirectory(),
-            "settings.json"
+            DefaultConfigFileName
         );
 
         _settings = new Dictionary<string, object>();
@@ -184,34 +281,34 @@ public sealed class ConfigurationManager
     private void LoadDefaults()
     {
         // Audio settings
-        _settings["audio.sampleRate"] = 44100;
-        _settings["audio.channelCount"] = 2;
-        _settings["audio.bitDepth"] = 16;
-        _settings["audio.fftSize"] = 2048;
+        _settings[Keys.AudioSampleRate] = 44100;
+        _settings[Keys.AudioChannelCount] = 2;
+        _settings[Keys.AudioBitDepth] = 16;
+        _settings[Keys.AudioFftSize] = 2048;
 
         // Visualization settings
-        _settings["visualization.targetFps"] = 60;
-        _settings["visualization.brightness"] = 1.0f;
-        _settings["visualization.contrast"] = 1.0f;
+        _settings[Keys.VisualizationTargetFps] = 60;
+        _settings[Keys.VisualizationBrightness] = 1.0f;
+        _settings[Keys.VisualizationContrast] = 1.0f;
 
         // Peak‑hold settings (new)
-        _settings["visualization.peakHoldEnabled"] = false;
-        _settings["visualization.peakHoldFallRateDbPerSec"] = 10f;
+        _settings[Keys.VisualizationPeakHoldEnabled] = false;
+        _settings[Keys.VisualizationPeakHoldFallRateDbPerSec] = 10f;
 
         // Display settings
-        _settings["display.width"] = 1280;
-        _settings["display.height"] = 720;
-        _settings["display.fullscreen"] = false;
+        _settings[Keys.DisplayWidth] = 1280;
+        _settings[Keys.DisplayHeight] = 720;
+        _settings[Keys.DisplayFullscreen] = false;
 
         // Export settings
-        _settings["export.defaultFormat"] = "json";
-        _settings["export.compress"] = false;
-        _settings["export.includeMetadata"] = true;
+        _settings[Keys.ExportDefaultFormat] = "json";
+        _settings[Keys.ExportCompress] = false;
+        _settings[Keys.ExportIncludeMetadata] = true;
 
         // Logging settings
-        _settings["logging.level"] = "Info";
-        _settings["logging.writeToConsole"] = true;
-        _settings["logging.writeToFile"] = true;
+        _settings[Keys.LoggingLevel] = "Info";
+        _settings[Keys.LoggingWriteToConsole] = true;
+        _settings[Keys.LoggingWriteToFile] = true;
 
         _logger.Debug("Default configuration values loaded.");
     }
