@@ -9,6 +9,16 @@ namespace NaudioVisualizer.Services
     /// </summary>
     public sealed class AsciiSpectrumRenderer
     {
+        /// <summary>
+        /// Default width of the renderer in columns.
+        /// </summary>
+        public const int DefaultWidth = 80;
+
+        /// <summary>
+        /// Default height of the renderer in rows.
+        /// </summary>
+        public const int DefaultHeight = 20;
+
         private readonly int _width;
         private readonly int _height;
         private readonly bool _logScale;
@@ -26,11 +36,26 @@ namespace NaudioVisualizer.Services
         private const double LinearAmplitudeBase = 10.0;
 
         /// <summary>
+        /// Configuration key for peak hold enabled setting.
+        /// </summary>
+        private const string PeakHoldEnabledKey = "visualization.peakHoldEnabled";
+
+        /// <summary>
+        /// Configuration key for peak hold fall rate (dB per second).
+        /// </summary>
+        private const string PeakHoldFallRateDbPerSecKey = "visualization.peakHoldFallRateDbPerSec";
+
+        /// <summary>
+        /// Character used for empty spaces in the render output.
+        /// </summary>
+        private const char EmptyChar = ' ';
+
+        /// <summary>
         /// Characters used for drawing bars from bottom to top.
         /// </summary>
         private static readonly char[] BarChars = new[]
         {
-            ' ', '▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'
+            EmptyChar, '▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'
         };
 
         /// <summary>
@@ -41,7 +66,7 @@ namespace NaudioVisualizer.Services
         /// <param name="logScale">If true, values are log‑scaled before rendering.</param>
         /// <param name="config">Optional configuration manager for peak‑hold settings.</param>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when width or height is less than or equal to zero.</exception>
-        public AsciiSpectrumRenderer(int width = 80, int height = 20, bool logScale = false, ConfigurationManager? config = null)
+        public AsciiSpectrumRenderer(int width = DefaultWidth, int height = DefaultHeight, bool logScale = false, ConfigurationManager? config = null)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
@@ -52,8 +77,8 @@ namespace NaudioVisualizer.Services
             _renderBuffer = new StringBuilder(_width * (_height + Environment.NewLine.Length));
 
             // Initialise peak‑hold state
-            _peakHoldEnabled = config?.GetValue<bool>("visualization.peakHoldEnabled", false) ?? false;
-            _peakFallRateDbPerSec = config?.GetValue<float>("visualization.peakHoldFallRateDbPerSec", DefaultPeakFallRateDbPerSec) ?? DefaultPeakFallRateDbPerSec;
+            _peakHoldEnabled = config?.GetValue<bool>(PeakHoldEnabledKey, false) ?? false;
+            _peakFallRateDbPerSec = config?.GetValue<float>(PeakHoldFallRateDbPerSecKey, DefaultPeakFallRateDbPerSec) ?? DefaultPeakFallRateDbPerSec;
             _peakValues = new float[_width];
             _lastRenderTime = DateTime.UtcNow;
         }
@@ -114,7 +139,7 @@ namespace NaudioVisualizer.Services
                     }
                     else
                     {
-                        ch = ' ';
+                        ch = EmptyChar;
                     }
 
                     _renderBuffer.Append(ch);
