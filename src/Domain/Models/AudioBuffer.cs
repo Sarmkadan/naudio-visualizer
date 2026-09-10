@@ -263,6 +263,14 @@ public class AudioBufferStats
     public float FillPercentage { get; set; }
     public double DurationSeconds { get; set; }
 
-    public override string ToString() =>
-        $"{CurrentCount}/{Capacity} ({FillPercentage:F1}%) written={SamplesWritten} duration={DurationSeconds:F2}s";
+    /// <summary>
+    /// Returns a string representation of the AudioBufferStats.
+    /// </summary>
+    /// <returns>A string containing the buffer statistics.</returns>
+    public override string ToString()
+    {
+        return string.Format(System.Globalization.CultureInfo.InvariantCulture,
+            "{0}/{1} ({2:F1}%) written={3} duration={4:F2}s",
+            CurrentCount, Capacity, FillPercentage, SamplesWritten, DurationSeconds);
+    }
 }
