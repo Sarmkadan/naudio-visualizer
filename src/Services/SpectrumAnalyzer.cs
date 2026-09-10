@@ -33,6 +33,36 @@ namespace NAudioVisualizer.Services;
 public sealed class SpectrumAnalyzer
 {
     /// <summary>
+    /// Default window size for spectrum smoothing.
+    /// </summary>
+    private const int DefaultSmoothingWindowSize = 3;
+
+    /// <summary>
+    /// Default number of bands for band energy calculation.
+    /// </summary>
+    private const int DefaultBandCount = 8;
+
+    /// <summary>
+    /// Maximum frequency for bass band in Hz.
+    /// </summary>
+    private const float BassMaxFrequency = 250f;
+
+    /// <summary>
+    /// Maximum frequency for midrange band in Hz.
+    /// </summary>
+    private const float MidMaxFrequency = 4000f;
+
+    /// <summary>
+    /// Minimum frequency for treble band in Hz.
+    /// </summary>
+    private const float TrebleMinFrequency = 4000f;
+
+    /// <summary>
+    /// Default reference amplitude for dB conversion (0 dBFS).
+    /// </summary>
+    private const float DefaultReferenceValue = 1f;
+
+    /// <summary>
     /// Peak-hold magnitude values (in the same scale as the current spectrum data).
     /// Indexed by frequency bin. Null until the first call to <see cref="UpdatePeakHolds"/>.
     /// </summary>
@@ -40,11 +70,16 @@ public sealed class SpectrumAnalyzer
 
     /// <summary>
     /// Rate at which peak-hold bars decay, expressed in dB per second.
-    /// Defaults to 20 dB/s, which is suitable for general music monitoring.
+    /// Defaults to <see cref="DefaultPeakHoldDecayDbPerSecond"/> dB/s, which is suitable for general music monitoring.
     /// Set a lower value (e.g. 5–10 dB/s) for transient peak monitoring,
     /// or a higher value (e.g. 40–60 dB/s) for real-time speech analysis.
     /// </summary>
-    public float PeakHoldDecayDbPerSecond { get; set; } = 20f;
+    public float PeakHoldDecayDbPerSecond { get; set; } = DefaultPeakHoldDecayDbPerSecond;
+
+    /// <summary>
+    /// Default peak-hold decay rate in dB per second.
+    /// </summary>
+    public const float DefaultPeakHoldDecayDbPerSecond = 20f;
 
     /// <summary>
     /// Generates a frequency magnitude spectrum from an audio frame using FFT.
