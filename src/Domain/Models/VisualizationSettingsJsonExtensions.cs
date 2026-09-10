@@ -15,8 +15,10 @@ public static class VisualizationSettingsJsonExtensions
     /// <param name="settings">The settings to serialize.</param>
     /// <param name="indented">Whether the JSON should be indented.</param>
     /// <returns>The serialized JSON.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="settings"/> is null.</exception>
     public static string ToJson(this VisualizationSettings settings, bool indented = true)
     {
+        ArgumentNullException.ThrowIfNull(settings);
         return JsonSerializer.Serialize(settings, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
