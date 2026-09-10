@@ -24,6 +24,10 @@ public sealed class AudioProcessingWorker : IDisposable
     private Task? _workerTask;
     private bool _isRunning;
     private readonly object _lockObject = new();
+    /// <summary>
+    /// Interval in milliseconds for polling when no tasks are available.
+    /// </summary>
+    private const int PollingIntervalMs = 10;
 
     /// <summary>
     /// Initializes a new instance of the audio processing worker.
@@ -49,7 +53,7 @@ public sealed class AudioProcessingWorker : IDisposable
             _workerTask = ProcessQueueAsync(_cancellationTokenSource.Token);
 
             if (_logger is not null)
-                _logger.Info("AudioProcessingWorker started (state=running, pollingInterval=10ms).");
+                _logger.Info($"AudioProcessingWorker started (state=running, pollingInterval={PollingIntervalMs}ms).");
         }
     }
 
@@ -159,7 +163,7 @@ public sealed class AudioProcessingWorker : IDisposable
             else
             {
                 // No tasks, wait briefly to avoid busy waiting
-                await Task.Delay(10, cancellationToken).ConfigureAwait(false);
+                await Task.Delay(PollingIntervalMs, cancellationToken).ConfigureAwait(false);
             }
         }
     }
