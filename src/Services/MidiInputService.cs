@@ -44,8 +44,10 @@ public sealed class MidiInputService : IDisposable
     /// </summary>
     /// <param name="cancellationToken">Token to observe for cancellation.</param>
     /// <returns>A read-only list of <see cref="MidiDeviceInfo"/> records, one per device.</returns>
+    /// <exception cref="ObjectDisposedException">Thrown when the service has been disposed.</exception>
     public Task<IReadOnlyList<MidiDeviceInfo>> GetAvailableDevicesAsync(CancellationToken cancellationToken = default)
     {
+        ObjectDisposedException.ThrowIf(_isDisposed, this);
         cancellationToken.ThrowIfCancellationRequested();
 
         int count = MidiIn.NumberOfDevices;
@@ -72,12 +74,13 @@ public sealed class MidiInputService : IDisposable
     /// <returns>A task representing the asynchronous operation.</returns>
     public async Task StartAsync(int deviceIndex, CancellationToken cancellationToken = default)
     {
-        ThrowIfDisposed();
+        ArgumentOutOfRangeException.ThrowIfNegative(deviceIndex);
+        ObjectDisposedException.ThrowIf(_isDisposed, this);
 
         if (_midiIn is not null)
             throw new InvalidOperationException("A MIDI session is already active. Call StopAsync first.");
 
-        if (deviceIndex < 0 || deviceIndex >= MidiIn.NumberOfDevices)
+        if (deviceIndex >= MidiIn.NumberOfDevices)
             throw new ArgumentOutOfRangeException(nameof(deviceIndex),
                 $"Device index {deviceIndex} is outside the available range of 0–{MidiIn.NumberOfDevices - 1}.");
 
