@@ -196,4 +196,13 @@ public sealed class MidiNoteEventArgs : EventArgs
     /// <summary>Gets the MIDI note event that was received.</summary>
     /// <value>The MIDI note event containing note details such as channel, note number, velocity, and frequency.</value>
     public required MidiNoteEvent Note { get; init; }
+
+    /// <summary>
+    /// Returns a string representation of the MidiNoteEventArgs.
+    /// </summary>
+    /// <returns>A string in the format "MidiNoteEventArgs: {Note}".</returns>
+    public override string ToString()
+    {
+        return $"MidiNoteEventArgs: {Note}";
+    }
 }
