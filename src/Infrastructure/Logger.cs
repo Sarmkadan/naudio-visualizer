@@ -22,6 +22,21 @@ namespace NAudioVisualizer.Infrastructure
         private bool _logFileInitializationFailed;
         private bool _isDisposed;
 
+        /// <summary>
+        /// Default directory name for log files.
+        /// </summary>
+        private const string DefaultLogDirectoryName = "logs";
+
+        /// <summary>
+        /// Default file name for log files.
+        /// </summary>
+        private const string DefaultLogFileName = "app.log";
+
+        /// <summary>
+        /// Format string for timestamps in log messages.
+        /// </summary>
+        private const string TimestampFormat = "yyyy-MM-dd HH:mm:ss.fff";
+
         public LogLevel MinimumLevel { get; set; } = LogLevel.Info;
 
         /// <summary>
@@ -31,7 +46,7 @@ namespace NAudioVisualizer.Infrastructure
         /// <param name="writeToConsole">Whether to write log messages to the console.</param>
         public Logger(string? logFilePath = null, bool writeToConsole = true)
         {
-            _logFilePath = logFilePath ?? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", "app.log");
+            _logFilePath = logFilePath ?? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, DefaultLogDirectoryName, DefaultLogFileName);
             _writeToConsole = writeToConsole;
 
             InitializeLogFile();
@@ -134,7 +149,7 @@ namespace NAudioVisualizer.Infrastructure
 
         private string FormatLogMessage(LogLevel level, string message)
         {
-            string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+            string timestamp = DateTime.Now.ToString(TimestampFormat);
             return $"[{timestamp}] [{level}] {message}";
         }
 
