@@ -364,17 +364,13 @@ public sealed class SpectrumAnalyzer
         var frequencies = spectrum.GetFrequencies();
         var bands = new FrequencyBands();
 
-        const float BASS_MAX = 250f;
-        const float MID_MAX = 4000f;
-        const float TREBLE_MIN = 4000f;
-
         foreach (var (frequency, magnitude) in IterateFrequencyData(frequencies, magnitudes))
         {
-            if (frequency < BASS_MAX)
+            if (frequency < BassMaxFrequency)
                 bands.BassEnergy += magnitude;
-            else if (frequency < MID_MAX)
+            else if (frequency < MidMaxFrequency)
                 bands.MidEnergy += magnitude;
-            else if (frequency >= TREBLE_MIN)
+            else if (frequency >= TrebleMinFrequency)
                 bands.TrebleEnergy += magnitude;
         }
 
