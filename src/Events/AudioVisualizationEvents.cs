@@ -156,6 +156,15 @@ namespace NAudioVisualizer.Events
         /// Gets the start time of the rendering.
         /// </summary>
         public DateTime StartTime { get; init; } = DateTime.UtcNow;
+
+        /// <summary>
+        /// Returns a string representation of the event.
+        /// </summary>
+        /// <returns>A string with the property names and values in Key=Value format.</returns>
+        public override string ToString()
+        {
+            return $"VisualizationType={VisualizationType}, Width={Width}, Height={Height}, StartTime={StartTime}";
+        }
     }
 
     /// <summary>
@@ -179,6 +188,15 @@ namespace NAudioVisualizer.Events
         /// Gets the completion time of the rendering.
         /// </summary>
         public DateTime CompletionTime { get; init; } = DateTime.UtcNow;
+
+        /// <summary>
+        /// Returns a string representation of the event.
+        /// </summary>
+        /// <returns>A string with the property names and values in Key=Value format.</returns>
+        public override string ToString()
+        {
+            return $"VisualizationType={VisualizationType}, RenderTimeMs={RenderTimeMs}, FrameRate={FrameRate}, CompletionTime={CompletionTime}";
+        }
     }
 
     /// <summary>
@@ -206,6 +224,15 @@ namespace NAudioVisualizer.Events
         /// Gets the time when the error occurred.
         /// </summary>
         public DateTime OccurredAt { get; init; } = DateTime.UtcNow;
+
+        /// <summary>
+        /// Returns a string representation of the event.
+        /// </summary>
+        /// <returns>A string with the property names and values in Key=Value format.</returns>
+        public override string ToString()
+        {
+            return $"ErrorMessage={ErrorMessage}, Exception={Exception}, ComponentName={ComponentName}, ErrorCode={ErrorCode}, OccurredAt={OccurredAt}";
+        }
     }
 
     /// <summary>
