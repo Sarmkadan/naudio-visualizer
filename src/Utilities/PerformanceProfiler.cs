@@ -250,6 +250,15 @@ public class PerformanceProfiler
         }
 
         /// <summary>
+        /// Returns a string representation of the timing token, showing the operation name and elapsed milliseconds.
+        /// </summary>
+        /// <returns>A string in the format "OperationName: ElapsedMillisecondsms".</returns>
+        public override string ToString()
+        {
+            return $"{_operationName}: {_stopwatch.ElapsedMilliseconds}ms";
+        }
+
+        /// <summary>
         /// Stops the timer and records the elapsed time.
         /// </summary>
         public void Dispose()
