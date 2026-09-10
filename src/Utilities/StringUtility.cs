@@ -16,6 +16,20 @@ namespace NAudioVisualizer.Utilities;
 public static class StringUtility
 {
     /// <summary>
+    /// Number of bytes in a kilobyte (1024).
+    /// </summary>
+    private const int BytesPerKilobyte = 1024;
+
+    /// <summary>
+    /// Number of milliseconds in a second (1000).
+    /// </summary>
+    private const int MillisecondsPerSecond = 1000;
+
+    /// <summary>
+    /// Base number for number suffix formatting (1000 for K, M, B, T).
+    /// </summary>
+    private const int NumberSuffixBase = 1000;
+    /// <summary>
     /// Truncates a string to a maximum length with optional ellipsis.
     /// </summary>
     public static string Truncate(string? text, int maxLength, bool addEllipsis = true)
@@ -74,10 +88,10 @@ public static class StringUtility
         double len = bytes;
         int order = 0;
 
-        while (len >= 1024 && order < sizes.Length - 1)
+        while (len >= BytesPerKilobyte && order < sizes.Length - 1)
         {
             order++;
-            len = len / 1024;
+            len = len / BytesPerKilobyte;
         }
 
         return $"{len:0.##} {sizes[order]}";
@@ -91,7 +105,7 @@ public static class StringUtility
         if (milliseconds < 0)
             return "Invalid";
 
-        if (milliseconds < 1000)
+        if (milliseconds < MillisecondsPerSecond)
             return $"{milliseconds}ms";
 
         var timespan = TimeSpan.FromMilliseconds(milliseconds);
@@ -110,16 +124,16 @@ public static class StringUtility
     /// </summary>
     public static string FormatLargeNumber(long number)
     {
-        if (number < 1000)
+        if (number < NumberSuffixBase)
             return number.ToString();
 
         string[] suffixes = { "", "K", "M", "B", "T" };
         double value = number;
         int suffixIndex = 0;
 
-        while (value >= 1000 && suffixIndex < suffixes.Length - 1)
+        while (value >= NumberSuffixBase && suffixIndex < suffixes.Length - 1)
         {
-            value /= 1000;
+            value /= NumberSuffixBase;
             suffixIndex++;
         }
 
