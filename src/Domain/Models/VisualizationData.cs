@@ -56,6 +56,7 @@ public abstract class VisualizationData
     /// <summary>
     /// Gets the visualization data as a float array.
     /// </summary>
+    /// <returns>The visualization data as a float array.</returns>
     public abstract float[] GetData();
 
     /// <summary>
@@ -66,6 +67,7 @@ public abstract class VisualizationData
     /// <summary>
     /// Validates that the visualization data is consistent.
     /// </summary>
+    /// <returns>True if the visualization data is valid; otherwise, false.</returns>
     public abstract bool IsValid();
 }
 
@@ -74,7 +76,16 @@ public abstract class VisualizationData
 /// </summary>
 public enum VisualizationType
 {
+    /// <summary>
+    /// Represents waveform visualization data.
+    /// </summary>
     Waveform = 0,
+    /// <summary>
+    /// Represents spectrum visualization data.
+    /// </summary>
     Spectrum = 1,
+    /// <summary>
+    /// Represents spectrogram visualization data.
+    /// </summary>
     Spectrogram = 2
 }
