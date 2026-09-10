@@ -111,8 +111,16 @@ public class AudioMetadata
     /// <summary>
     /// Updates audio level metrics.
     /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="currentLevel"/> is negative or NaN.</exception>
     public void UpdateLevelMetrics(float currentLevel)
     {
+        if (float.IsNaN(currentLevel))
+        {
+            throw new ArgumentOutOfRangeException(nameof(currentLevel), "Value cannot be NaN.");
+        }
+
+        ArgumentOutOfRangeException.ThrowIfNegative(currentLevel);
+
         CurrentLevel = currentLevel;
 
         if (currentLevel > PeakLevel)
