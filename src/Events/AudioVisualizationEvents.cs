@@ -229,6 +229,15 @@ namespace NAudioVisualizer.Events
         /// Gets the time when the device was connected.
         /// </summary>
         public DateTime ConnectedAt { get; init; } = DateTime.UtcNow;
+
+        /// <summary>
+        /// Returns a string representation of the event.
+        /// </summary>
+        /// <returns>A string with the property names and values in Key=Value format.</returns>
+        public override string ToString()
+        {
+            return $"DeviceId={DeviceId}, DeviceName={DeviceName}, MaxChannels={MaxChannels}, ConnectedAt={ConnectedAt}";
+        }
     }
 
     /// <summary>
@@ -248,6 +257,15 @@ namespace NAudioVisualizer.Events
         /// Gets the time when the device was disconnected.
         /// </summary>
         public DateTime DisconnectedAt { get; init; } = DateTime.UtcNow;
+
+        /// <summary>
+        /// Returns a string representation of the event.
+        /// </summary>
+        /// <returns>A string with the property names and values in Key=Value format.</returns>
+        public override string ToString()
+        {
+            return $"DeviceId={DeviceId}, DeviceName={DeviceName}, DisconnectedAt={DisconnectedAt}";
+        }
     }
 
     /// <summary>
@@ -271,6 +289,15 @@ namespace NAudioVisualizer.Events
         /// Gets the time when the setting was changed.
         /// </summary>
         public DateTime ChangedAt { get; init; } = DateTime.UtcNow;
+
+        /// <summary>
+        /// Returns a string representation of the event.
+        /// </summary>
+        /// <returns>A string with the property names and values in Key=Value format.</returns>
+        public override string ToString()
+        {
+            return $"SettingName={SettingName}, OldValue={OldValue}, NewValue={NewValue}, ChangedAt={ChangedAt}";
+        }
     }
 
     /// <summary>
@@ -298,6 +325,15 @@ namespace NAudioVisualizer.Events
         /// Gets the time when the metrics were recorded.
         /// </summary>
         public DateTime RecordedAt { get; init; } = DateTime.UtcNow;
+
+        /// <summary>
+        /// Returns a string representation of the event.
+        /// </summary>
+        /// <returns>A string with the property names and values in Key=Value format.</returns>
+        public override string ToString()
+        {
+            return $"CpuUsagePercent={CpuUsagePercent}, MemoryUsageBytes={MemoryUsageBytes}, FramesProcessed={FramesProcessed}, AverageFrameTimeMs={AverageFrameTimeMs}, RecordedAt={RecordedAt}";
+        }
     }
 
     /// <summary>
