@@ -1740,3 +1740,44 @@ catch (ArgumentException ex)
     Console.WriteLine($"Validation failed: {ex.Message}");
 }
 ```
+
+## JSON Serialization Helpers
+
+The following extension classes provide `System.Text.Json` serialization and deserialization capabilities for various domain models, services, and utilities across the application.
+
+| Class | Methods | Description |
+|---|---|---|
+| `AudioBufferJsonExtensions` | `ToJson`, `FromJson`, `TryFromJson` | Serializes and deserializes `AudioBuffer` instances. |
+| `AudioDeviceJsonExtensions` | `ToJson` | Serializes `AudioDevice` essential properties. |
+| `AudioFrameJsonExtensions` | `ToJson` | Serializes `AudioFrame` metadata and optionally raw samples. |
+| `AudioMetadataJsonExtensions` | `ToJson` | Serializes `AudioMetadata` with camelCase naming. |
+| `MidiNoteEventJsonExtensions` | `ToJson` | Serializes `MidiNoteEvent` to JSON. |
+| `SpectrogramDataJsonExtensions` | `ToJson` | Serializes `SpectrogramData` metadata and optionally the data matrix. |
+| `SpectrumDataJsonExtensions` | `ToJson` | Serializes `SpectrumData` to a JSON string. |
+| `VisualizationDataJsonExtensions` | `ToJson`, `FromJson`, `TryFromJson` | Serializes and deserializes abstract `VisualizationData` types. |
+| `VisualizationSettingsJsonExtensions` | `ToJson` | Serializes `VisualizationSettings` to JSON. |
+| `WaveformDataJsonExtensions` | `ToJson` | Serializes `WaveformData` properties and data points. |
+| `ColorSchemeJsonExtensions` | `ToJson` | Serializes `ColorScheme` including theme and gradients. |
+| `AudioCaptureStartedEventJsonExtensions` | `ToJson`, `FromJson`, `TryFromJson` | Serializes and deserializes `AudioCaptureStartedEvent`. |
+| `EventPublisherJsonExtensions` | `ToJson`, `FromJson`, `TryFromJson` | Serializes and deserializes `EventPublisher` state and subscriber counts. |
+| `ServiceContainerJsonExtensions` | `ToJson`, `FromJson`, `TryFromJson` | Serializes and deserializes `ServiceContainer` registered types. |
+| `MidiInputServiceJsonExtensions` | `ToJson`, `FromJson`, `TryFromJson` | Serializes and deserializes `MidiInputService` state. |
+| `AudioDataConverterJsonExtensions` | `ToJson<T>`, `FromJson<T>`, `TryFromJson<T>` | Generic JSON serialization and deserialization helpers. |
+| `MathUtilityJsonExtensions` | `ToJson`, `FromJson`, `TryFromJson` | Serializes and deserializes `MathUtility` type information. |
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Domain.Models;
+
+// Serialize an AudioBuffer to JSON
+var buffer = new AudioBuffer(capacity: 1024, sampleRate: 44100, channelCount: 2);
+string json = buffer.ToJson(indented: true);
+
+// Deserialize back to an AudioBuffer
+var restoredBuffer = AudioBufferJsonExtensions.FromJson(json);
+if (restoredBuffer != null)
+{
+    Console.WriteLine($"Restored buffer capacity: {restoredBuffer.Capacity}");
+}
+```
