@@ -2488,3 +2488,85 @@ ProcessVisualization(waveform);
 var spectrum = new SpectrumData(magnitudes, 44100, 2048);
 ProcessVisualization(spectrum);
 ```
+
+## SpectrogramData
+
+`SpectrogramData` represents spectrogram visualization data (time-frequency representation). It inherits from `VisualizationData` and provides properties for FFT parameters, color mapping, and methods for accessing spectrogram data.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Domain.Models;
+
+// Create spectrogram data from a 2D magnitude matrix
+float[][] spectrogramMatrix = new float[100][]; // 100 time frames
+for (int i = 0; i < 100; i++)
+{
+    spectrogramMatrix[i] = new float[512]; // 512 frequency bins
+    // Fill with magnitude data...
+}
+
+var spectrogram = new SpectrogramData(
+    spectrogramMatrix,
+    sampleRate: 44100,
+    fftSize: 2048,
+    hopSize: 512);
+
+// Access properties
+Console.WriteLine($"Time frames: {spectrogram.TimeFrames}");
+Console.WriteLine($"Frequency bins: {spectrogram.FrequencyBins}");
+Console.WriteLine($"Sample rate: {spectrogram.SampleRate} Hz");
+Console.WriteLine($"FFT size: {spectrogram.FftSize}");
+Console.WriteLine($"Hop size: {spectrogram.HopSize}");
+Console.WriteLine($"Time per frame: {spectrogram.TimePerFrame:F3} seconds");
+Console.WriteLine($"Frequency resolution: {spectrogram.FrequencyResolution:F2} Hz/bin");
+
+// Get spectrogram data
+float[] flattenedData = spectrogram.GetData(); // Flattened magnitude data
+
+// Get a single time frame as a spectrum
+float[] timeFrame = spectrogram.GetTimeFrame(10); // Spectrum at time index 10
+
+// Get a frequency slice across all time frames
+float[] frequencySlice = spectrogram.GetFrequencySlice(100); // Magnitudes for frequency bin 100 over time
+
+// Add spectrum frames
+var spectrum = new SpectrumData(new float[512], 44100, 2048);
+spectrogram.AddSpectrumFrame(spectrum);
+
+// Get all spectrum frames
+IReadOnlyList<SpectrumData> frames = spectrogram.GetSpectrumFrames();
+
+// Normalize spectrogram data to 0-1 range
+spectrogram.Normalize();
+
+// Apply logarithmic scaling to spectrogram magnitudes
+spectrogram.ApplyLogScale(); // Default reference value of 1f
+spectrogram.ApplyLogScale(0.00001f); // Custom reference value
+
+// Validate spectrogram data integrity
+bool isValid = spectrogram.IsValid();
+```
+
+### JSON Serialization
+
+`SpectrogramData` provides JSON serialization extensions through `SpectrogramDataJsonExtensions`:
+
+```csharp
+using NAudioVisualizer.Domain.Models;
+
+// Serialize spectrogram metadata only
+string json = spectrogram.ToJson();
+
+// Serialize spectrogram metadata and flattened data
+string jsonWithData = spectrogram.ToJson(includeMatrix: true);
+```
+
+The JSON output includes:
+- TimeFrames: Number of time frames
+- FrequencyBins: Number of frequency bins
+- SampleRate: Sample rate of source audio
+- FftSize: FFT size used for each spectrum frame
+- HopSize: Hop size between consecutive frames
+- ColormapType: Color mapping mode for visualization
+- Frames: Flattened spectrogram data (when includeMatrix is true)
