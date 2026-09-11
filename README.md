@@ -781,6 +781,43 @@ int deletedForSession = repository.DeleteBySession(sessionId);
 repository.Clear();
 ```
 
+## FrequencyBands
+
+`FrequencyBands` represents normalized energy values for the bass, midrange, and treble frequency bands extracted from audio spectrum data. The three bands are:
+- Bass: 0–250 Hz
+- Midrange: 250–4000 Hz  
+- Treble: >4000 Hz
+
+The `BassEnergy`, `MidEnergy`, and `TrebleEnergy` properties are normalized so their sum equals 1.0 when total audio energy is non-zero, making them suitable for visualizing relative energy distribution across the frequency spectrum.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Domain.Models;
+using NAudioVisualizer.Services;
+
+// Analyze audio spectrum
+var analyzer = new SpectrumAnalyzer();
+SpectrumData spectrum = analyzer.AnalyzeSpectrum(audioFrame, fftSize: 2048);
+
+// Extract normalized frequency band energies
+FrequencyBands bands = analyzer.ExtractFrequencyBands(spectrum);
+
+// Access individual band values (0.0 to 1.0)
+float bass = bands.BassEnergy;
+float mid = bands.MidEnergy;
+float treble = bands.TrebleEnergy;
+
+// Verify normalization (should be ~1.0 when energy present)
+float total = bands.BassEnergy + bands.MidEnergy + bands.TrebleEnergy;
+
+// Convert to array for easier processing
+float[] bandArray = bands.ToArray(); // [bass, mid, treble]
+
+// Example usage in visualization
+Console.WriteLine($"Bass: {bands.BassEnergy:P0}, Mid: {bands.MidEnergy:P0}, Treble: {bands.TrebleEnergy:P0}");
+```
+
 ## FileSystemUtility
 
 `FileSystemUtility` provides static helpers for common file system operations, including creating and validating directories, measuring and formatting file sizes, generating unique file names, safely deleting files and directories, asynchronously reading and writing text files, cleaning up files based on retention time, and calculating directory sizes.
