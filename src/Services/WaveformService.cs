@@ -189,6 +189,7 @@ public sealed class WaveformService
     /// Applies normalization to waveform data, scaling all amplitude values to the [-1, 1] range.
     /// </summary>
     /// <param name="waveform">The waveform data to normalize in place.</param>
+    /// <returns>None.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="waveform"/> is null.</exception>
     public void NormalizeWaveform(WaveformData waveform)
     {
@@ -381,6 +382,7 @@ public sealed class WaveformService
     /// <param name="waveform">The waveform data to apply zoom to.</param>
     /// <param name="startSample">Starting sample index for the zoom window (inclusive).</param>
     /// <param name="lengthSamples">Number of samples to include in the zoom window.</param>
+    /// <returns>None.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="waveform"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when startSample or lengthSamples are invalid.</exception>
     public void ApplyZoomWindow(WaveformData waveform, long startSample, long lengthSamples)
@@ -427,6 +429,7 @@ public sealed class WaveformService
     /// </summary>
     /// <param name="waveform">The waveform data to zoom into.</param>
     /// <param name="zoomCenterSample">Optional center sample index for the zoom. If null, uses the middle of the current window.</param>
+    /// <returns>None.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="waveform"/> is null.</exception>
     public void ZoomIn(WaveformData waveform, long? zoomCenterSample = null)
     {
@@ -451,6 +454,7 @@ public sealed class WaveformService
     /// </summary>
     /// <param name="waveform">The waveform data to zoom out from.</param>
     /// <param name="zoomCenterSample">Optional center sample index for the zoom. If null, uses the middle of the current window.</param>
+    /// <returns>None.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="waveform"/> is null.</exception>
     public void ZoomOut(WaveformData waveform, long? zoomCenterSample = null)
     {
@@ -483,6 +487,7 @@ public sealed class WaveformService
     /// </summary>
     /// <param name="waveform">The waveform data to pan.</param>
     /// <param name="samplesToMove">Number of samples to move the window. Positive moves right, negative moves left.</param>
+    /// <returns>None.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="waveform"/> is null.</exception>
     public void Pan(WaveformData waveform, long samplesToMove)
     {
