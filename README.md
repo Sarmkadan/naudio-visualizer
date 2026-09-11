@@ -462,7 +462,7 @@ using FluentAssertions;
 using NAudioVisualizer.Caching;
 using NAudioVisualizer.Domain.Models;
 using NAudioVisualizer.Events;
-using Xunit;
+using Xunit();
 
 // Test AudioBuffer functionality
 var buffer = new AudioBuffer(capacity: 1024, sampleRate: 44100, channelCount: 2);
@@ -915,6 +915,45 @@ int deletedFileCount = FileSystemUtility.CleanupOldFiles("output", 30);
 
 // Calculate the total size of a directory and its contents
 long directorySize = FileSystemUtility.GetDirectorySize("output");
+```
+
+## CacheStatistics
+
+`CacheStatistics` provides information about the cache usage and performance. It is returned by `CacheManager.GetStatistics()`.
+
+### Properties
+
+- `CurrentSize`: The current number of cached entries.
+- `MaxSize`: The maximum number of cached entries.
+- `FillPercentage`: The percentage of the cache currently in use.
+- `Hits`: The number of successful cache retrievals.
+- `Misses`: The number of unsuccessful cache retrievals.
+- `Evictions`: The number of entries removed by the eviction policy (LRU).
+- `Expirations`: The number of expired entries removed from the cache.
+- `HitRate`: The ratio of successful retrievals to total retrieval attempts (calculated as Hits/(Hits+Misses)).
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Caching;
+
+var cache = new CacheManager<string, int>(maxSize: 100);
+cache.Set("key1", 100);
+cache.TryGetValue("key1", out var value);
+
+CacheStatistics stats = cache.GetStatistics();
+Console.WriteLine($"Cache size: {stats.CurrentSize}/{stats.MaxSize}");
+Console.WriteLine($"Fill percentage: {stats.FillPercentage:F1}%");
+Console.WriteLine($"Hits: {stats.Hits}, Misses: {stats.Misses}");
+Console.WriteLine($"Hit rate: {stats.HitRate:P1}");
+Console.WriteLine($"Evictions: {stats.Evictions}, Expirations: {stats.Expirations}");
+```
+
+Additionally, the `CacheStatisticsExtensions` class provides a `ToJson` method for serializing the statistics to JSON.
+
+```csharp
+string json = stats.ToJson(indented: true);
+Console.WriteLine(json);
 ```
 
 ## Logger
