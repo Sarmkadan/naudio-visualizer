@@ -1681,3 +1681,62 @@ analyzer.UpdatePeakHolds(spectrum, elapsedSeconds: 1.0 / 60.0);
 float[]? peakHolds = analyzer.GetPeakHolds();
 analyzer.ResetPeakHolds();
 ```
+
+## Validation Helpers
+
+This section provides an overview of all validation classes in the `src/` directory. Each validation class offers methods to validate specific domain objects and return lists of validation problems (empty if valid).
+
+| Validation Class | Methods | Description |
+|------------------|---------|-------------|
+| `AudioDeviceValidation` | `Validate(AudioDevice)`, `IsValid(AudioDevice)`, `EnsureValid(AudioDevice)` | Validates AudioDevice instances including GUID, name, device index, manufacturer, channel count, sample rates, bit depth, status check time, and capabilities |
+| `AudioFrameValidation` | `Validate(AudioFrame)`, `IsValid(AudioFrame)`, `EnsureValid(AudioFrame)` | Validates AudioFrame instances including ID, samples (null, empty, NaN, infinity), channel count, sample rate, timestamp (UTC), frame index, duration, peak amplitude, and RMS energy |
+| `GradientStopValidation` | `Validate(GradientStop)`, `IsValid(GradientStop)`, `EnsureValid(GradientStop)` | Validates GradientStop instances including position range [0,1] and color validation (ARGB format) |
+| `AudioStreamExceptionValidation` | `Validate(AudioStreamException)`, `IsValid(AudioStreamException)`, `EnsureValid(AudioStreamException)` | Validates AudioStreamException instances including ErrorCode enum validation and message/not-null checks |
+| `ConfigurationManagerValidation` | `Validate(ConfigurationManager)`, `IsValid(ConfigurationManager)`, `EnsureValid(ConfigurationManager)` | Validates ConfigurationManager instances including numeric ranges (sample rate, channel count, bit depth, FFT size, FPS, brightness, contrast, display dimensions), boolean settings, and string settings (export format, logging level) |
+| `SpectrogramAnalyzerValidation` | `Validate(SpectrogramAnalyzer)`, `IsValid(SpectrogramAnalyzer)`, `EnsureValid(SpectrogramAnalyzer)` | Validates SpectrogramAnalyzer instances by checking internal state via public API (buffer frame count) |
+| `PathUtilityValidation` | See PathUtility section above | Validates PathUtility operations including path normalization, combination, absolute/relative conversion, trailing separator handling, file enumeration, directory retrieval, path validation, directory size calculation, and unique filename generation |
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Domain.Models;
+using NAudioVisualizer.Configuration;
+
+// Validate an audio device
+var device = new AudioDevice 
+{
+    Id = Guid.NewGuid(),
+    Name = "Microphone",
+    DeviceIndex = 0,
+    Manufacturer = "Test Corp",
+    ChannelCount = 2,
+    SupportedSampleRates = new List<int> { 44100, 48000 },
+    DefaultSampleRate = 44100,
+    BitDepth = 16,
+    LastStatusCheck = DateTime.UtcNow,
+    Capabilities = DeviceCapabilities.Input
+};
+
+var deviceProblems = AudioDeviceValidation.Validate(device);
+if (deviceProblems.Count == 0)
+{
+    Console.WriteLine("Audio device is valid");
+}
+else
+{
+    foreach (var problem in deviceProblems)
+    {
+        Console.WriteLine($"Validation issue: {problem}");
+    }
+}
+
+// Using EnsureValid to throw on validation failure
+try
+{
+    AudioDeviceValidation.EnsureValid(device);
+}
+catch (ArgumentException ex)
+{
+    Console.WriteLine($"Validation failed: {ex.Message}");
+}
+```
