@@ -1,3 +1,8 @@
+// =============================================================================
+// Author: Vladyslav Zaiets | https://sarmkadan.com
+// CTO & Software Architect
+// =============================================================================
+
 using System;
 using System.Threading.Tasks;
 
