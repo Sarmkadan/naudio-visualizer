@@ -415,6 +415,45 @@ if (stereoFromChannels.SplitStereoChannels() is (float[] Left, float[] Right) ch
 }
 ```
 
+## WaveformData
+
+`WaveformData` represents waveform visualization data derived from audio samples. It inherits from `VisualizationData` and provides properties for sample rate, channel count, downsampling factor, and stereo channel peak arrays.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Domain.Models;
+
+// Create a waveform from audio samples
+var samples = new float[] { 0.1f, 0.5f, -0.3f, 0.8f, -0.6f, 0.2f };
+var waveform = new WaveformData(samples, channelCount: 1, sampleRate: 44100);
+
+// Access properties
+Console.WriteLine($"Sample rate: {waveform.SampleRate} Hz");
+Console.WriteLine($"Channel count: {waveform.ChannelCount}");
+Console.WriteLine($"Downsampling factor: {waveform.DownsamplingFactor}");
+Console.WriteLine($"Data point count: {waveform.DataPointCount}");
+Console.WriteLine($"Min value: {waveform.MinValue:F3}");
+Console.WriteLine($"Max value: {waveform.MaxValue:F3}");
+Console.WriteLine($"Is normalized: {waveform.IsNormalized}");
+
+// Get waveform data
+float[] data = waveform.GetData();
+Console.WriteLine($"First sample: {data[0]:F3}");
+
+// Normalize waveform
+waveform.Normalize();
+Console.WriteLine($"After normalization - Min: {waveform.MinValue:F3}, Max: {waveform.MaxValue:F3}");
+
+// Validate waveform data
+bool isValid = waveform.IsValid();
+Console.WriteLine($"Waveform data is valid: {isValid}");
+
+// Serialize to JSON
+string json = waveform.ToJson(indented: true);
+Console.WriteLine($"JSON representation:\n{json}");
+```
+
 ## ValidationAndStringUtilityTests
 
 ### Usage Example
