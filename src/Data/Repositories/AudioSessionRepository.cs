@@ -24,6 +24,9 @@ public class AudioSessionRepository
     /// <summary>
     /// Creates and stores a new audio session.
     /// </summary>
+    /// <param name="metadata">The metadata for the new session.</param>
+    /// <returns>The created audio session data.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when metadata is null.</exception>
     public AudioSessionData CreateSession(AudioMetadata metadata)
     {
         if (metadata is null)
@@ -50,6 +53,8 @@ public class AudioSessionRepository
     /// <summary>
     /// Gets a session by ID.
     /// </summary>
+    /// <param name="sessionId">The ID of the session to retrieve.</param>
+    /// <returns>The audio session data if found; otherwise, null.</returns>
     public AudioSessionData? GetSession(Guid sessionId)
     {
         lock (_lock)
@@ -61,6 +66,7 @@ public class AudioSessionRepository
     /// <summary>
     /// Gets all active sessions.
     /// </summary>
+    /// <returns>A read-only list of all audio session data.</returns>
     public IReadOnlyList<AudioSessionData> GetAllSessions()
     {
         lock (_lock)
@@ -72,6 +78,9 @@ public class AudioSessionRepository
     /// <summary>
     /// Adds an audio frame to a session.
     /// </summary>
+    /// <param name="sessionId">The ID of the session to add the frame to.</param>
+    /// <param name="frame">The audio frame to add.</param>
+    /// <exception cref="ArgumentNullException">Thrown when frame is null.</exception>
     public void AddFrameToSession(Guid sessionId, AudioFrame frame)
     {
         if (frame is null)
@@ -105,6 +114,8 @@ public class AudioSessionRepository
     /// <summary>
     /// Gets all frames for a session.
     /// </summary>
+    /// <param name="sessionId">The ID of the session to retrieve frames for.</param>
+    /// <returns>A read-only list of audio frames for the specified session.</returns>
     public IReadOnlyList<AudioFrame> GetSessionFrames(Guid sessionId)
     {
         lock (_lock)
@@ -120,6 +131,9 @@ public class AudioSessionRepository
     /// <summary>
     /// Gets a specific frame by session and frame index.
     /// </summary>
+    /// <param name="sessionId">The ID of the session containing the frame.</param>
+    /// <param name="frameIndex">The zero-based index of the frame to retrieve.</param>
+    /// <returns>The audio frame at the specified index if found; otherwise, null.</returns>
     public AudioFrame? GetFrame(Guid sessionId, int frameIndex)
     {
         lock (_lock)
@@ -135,6 +149,10 @@ public class AudioSessionRepository
     /// <summary>
     /// Gets frames within a time range.
     /// </summary>
+    /// <param name="sessionId">The ID of the session to retrieve frames from.</param>
+    /// <param name="startTime">The inclusive start of the time range.</param>
+    /// <param name="endTime">The inclusive end of the time range.</param>
+    /// <returns>A read-only list of audio frames whose timestamps fall within the specified range.</returns>
     public IReadOnlyList<AudioFrame> GetFramesInTimeRange(Guid sessionId, DateTime startTime, DateTime endTime)
     {
         lock (_lock)
@@ -152,6 +170,9 @@ public class AudioSessionRepository
     /// <summary>
     /// Gets the most recent frames from a session.
     /// </summary>
+    /// <param name="sessionId">The ID of the session to retrieve frames from.</param>
+    /// <param name="count">The maximum number of most recent frames to return.</param>
+    /// <returns>A read-only list of the most recent audio frames for the specified session.</returns>
     public IReadOnlyList<AudioFrame> GetRecentFrames(Guid sessionId, int count)
     {
         lock (_lock)
@@ -168,6 +189,7 @@ public class AudioSessionRepository
     /// <summary>
     /// Ends a session.
     /// </summary>
+    /// <param name="sessionId">The ID of the session to end.</param>
     public void EndSession(Guid sessionId)
     {
         lock (_lock)
@@ -183,6 +205,8 @@ public class AudioSessionRepository
     /// <summary>
     /// Deletes a session and its frames.
     /// </summary>
+    /// <param name="sessionId">The ID of the session to delete.</param>
+    /// <returns>True if the session or its frames were deleted; otherwise, false.</returns>
     public bool DeleteSession(Guid sessionId)
     {
         lock (_lock)
@@ -196,6 +220,8 @@ public class AudioSessionRepository
     /// <summary>
     /// Gets the frame count for a session.
     /// </summary>
+    /// <param name="sessionId">The ID of the session to get the frame count for.</param>
+    /// <returns>The number of frames stored for the specified session.</returns>
     public int GetFrameCount(Guid sessionId)
     {
         lock (_lock)
@@ -211,6 +237,8 @@ public class AudioSessionRepository
     /// <summary>
     /// Sets the maximum number of frames to keep per session.
     /// </summary>
+    /// <param name="maxFrames">The maximum number of frames to store per session. Must be positive.</param>
+    /// <exception cref="ArgumentException">Thrown when maxFrames is less than or equal to zero.</exception>
     public void SetMaxFramesPerSession(int maxFrames)
     {
         if (maxFrames <= 0)
@@ -234,6 +262,7 @@ public class AudioSessionRepository
     /// <summary>
     /// Gets repository statistics.
     /// </summary>
+    /// <returns>The current repository statistics.</returns>
     public SessionRepositoryStats GetStats()
     {
         lock (_lock)
@@ -278,12 +307,20 @@ public class AudioSessionData
     public int FrameCount { get; set; }
     public DateTime LastFrameTime { get; set; } = DateTime.UtcNow;
 
+    /// <summary>
+    /// Gets the duration of the session.
+    /// </summary>
+    /// <returns>The elapsed time from the session start to its end, or to the current time if the session is still active.</returns>
     public TimeSpan GetDuration()
     {
         var end = EndTime ?? DateTime.UtcNow;
         return end - StartTime;
     }
 
+    /// <summary>
+    /// Returns a string representation of the session.
+    /// </summary>
+    /// <returns>A string describing the session ID, start, end, and frame count.</returns>
     public override string ToString()
     {
         return $"SessionId={SessionId}, Start={StartTime}, End={EndTime ?? DateTime.MinValue}, Frames={FrameCount}";
@@ -301,6 +338,10 @@ public class SessionRepositoryStats
     public int CompletedSessionCount { get; set; }
     public int MaxFramesPerSession { get; set; }
 
+    /// <summary>
+    /// Returns a string representation of the repository statistics.
+    /// </summary>
+    /// <returns>A string describing the session counts, frame count, and max frames per session.</returns>
     public override string ToString()
     {
         return $"TotalSessions={TotalSessionCount}, Active={ActiveSessionCount}, Completed={CompletedSessionCount}, TotalFrames={TotalFrameCount}, MaxFramesPerSession={MaxFramesPerSession}";
