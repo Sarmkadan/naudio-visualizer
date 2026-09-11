@@ -2630,3 +2630,60 @@ spectrum.NormalizeToOne();
 string json = spectrum.ToJson();
 string jsonIndented = spectrum.ToJson(indented: true);
 ```
+
+## MidiNoteEvent
+
+`MidiNoteEvent` represents a single MIDI note event captured from a MIDI input device, including pitch identity, velocity, and derived visualization properties.
+
+### Properties
+
+- `Channel`: Gets the MIDI channel (1–16) on which the note was received.
+- `NoteNumber`: Gets the MIDI note number (0–127) identifying the pitch.
+- `NoteName`: Gets the human-readable note name including octave, e.g. "A4" or "C#3".
+- `Velocity`: Gets the note velocity (0–127). A zero velocity on a NoteOn command is treated as NoteOff.
+- `IsNoteOn`: Gets a value indicating whether this is a note-on (key press) event.
+- `Frequency`: Gets the fundamental frequency in Hz derived from equal-temperament tuning (A4 = 440 Hz).
+- `Timestamp`: Gets the UTC timestamp at which the event was received from the device.
+- `DeviceIndex`: Gets the zero-based index of the MIDI input device that produced this event.
+
+### Methods
+
+- `GetNoteName(int noteNumber)`: Returns the standard note name for the given MIDI note number.
+- `GetFrequency(int noteNumber)`: Calculates the fundamental frequency in Hz for a given MIDI note number using equal-temperament tuning with A4 (note 69) anchored at 440 Hz.
+- `IsValid()`: Determines whether this event contains valid MIDI data.
+
+### Related Classes
+
+- `MidiDeviceInfo`: Describes a MIDI input device available on the current system.
+- `MidiNoteEventExtensions`: Provides extension methods for `MidiNoteEvent` to simplify common MIDI event operations.
+- `MidiNoteEventJsonExtensions`: Provides JSON serialization extensions for `MidiNoteEvent`.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Domain.Models;
+
+// Creating a MidiNoteEvent
+var noteEvent = new MidiNoteEvent
+{
+    Channel = 1,
+    NoteNumber = 60, // Middle C
+    Velocity = 100,
+    IsNoteOn = true,
+    DeviceIndex = 0
+};
+
+// Accessing properties
+Console.WriteLine($"Note: {noteEvent.NoteName}"); // "C3"
+Console.WriteLine($"Frequency: {noteEvent.Frequency:F2} Hz"); // ~261.63 Hz
+Console.WriteLine($"Is valid: {noteEvent.IsValid()}"); // true
+
+// Using static methods
+string noteName = MidiNoteEvent.GetNoteName(69); // "A4"
+float frequency = MidiNoteEvent.GetFrequency(60); // ~261.63 Hz
+
+// Using extension methods
+bool isPressed = noteEvent.IsNotePressed(); // true
+string readable = noteEvent.ToReadableString(); // "C3 (Channel 1, Velocity 100)"
+string json = noteEvent.ToJson(indented: true);
+```
