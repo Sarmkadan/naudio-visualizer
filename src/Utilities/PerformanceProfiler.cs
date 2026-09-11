@@ -17,13 +17,39 @@ namespace NAudioVisualizer.Utilities;
 /// </summary>
 public class PerformanceProfiler
 {
+    /// <summary>
+    /// Stores aggregated timing data for a single operation.
+    /// </summary>
     private class PerformanceData
     {
+        /// <summary>
+        /// The name of the operation being tracked.
+        /// </summary>
         public string OperationName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The total elapsed time in milliseconds across all recorded calls.
+        /// </summary>
         public long TotalMs { get; set; }
+
+        /// <summary>
+        /// The number of times the operation has been recorded.
+        /// </summary>
         public int CallCount { get; set; }
+
+        /// <summary>
+        /// The minimum recorded elapsed time in milliseconds.
+        /// </summary>
         public long MinMs { get; set; }
+
+        /// <summary>
+        /// The maximum recorded elapsed time in milliseconds.
+        /// </summary>
         public long MaxMs { get; set; }
+
+        /// <summary>
+        /// The collection of recorded elapsed time samples in milliseconds.
+        /// </summary>
         public readonly List<long> Samples = new();
     }
 
