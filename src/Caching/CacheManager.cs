@@ -273,9 +273,24 @@ public class CacheManager<TKey, TValue> where TKey : notnull
     /// </summary>
     private class CacheEntry
     {
+        /// <summary>
+        /// Gets or sets the cached value.
+        /// </summary>
         public TValue? Value { get; set; }
+
+        /// <summary>
+        /// Gets or sets the UTC time at which the entry expires.
+        /// </summary>
         public DateTime ExpiresAt { get; set; }
+
+        /// <summary>
+        /// Gets or sets the UTC time at which the entry was created.
+        /// </summary>
         public DateTime CreatedAt { get; set; }
+
+        /// <summary>
+        /// Gets or sets the UTC time at which the entry was last accessed.
+        /// </summary>
         public DateTime LastAccessedAt { get; set; }
     }
 }
