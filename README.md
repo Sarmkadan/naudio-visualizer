@@ -1108,6 +1108,66 @@ buffer.Clear();
 
 ## AudioDataConverter
 
+## ProcessingTask
+
+`ProcessingTask` represents a unit of work to be executed by the `AudioProcessingWorker`. It encapsulates an asynchronous operation, along with optional completion and error callbacks.
+
+### Public Properties
+
+- `Name` (string): The name of the task.
+- `ExecuteAsync` (Func<CancellationToken, Task>): The asynchronous operation to perform.
+- `OnError` (Action<Exception>?): Optional callback invoked when the task throws an exception.
+- `OnComplete` (Action?): Optional callback invoked when the task completes successfully.
+- `CreatedAt` (DateTime): The timestamp when the task was created (set automatically to UTC now).
+
+### ProcessingTaskExtensions
+
+The `ProcessingTaskExtensions` class provides extension methods for `ProcessingTask`.
+
+#### ToJson(this ProcessingTask task)
+
+Serializes the public scalar properties (Name and CreatedAt) of a `ProcessingTask` to a JSON string.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Workers;
+using NAudioVisualizer.Infrastructure;
+
+// Create a worker (with optional logger)
+var worker = new AudioProcessingWorker();
+
+// Start the worker
+worker.Start();
+
+// Create a processing task using object initializer
+var task = new ProcessingTask
+{
+    Name = "Analyze audio spectrum",
+    ExecuteAsync = async token =>
+    {
+        // Placeholder for actual spectrum analysis
+        await Task.Delay(50, token);
+    },
+    OnComplete = () => Console.WriteLine("Spectrum analysis complete."),
+    OnError = ex => Console.WriteLine($"Analysis failed: {ex.Message}")
+};
+
+// Serialize the task for logging (using the extension method)
+string taskJson = task.ToJson();
+Console.WriteLine($"Serialized task: {taskJson}");
+
+// Enqueue the task
+worker.EnqueueTask(task);
+
+// Optionally, check the queue depth
+Console.WriteLine($"Tasks in queue: {worker.GetQueueDepth()}");
+
+// Stop the worker when done
+await worker.StopAsync();
+worker.Dispose();
+```
+
 `AudioDataConverter` provides static helpers for converting between decibel and linear amplitude values, formatting frequencies, durations, and audio levels, converting float samples to and from 16-bit PCM, extracting and interleaving audio channels, calculating RMS and peak levels, normalizing samples, and applying gain.
 
 ### Usage Example
