@@ -174,49 +174,67 @@ public sealed partial class MainForm : Form
     /// <summary>
     /// Handles start capture event.
     /// </summary>
+    /// <remarks>
+    /// Placeholder. Intended to call <see cref="AudioCaptureService.StartRecordingAsync"/>
+    /// to begin capturing audio from the selected input device.
+    /// </remarks>
     private void OnStartCapture(object? sender, EventArgs e)
     {
-        // TODO: Implement audio capture start
     }
 
     /// <summary>
     /// Handles stop capture event.
     /// </summary>
+    /// <remarks>
+    /// Placeholder. Intended to call <see cref="AudioCaptureService.StopRecordingAsync"/>
+    /// to stop the active audio capture session.
+    /// </remarks>
     private void OnStopCapture(object? sender, EventArgs e)
     {
-        // TODO: Implement audio capture stop
     }
 
     /// <summary>
     /// Handles show devices event.
     /// </summary>
+    /// <remarks>
+    /// Placeholder. Intended to enumerate available devices via
+    /// <see cref="AudioCaptureService.GetAvailableDevices"/> and present them in a dialog.
+    /// </remarks>
     private void OnShowDevices(object? sender, EventArgs e)
     {
-        // TODO: Show audio devices dialog
     }
 
     /// <summary>
     /// Handles show waveform visualization.
     /// </summary>
+    /// <remarks>
+    /// Placeholder. Intended to switch the active view to the waveform renderer,
+    /// driven by <see cref="WaveformService"/>.
+    /// </remarks>
     private void OnShowWaveform(object? sender, EventArgs e)
     {
-        // TODO: Switch to waveform view
     }
 
     /// <summary>
     /// Handles show spectrum visualization.
     /// </summary>
+    /// <remarks>
+    /// Placeholder. Intended to switch the active view to the spectrum renderer,
+    /// driven by <see cref="SpectrumAnalyzer"/>.
+    /// </remarks>
     private void OnShowSpectrum(object? sender, EventArgs e)
     {
-        // TODO: Switch to spectrum view
     }
 
     /// <summary>
     /// Handles show spectrogram visualization.
     /// </summary>
+    /// <remarks>
+    /// Placeholder. Intended to switch the active view to the spectrogram renderer,
+    /// driven by <see cref="SpectrogramAnalyzer"/>.
+    /// </remarks>
     private void OnShowSpectrogram(object? sender, EventArgs e)
     {
-        // TODO: Switch to spectrogram view
     }
 
     /// <summary>
