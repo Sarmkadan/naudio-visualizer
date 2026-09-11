@@ -2777,3 +2777,82 @@ Console.WriteLine($"JSON: {json}");
 string jsonWithSamples = frame.ToJson(includeSamples: true);
 Console.WriteLine($"JSON with samples: {jsonWithSamples}");
 ```
+
+## AudioDevice
+
+`AudioDevice` represents an audio input device (microphone, line-in, etc.).
+
+### Public Properties
+
+- `Id` - Unique device identifier (Guid)
+- `Name` - Human-readable device name (string)
+- `DeviceIndex` - Device index used by NAudio (int)
+- `Manufacturer` - Manufacturer name (string)
+- `ChannelCount` - Number of input channels (int)
+- `SupportedSampleRates` - Supported sample rates (Hz) (List<int>)
+- `DefaultSampleRate` - Default sample rate for this device (int)
+- `BitDepth` - Bit depth (16, 24, 32) (int)
+- `IsDefault` - Whether this is the default device (bool)
+- `IsAvailable` - Whether the device is currently available/connected (bool)
+- `LastStatusCheck` - Timestamp of last status check (DateTime)
+- `Capabilities` - Device capabilities flags (DeviceCapabilities enum)
+
+### Public Methods
+
+- `AudioDevice(string name, int deviceIndex, int channelCount)` - Initializes a new audio device
+- `IsValid()` - Validates that the device configuration is valid (bool)
+- `SupportsSampleRate(int sampleRate)` - Checks if a specific sample rate is supported (bool)
+- `AddSupportedSampleRate(int sampleRate)` - Adds a supported sample rate
+- `UpdateStatus(bool available)` - Updates the device availability status
+- `ToString()` - Returns string representation of the device
+
+### DeviceCapabilities Enum
+
+- `None` - No capabilities
+- `Microphone` - Device is a microphone
+- `LineIn` - Device is a line-in input
+- `Stereo` - Device supports stereo input
+- `Mono` - Device supports mono input
+- `HighResolution` - Device supports high-resolution audio
+- `RealTime` - Device supports real-time processing
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Domain.Models;
+
+// Creating an audio device
+var device = new AudioDevice("USB Microphone", 0, 2)
+{
+    Manufacturer = "AudioTech",
+    DefaultSampleRate = 48000,
+    BitDepth = 24,
+    IsAvailable = true
+};
+
+// Adding supported sample rates
+device.AddSupportedSampleRate(44100);
+device.AddSupportedSampleRate(48000);
+device.AddSupportedSampleRate(96000);
+
+// Checking device validity
+if (device.IsValid())
+{
+    Console.WriteLine($"Device {device.Name} is valid");
+}
+
+// Checking capabilities
+if (device.Capabilities.HasFlag(DeviceCapabilities.Microphone))
+{
+    Console.WriteLine($"{device.Name} is a microphone");
+}
+
+// Getting device info
+Console.WriteLine(device.ToString());
+// Output: USB Microphone (Device 0, 2 ch, 48000Hz)
+```
+
+### Related Classes
+
+- `AudioDeviceValidation` - Provides validation methods for AudioDevice instances
+- `AudioDeviceJsonExtensions` - Provides JSON serialization extensions for AudioDevice
