@@ -917,6 +917,50 @@ int deletedFileCount = FileSystemUtility.CleanupOldFiles("output", 30);
 long directorySize = FileSystemUtility.GetDirectorySize("output");
 ```
 
+## EventBus Extensions
+
+`EventBusExtensions` provides extension methods for <see cref="EventBus"/> to simplify common event bus operations.
+
+### Public Methods
+
+- `HasSubscribers<T>(this EventBus bus)` - Determines whether there are any subscribers for the specified event type.
+- `PublishIfSubscribed<T>(this EventBus bus, T @event)` - Publishes the event only if there are subscribers for the specified event type.
+- `UnsubscribeAllAndPublish<T>(this EventBus bus, T @event)` - Unsubscribes all handlers for the specified event type and then publishes the event.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Events;
+
+// Check if there are subscribers before publishing
+if (eventBus.HasSubscribers<MyEvent>())
+{
+    eventBus.Publish(new MyEvent { Data = "Hello" });
+}
+
+// Publish only if subscribers exist (more efficient)
+eventBus.PublishIfSubscribed(new MyEvent { Data = "Hello" });
+
+// Unsubscribe all handlers and then publish
+eventBus.UnsubscribeAllAndPublish(new MyEvent { Data = "Hello" });
+```
+
+`EventBusAsyncExtensions` provides asynchronous extension methods for <see cref="EventBus"/>.
+
+### Public Methods
+
+- `PublishAsync<T>(this EventBus bus, T eventData)` - Publishes an event asynchronously.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Events;
+using System.Threading.Tasks;
+
+// Publish an event asynchronously
+await eventBus.PublishAsync(new MyEvent { Data = "Hello" });
+```
+
 ## CacheStatistics
 
 `CacheStatistics` provides information about the cache usage and performance. It is returned by `CacheManager.GetStatistics()`.
