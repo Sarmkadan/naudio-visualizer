@@ -1043,6 +1043,126 @@ Console.WriteLine(json);
 
 This section lists all event classes in the audio visualization pipeline. Events enable decoupled communication between components.
 
+## Constants
+
+This section documents the constant values defined in `src/Constants/AudioConstants.cs`. These constants provide standardized values used throughout the application for audio processing, visualization rendering, colors, and text formatting.
+
+### AudioConstants
+
+Contains audio-related constants and default values.
+
+| Constant | Value | Description |
+|----------|-------|-------------|
+| SAMPLE_RATE_44100 | 44100 | Sample rate of 44,100 Hz |
+| SAMPLE_RATE_48000 | 48000 | Sample rate of 48,000 Hz |
+| SAMPLE_RATE_96000 | 96000 | Sample rate of 96,000 Hz |
+| SAMPLE_RATE_192000 | 192000 | Sample rate of 192,000 Hz |
+| DEFAULT_SAMPLE_RATE | 44100 | Default sample rate (44,100 Hz) |
+| DEFAULT_CHANNEL_COUNT | 2 | Default number of audio channels (2) |
+| DEFAULT_BIT_DEPTH | 16 | Default bit depth (16 bits) |
+| DEFAULT_BUFFER_SIZE | 4096 | Default buffer size (4096 samples) |
+| SILENCE_THRESHOLD | 0.01f | Silence threshold (amplitude 0.01, unitless) |
+| PEAK_DETECTION_THRESHOLD | 0.8f | Peak detection threshold (amplitude 0.8, unitless) |
+| CLIPPING_THRESHOLD | 0.95f | Clipping threshold (amplitude 0.95, unitless) |
+| DEFAULT_FFT_SIZE | 2048 | Default FFT size (2048 points) |
+| DEFAULT_FFT_SIZE_LARGE | 4096 | Default large FFT size (4096 points) |
+| FFT_MINIMUM | 256 | Minimum FFT size (256 points) |
+| FFT_MAXIMUM | 16384 | Maximum FFT size (16,384 points) |
+| FRAME_ANALYSIS_WINDOW_MS | 100 | Frame analysis window duration (100 ms) |
+| HISTORY_BUFFER_DURATION_SECONDS | 30 | History buffer duration (30 seconds) |
+| MIN_FREQUENCY_HZ | 20f | Minimum audible frequency (20 Hz) |
+| MAX_FREQUENCY_HZ | 20000f | Maximum audible frequency (20 000 Hz) |
+| NYQUIST_FREQUENCY_HZ_44100 | 22050f | Nyquist frequency for 44,100 Hz sample rate (22,050 Hz) |
+| NYQUIST_FREQUENCY_HZ_48000 | 24000f | Nyquist frequency for 48,000 Hz sample rate (24,000 Hz) |
+| DB_REFERENCE_LEVEL | 1f | Reference level for dB calculations (1.0, unitless) |
+| DB_MIN_LEVEL | -96f | Minimum dB level (-96 dB) |
+| DB_MAX_LEVEL | 0f | Maximum dB level (0 dB) |
+
+### VisualizationConstants
+
+Contains visualization rendering constants.
+
+| Constant | Value | Description |
+|----------|-------|-------------|
+| DEFAULT_RENDER_WIDTH | 1920 | Default render width (1920 pixels) |
+| DEFAULT_RENDER_HEIGHT | 1080 | Default render height (1080 pixels) |
+| MINIMUM_RENDER_WIDTH | 320 | Minimum render width (320 pixels) |
+| MINIMUM_RENDER_HEIGHT | 240 | Minimum render height (240 pixels) |
+| DEFAULT_TARGET_FPS | 60 | Default target frames per second (60 fps) |
+| MAXIMUM_TARGET_FPS | 144 | Maximum target frames per second (144 fps) |
+| DEFAULT_RENDERING_QUALITY | 85 | Default rendering quality (85 % JPEG quality or equivalent) |
+| DEFAULT_WAVEFORM_DOWNSAMPLING | 4 | Default waveform down‑sampling factor (4) |
+| DEFAULT_WAVEFORM_LINE_WIDTH | 1.5f | Default waveform line width (1.5 units) |
+| MINIMUM_WAVEFORM_LINE_WIDTH | 0.5f | Minimum waveform line width (0.5 units) |
+| MAXIMUM_WAVEFORM_LINE_WIDTH | 5f | Maximum waveform line width (5 units) |
+| DEFAULT_SPECTRUM_FFT_SIZE | 2048 | Default spectrum FFT size (2048 points) |
+| DEFAULT_SPECTRUM_SMOOTHING | 3 | Default spectrum smoothing factor (3) |
+| MAXIMUM_SPECTRUM_SMOOTHING | 10 | Maximum spectrum smoothing factor (10) |
+| DEFAULT_BAR_GAP | 1 | Default bar gap between spectrum bars (1 pixel) |
+| DEFAULT_SPECTROGRAM_TIME_WINDOW | 10f | Default spectrogram time window (10 seconds) |
+| MINIMUM_SPECTROGRAM_TIME_WINDOW | 1f | Minimum spectrogram time window (1 second) |
+| MAXIMUM_SPECTROGRAM_TIME_WINDOW | 60f | Maximum spectrogram time window (60 seconds) |
+| DEFAULT_SPECTROGRAM_FFT_SIZE | 2048 | Default spectrogram FFT size (2048 points) |
+
+### ColorConstants
+
+Contains color constants for visualization (ARGB format).
+
+| Constant | Value | Description |
+|----------|-------|-------------|
+| COLOR_BLACK | 0xFF000000 | Black color (ARGB 0xFF000000) |
+| COLOR_WHITE | 0xFFFFFFFF | White color (ARGB 0xFFFFFFFF) |
+| COLOR_DARK_BACKGROUND | 0xFF1a1a1a | Dark background color (ARGB 0xFF1A1A1A) |
+| COLOR_LIGHT_BACKGROUND | 0xFFf5f5f5 | Light background color (ARGB 0xFFF5F5F5) |
+| COLOR_WAVEFORM_DEFAULT | 0xFF00D9FF | Default waveform color (ARGB 0xFF00D9FF) |
+| COLOR_WAVEFORM_OUTLINE | 0xFFFFFFFF | Waveform outline color (ARGB 0xFFFFFFFF) |
+| COLOR_SPECTRUM_DEFAULT | 0xFF00FF00 | Default spectrum color (ARGB 0xFF00FF00) |
+| COLOR_SPECTRUM_PEAK | 0xFFFF0000 | Spectrum peak color (ARGB 0xFFFF0000) |
+| COLOR_SPECTRUM_AVERAGE | 0xFFFFFF00 | Spectrum average color (ARGB 0xFFFFFF00) |
+| COLOR_GRID_LINE | 0x33FFFFFF | Grid line color (ARGB 0x33FFFFFF, semi‑transparent white) |
+| COLOR_TEXT | 0xFFCCCCCC | Text color (ARGB 0xFFCCCCCC) |
+| COLOR_TEXT_LABEL | 0xFF999999 | Text label color (ARGB 0xFF999999) |
+| COLOR_BUTTON_NORMAL | 0xFF404040 | Normal button color (ARGB 0xFF404040) |
+| COLOR_BUTTON_HOVER | 0xFF606060 | Hovered button color (ARGB 0xFF606060) |
+| COLOR_BUTTON_PRESSED | 0xFF202020 | Pressed button color (ARGB 0xFF202020) |
+
+### TextConstants
+
+Contains font and text constants.
+
+| Constant | Value | Description |
+|----------|-------|-------------|
+| DEFAULT_FONT_SIZE | 12f | Default font size (12 points) |
+| LABEL_FONT_SIZE | 10f | Label font size (10 points) |
+| TITLE_FONT_SIZE | 16f | Title font size (16 points) |
+| DEFAULT_FONT_FAMILY | "Arial" | Default font family name ("Arial") |
+| MONOSPACE_FONT_FAMILY | "Courier New" | Monospace font family name ("Courier New") |
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Constants;
+
+// Access audio constants
+int sampleRate = AudioConstants.DEFAULT_SAMPLE_RATE;
+int bufferSize = AudioConstants.DEFAULT_BUFFER_SIZE;
+float silenceThreshold = AudioConstants.SILENCE_THRESHOLD;
+
+// Access visualization constants
+int renderWidth = VisualizationConstants.DEFAULT_RENDER_WIDTH;
+int targetFps = VisualizationConstants.DEFAULT_TARGET_FPS;
+int waveformDownsampling = VisualizationConstants.DEFAULT_WAVEFORM_DOWNSAMPLING;
+
+// Access color constants
+uint waveformColor = ColorConstants.COLOR_WAVEFORM_DEFAULT;
+uint spectrumPeakColor = ColorConstants.COLOR_SPECTRUM_PEAK;
+uint textColor = ColorConstants.COLOR_TEXT;
+
+// Access text constants
+float titleSize = TextConstants.TITLE_FONT_SIZE;
+string fontFamily = TextConstants.DEFAULT_FONT_FAMILY;
+```
+
 | Event Name | When Published | Key Properties |
 |------------|----------------|----------------|
 | AudioCaptureStartedEvent | Raised when audio capture starts. | DeviceId, SampleRate, ChannelCount, StartTime |
