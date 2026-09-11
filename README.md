@@ -55,6 +55,68 @@ string logsDir = PathUtility.GetLogsDirectory();
 string tempDir = PathUtility.GetTempDirectory();
 ```
 
+## PathUtilityValidation
+
+`PathUtilityValidation` provides validation helpers for PathUtility operations. Each method validates a specific PathUtility function and returns a list of validation problems (empty if valid).
+
+### Public Methods
+
+- `ValidateNormalizePath(string? path)` - Validates path normalization edge cases (null, empty, backslash conversion)
+- `ValidateCombine(IEnumerable<string> segments)` - Validates path combination operations (null, empty, valid segments)
+- `ValidateGetAbsolutePath(string relativePath)` - Validates absolute path conversion (null, empty, valid relative path)
+- `ValidateGetRelativePath(string fromPath, string toPath)` - Validates relative path calculation (null/empty inputs, valid paths)
+- `ValidateEnsureTrailingSeparator(string? path)` - Validates trailing separator addition (null, empty, add/preserve separator)
+- `ValidateRemoveTrailingSeparator(string? path)` - Validates trailing separator removal (null, empty, remove/preserve separator)
+- `ValidateIsAbsolute(string? path)` - Validates absolute path detection (null, empty, absolute/relative paths)
+- `ValidateIsRelative(string? path)` - Validates relative path detection (null, empty, relative/absolute paths)
+- `ValidateGetFilesRecursive(string? directoryPath)` - Validates recursive file enumeration (null, empty, non-existent directory)
+- `ValidateGetApplicationDirectory()` - Validates application directory retrieval (non-empty, existing directory)
+- `ValidateGetApplicationDataDirectory()` - Validates application data directory retrieval (non-empty, existing, contains "NAudioVisualizer")
+- `ValidateGetLogsDirectory()` - Validates logs directory retrieval (non-empty, existing, contains "logs")
+- `ValidateGetTempDirectory()` - Validates temp directory retrieval (non-empty, existing, contains "temp")
+- `ValidateIsValidPath(string? path)` - Validates path validity checking (null, empty, valid path)
+- `ValidateGetDirectorySize(string? directoryPath)` - Validates directory size calculation (null, empty, non-existent, valid directory)
+- `ValidateGenerateUniqueFileName(string filePath)` - Validates unique filename generation (null, empty, non-existent/existing files)
+- `IsValid(this IReadOnlyList<string>? problems)` - Extension method to check if validation passed (no problems)
+- `EnsureValid(this IReadOnlyList<string>? problems)` - Extension method to throw ArgumentException if validation failed
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Utilities;
+
+// Validate path normalization
+var normalizeProblems = PathUtilityValidation.ValidateNormalizePath("C:\\Test\\File.txt");
+if (normalizeProblems.IsValid())
+{
+    Console.WriteLine("Path normalization is valid");
+}
+
+// Validate path combination
+var combineProblems = PathUtilityValidation.ValidateCombine(new[] { "folder", "subfolder", "file.txt" });
+if (combineProblems.IsValid())
+{
+    Console.WriteLine("Path combination is valid");
+}
+
+// Validate absolute path conversion
+var absoluteProblems = PathUtilityValidation.ValidateGetAbsolutePath("test.txt");
+if (absoluteProblems.IsValid())
+{
+    Console.WriteLine("Absolute path conversion is valid");
+}
+
+// Using EnsureValid to throw on validation failure
+try
+{
+    PathUtilityValidation.ValidateNormalizePath(null).EnsureValid();
+}
+catch (ArgumentException ex)
+{
+    Console.WriteLine($"Validation failed: {ex.Message}");
+}
+```
+
 ## PerformanceProfiler
 
 `PerformanceProfiler` is a utility class for tracking and analyzing the execution time of operations. It provides comprehensive performance metrics including total, average, minimum, maximum, and median execution times, along with call counts. The profiler supports both manual timing with `RecordTime` and automatic timing using the disposable `TimingToken` pattern.
