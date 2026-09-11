@@ -1947,3 +1947,56 @@ if (restoredBuffer != null)
     Console.WriteLine($"Restored buffer capacity: {restoredBuffer.Capacity}");
 }
 ```
+
+## VST Plugin Model
+
+The VST plugin model provides a comprehensive set of types for managing plugin metadata, parameters, automation, and presets.
+
+### Enums
+
+- `VstPluginState` - Lifecycle states for a VST plugin instance (`Unloaded`, `Loaded`, `Initializing`, `Active`, `Suspended`, `Error`).
+- `VstPluginCategory` - Functional categories for classifying plugins (`Undefined`, `Effect`, `Synth`, `Analyzer`, `Spatial`, `Mastering`, `Dynamics`, `EQ`, `Reverb`, `Delay`, `Distortion`, `Modulation`).
+- `VstAutomationInterpolation` - Interpolation curves for automation lanes (`Linear`, `CubicSpline`, `Step`, `Cosine`).
+
+### Core Types
+
+- `VstParameter` - Represents a single automatable control. Tracks raw and normalised values (`0.0`–`1.0`), labels, units, and read-only/automated states. Includes `DenormalizeValue` for converting UI values back to the plugin's domain.
+- `VstParameterAutomationPoint` - A single timed value on an automation lane, storing `PositionSeconds`, `Value`, and the `Interpolation` shape to apply toward the next point.
+- `VstParameterAutomationLane` - A thread-safe, ordered collection of automation points for a specific plugin parameter. Supports adding/removing points, evaluating interpolated values at any timeline position, and clearing the lane.
+- `VstPreset` - A complete, named snapshot of a plugin's parameter state. Supports categories, tags, factory flags, author metadata, and stores parameter state either as raw binary chunks or explicit normalised values.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Domain.Models;
+
+// Define a parameter
+var cutoffParam = new VstParameter(
+    id: 0,
+    name: "Cutoff",
+    label: "Hz",
+    units: "Hz",
+    minValue: 20f,
+    maxValue: 20000f,
+    defaultValue: 1000f);
+
+// Create an automation lane for this parameter
+var lane = new VstParameterAutomationLane
+{
+    PluginId = Guid.NewGuid(),
+    ParameterId = 0,
+    ParameterName = "Cutoff"
+};
+
+// Add automation points with different interpolation curves
+lane.AddPoint(0.0, 0.0f, VstAutomationInterpolation.Linear);
+lane.AddPoint(2.5, 0.8f, VstAutomationInterpolation.Cosine);
+lane.AddPoint(5.0, 0.2f, VstAutomationInterpolation.Step);
+
+// Evaluate the lane at a specific time (e.g., 3.0 seconds)
+float? valueAt3s = lane.Evaluate(3.0);
+
+// Remove a point and clear the lane if needed
+lane.RemovePoint(2.5);
+lane.Clear();
+```
