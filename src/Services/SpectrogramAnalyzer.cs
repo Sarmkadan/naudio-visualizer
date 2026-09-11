@@ -148,6 +148,10 @@ public sealed class SpectrogramAnalyzer
     /// <summary>
     /// Gets the current spectrogram from buffered spectrum frames.
     /// </summary>
+    /// <returns>
+    /// A <see cref="SpectrogramData"/> assembled from the buffered spectrum frames,
+    /// or <c>null</c> when the buffer is empty.
+    /// </returns>
     public SpectrogramData? GetCurrentSpectrogram()
     {
         SpectrumData[] frames;
@@ -222,6 +226,7 @@ public sealed class SpectrogramAnalyzer
     /// <summary>
     /// Gets the number of frames currently in the buffer.
     /// </summary>
+    /// <returns>The number of spectrum frames currently retained in the rolling buffer.</returns>
     public int GetBufferFrameCount()
     {
         lock (_bufferLock)
