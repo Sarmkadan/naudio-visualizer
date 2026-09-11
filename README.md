@@ -2687,3 +2687,93 @@ bool isPressed = noteEvent.IsNotePressed(); // true
 string readable = noteEvent.ToReadableString(); // "C3 (Channel 1, Velocity 100)"
 string json = noteEvent.ToJson(indented: true);
 ```
+
+## AudioFrame
+
+`AudioFrame` represents a single frame of audio data with timing and sample information. It contains raw audio samples as floats normalized between -1.0 and 1.0, along with metadata such as timestamp, sample rate, channel count, and calculated metrics like peak amplitude and RMS energy.
+
+### Public Properties
+
+- `Id` - Unique identifier for this audio frame (Guid)
+- `Samples` - Raw audio samples as floats, normalized between -1.0 and 1.0
+- `ChannelCount` - Number of channels in this audio frame (mono=1, stereo=2)
+- `SampleRate` - Sample rate of the audio (e.g., 44100 Hz, 48000 Hz)
+- `Timestamp` - Timestamp when this frame was captured (UTC)
+- `FrameIndex` - Frame index in the audio stream sequence
+- `DurationSeconds` - Duration of this frame in seconds
+- `PeakAmplitude` - Peak amplitude value in this frame (-1.0 to 1.0)
+- `RmsEnergy` - RMS (Root Mean Square) energy value for this frame
+
+### Public Methods
+
+- `GetChannelData(int channelIndex)` - Gets the audio data for a specific channel
+- `IsValid()` - Validates that the frame data is consistent and valid
+
+### Extension Methods
+
+AudioFrame is extended with additional functionality through extension classes:
+
+- `AudioFrameExtensions` - Provides `CalculateAverageAmplitude()`, `GetChannelDataDictionary()`, and `Format()` methods
+- `AudioFrameValidation` - Provides `Validate()`, `IsValid()`, and `EnsureValid()` validation helpers
+- `AudioFrameJsonExtensions` - Provides `ToJson()` serialization method
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Domain.Models;
+
+// Create an audio frame with stereo samples
+var samples = new float[] { 0.1f, -0.2f, 0.3f, -0.4f, 0.5f, -0.6f };
+var frame = new AudioFrame(samples, channelCount: 2, sampleRate: 44100, frameIndex: 0);
+
+// Access properties
+Console.WriteLine($"Sample rate: {frame.SampleRate} Hz");
+Console.WriteLine($"Channel count: {frame.ChannelCount}");
+Console.WriteLine($"Duration: {frame.DurationSeconds:F3} seconds");
+Console.WriteLine($"Peak amplitude: {frame.PeakAmplitude:F3}");
+Console.WriteLine($"RMS energy: {frame.RmsEnergy:F3}");
+
+// Get channel data
+var leftChannel = frame.GetChannelData(0);
+var rightChannel = frame.GetChannelData(1);
+Console.WriteLine($"Left channel length: {leftChannel.Length}");
+Console.WriteLine($"Right channel length: {rightChannel.Length}");
+
+// Calculate average amplitude using extension method
+float avgAmplitude = frame.CalculateAverageAmplitude();
+Console.WriteLine($"Average amplitude: {avgAmplitude:F3}");
+
+// Get channel data as dictionary
+var channelDict = frame.GetChannelDataDictionary();
+Console.WriteLine($"Channel count in dict: {channelDict.Count}");
+
+// Format frame information
+string frameInfo = frame.Format();
+Console.WriteLine(frameInfo);
+
+// Validate frame data
+bool isValid = frame.IsValid();
+Console.WriteLine($"Frame is valid: {isValid}");
+
+// Using validation helpers
+var validationProblems = frame.Validate();
+if (validationProblems.Count == 0)
+{
+    Console.WriteLine("AudioFrame validation passed");
+}
+else
+{
+    foreach (var problem in validationProblems)
+    {
+        Console.WriteLine($"Validation issue: {problem}");
+    }
+}
+
+// Serialize to JSON (without samples)
+string json = frame.ToJson();
+Console.WriteLine($"JSON: {json}");
+
+// Serialize to JSON with samples included
+string jsonWithSamples = frame.ToJson(includeSamples: true);
+Console.WriteLine($"JSON with samples: {jsonWithSamples}");
+```
