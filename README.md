@@ -1314,6 +1314,63 @@ ColorScheme grayscaleScheme = ColorScheme.Grayscale;
 VisualizerTheme darkTheme = darkScheme.Theme;
 ```
 
+## GradientStop
+
+`GradientStop` defines a single color stop in a gradient, combining a normalized position in the [0, 1] range with an ARGB color value.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Domain.Models;
+
+// Create a gradient stop at position 0.0 (start) with green color
+var startStop = new GradientStop(0f, 0xFF00FF00);
+
+// Create a gradient stop at position 1.0 (end) with blue color
+var endStop = new GradientStop(1f, 0xFFFF0000);
+
+// Use in a VisualizerTheme
+var theme = new VisualizerTheme(
+    name: "Custom Theme",
+    backgroundColor: 0xFF000000,
+    waveformGradient: new[] { startStop, endStop },
+    spectrogramPalette: new[]
+    {
+        new GradientStop(0f, 0xFF000000),
+        new GradientStop(1f, 0xFFFFFFFF)
+    });
+```
+
+### GradientStopExtensions
+
+Provides useful extension methods for GradientStop operations:
+
+- `WithColor(uint newColor)` - Creates a new GradientStop with the same position but modified color
+- `WithPosition(float newPosition)` - Creates a new GradientStop with the same color but modified position
+- `GetArgbComponents(out byte alpha, out byte red, out byte green, out byte blue)` - Gets the ARGB color components
+- `WithAlpha(byte alpha)` - Creates a new gradient stop with adjusted alpha/transparency
+- `AdjustBrightness(float brightnessFactor)` - Creates a new gradient stop with adjusted brightness (0.0 to 2.0)
+- `AdjustContrast(float contrastFactor)` - Creates a new gradient stop with adjusted contrast (0.0 to 2.0)
+- `IndexIn(IReadOnlyList<GradientStop> stops)` - Gets the relative position of this gradient stop within a collection
+- `IsFirst(IReadOnlyList<GradientStop> stops)` - Determines whether this gradient stop is the first stop in the collection
+- `IsLast(IReadOnlyList<GradientStop> stops)` - Determines whether this gradient stop is the last stop in the collection
+- `Next(IReadOnlyList<GradientStop> stops)` - Gets the next gradient stop in the collection, or null if this is the last stop
+- `Previous(IReadOnlyList<GradientStop> stops)` - Gets the previous gradient stop in the collection, or null if this is the first stop
+- `Interpolate(GradientStop other, float t)` - Creates a new gradient stop that is the color-interpolated version between this stop and another
+- `HasSameColor(GradientStop other)` - Determines whether two gradient stops have the same color
+- `HasSamePosition(GradientStop other)` - Determines whether two gradient stops have the same position
+- `GetBrightness()` - Gets the perceived brightness of the gradient stop's color (0-255)
+- `IsDark()` - Determines whether the gradient stop's color is considered dark (brightness < 128)
+- `IsLight()` - Determines whether the gradient stop's color is considered light (brightness >= 128)
+
+### GradientStopValidation
+
+Provides validation helpers for GradientStop instances:
+
+- `Validate(GradientStop? value)` - Validates a GradientStop instance and returns a list of human-readable problems
+- `IsValid(GradientStop? value)` - Determines whether a GradientStop instance is valid
+- `EnsureValid(GradientStop? value)` - Ensures that a GradientStop instance is valid, throwing an exception if it is not
+
 ## AudioBuffer
 
 `AudioBuffer` is a circular buffer for storing audio data with efficient memory usage. It provides thread-safe operations for writing, reading, and managing audio samples with automatic overwriting of oldest samples when the buffer is full. The buffer tracks sample rate and channel count to enable duration calculations and provides statistics about buffer usage.
