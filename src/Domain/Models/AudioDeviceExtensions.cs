@@ -1,3 +1,8 @@
+// =============================================================================
+// Author: Vladyslav Zaiets | https://sarmkadan.com
+// CTO & Software Architect
+// =============================================================================
+
 namespace NAudioVisualizer.Domain.Models;
 
 /// <summary>
