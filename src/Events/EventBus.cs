@@ -177,8 +177,18 @@ public sealed class EventBus : IDisposable
         private readonly EventBus _eventBus;
         private readonly Type _eventType;
 
+        /// <summary>
+        /// Gets a value indicating whether the referenced handler is still alive.
+        /// </summary>
+        /// <returns><see langword="true"/> if the referenced handler has not been garbage collected; otherwise, <see langword="false"/>.</returns>
         public bool IsAlive => _handlerReference.IsAlive;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WeakEventSubscription"/> class.
+        /// </summary>
+        /// <param name="handler">The handler to reference weakly.</param>
+        /// <param name="eventBus">The event bus that owns this subscription.</param>
+        /// <param name="eventType">The type of event this subscription handles.</param>
         public WeakEventSubscription(Delegate handler, EventBus eventBus, Type eventType)
         {
             _handlerReference = new WeakReference(handler);
@@ -186,6 +196,10 @@ public sealed class EventBus : IDisposable
             _eventType = eventType;
         }
 
+        /// <summary>
+        /// Invokes the referenced handler with the given event data.
+        /// </summary>
+        /// <param name="eventData">The event data to deliver to the handler.</param>
         public void Handle(object eventData)
         {
             if (_handlerReference.Target is Delegate handler)
@@ -194,6 +208,9 @@ public sealed class EventBus : IDisposable
             }
         }
 
+        /// <summary>
+        /// Unsubscribes this subscription from the owning event bus.
+        /// </summary>
         public void Dispose() => _eventBus.Unsubscribe(this, _eventType);
     }
 
