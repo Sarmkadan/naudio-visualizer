@@ -1039,6 +1039,56 @@ string json = stats.ToJson(indented: true);
 Console.WriteLine(json);
 ```
 
+## Event Catalog
+
+This section lists all event classes in the audio visualization pipeline. Events enable decoupled communication between components.
+
+| Event Name | When Published | Key Properties |
+|------------|----------------|----------------|
+| AudioCaptureStartedEvent | Raised when audio capture starts. | DeviceId, SampleRate, ChannelCount, StartTime |
+| AudioCaptureStoppedEvent | Raised when audio capture stops. | DeviceId, TotalSamplesCaptured, Duration, StopTime |
+| AudioFrameCapturedEvent | Raised when a new audio frame is captured. | Frame, FrameSequenceNumber, ElapsedTime |
+| WaveformGeneratedEvent | Raised when waveform data is generated. | Waveform, GenerationTimeMs, FrameCount |
+| SpectrumAnalyzedEvent | Raised when spectrum analysis is complete. | Spectrum, AnalysisTimeMs, PeakMagnitude |
+| SpectrogramGeneratedEvent | Raised when spectrogram data is generated. | Spectrogram, GenerationTimeMs, TimeFramesProcessed |
+| VisualizationRenderStartedEvent | Raised when visualization rendering begins. | VisualizationType, Width, Height, StartTime |
+| VisualizationRenderCompletedEvent | Raised when visualization rendering completes. | VisualizationType, RenderTimeMs, FrameRate, CompletionTime |
+| VisualizationErrorEvent | Raised when an error occurs in the visualization pipeline. | ErrorMessage, Exception, ComponentName, ErrorCode, OccurredAt |
+| AudioDeviceConnectedEvent | Raised when audio device is connected. | DeviceId, DeviceName, MaxChannels, ConnectedAt |
+| AudioDeviceDisconnectedEvent | Raised when audio device is disconnected. | DeviceId, DeviceName, DisconnectedAt |
+| VisualizationSettingsChangedEvent | Raised when visualization settings are changed. | SettingName, OldValue, NewValue, ChangedAt |
+| PerformanceMetricsEvent | Raised when performance metrics are available. | CpuUsagePercent, MemoryUsageBytes, FramesProcessed, AverageFrameTimeMs, RecordedAt |
+| DataExportStartedEvent | Raised when data export starts. | ExportPath, Format, DataPointCount, StartTime |
+| DataExportCompletedEvent | Raised when data export completes. | ExportPath, Format, FileSize, ExportTimeMs, Success, CompletionTime |
+| ApplicationShuttingDownEvent | Raised when application is shutting down. | Reason, UptimeMs, ShutdownTime |
+
+### Example Subscribing via EventBus
+
+```csharp
+using NAudioVisualizer.Events;
+using NAudioVisualizer.Domain.Models;
+
+// Create an event bus instance
+var eventBus = new EventBus();
+
+// Subscribe to audio capture started events
+var subscription = eventBus.Subscribe<AudioCaptureStartedEvent>(e =>
+{
+    Console.WriteLine($"Audio capture started: Device {e.DeviceId}, {e.SampleRate}Hz, {e.ChannelCount} channels");
+});
+
+// Publish an event (typically done by services)
+eventBus.Publish(new AudioCaptureStartedEvent
+{
+    DeviceId = 0,
+    SampleRate = 44100,
+    ChannelCount = 2
+});
+
+// Dispose subscription when no longer needed
+subscription.Dispose();
+```
+
 ## Logger
 
 `Logger` writes diagnostic messages to a log file and, optionally, the console. Its constructor accepts an optional log file path and console-output flag, while `MinimumLevel` filters messages below the selected `LogLevel`; it provides `Debug`, `Info`, `Warn`, `Error`, and `Critical` methods, supports exception details for error and critical messages, implements the `ILogger` abstraction, and implements `IDisposable` so the underlying log writer can be released with `Dispose`.
