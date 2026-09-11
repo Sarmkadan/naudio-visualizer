@@ -548,6 +548,45 @@ float[] smoothed = benchmarks.ApplySmoothingFilter();
 WaveformServiceBenchmarks.Program.Main(new string[0]);
 ```
 
+## MathUtility
+
+`MathUtility` provides mathematical utility functions for audio processing. Includes functions for frequency conversions, dB calculations, window functions, and signal processing.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Utilities;
+
+// Convert frequency to MIDI note and back
+int midiNote = MathUtility.FrequencyToMidiNote(440f); // Returns 69 (A4)
+float frequency = MathUtility.MidiNoteToFrequency(69); // Returns 440f
+
+// Convert amplitude to decibels
+float db = MathUtility.AmplitudeToDb(0.5f); // Approximately -6.02f
+float amplitude = MathUtility.DbToAmplitude(-6f); // Approximately 0.5f
+
+// Calculate signal metrics
+float[] signal = new float[] { 0.2f, -0.5f, 0.8f, -0.3f };
+float rms = MathUtility.CalculateRms(signal); // RMS value
+float peak = MathUtility.CalculatePeak(signal); // 0.8f
+
+// Apply window functions
+float[] windowedSignal = new float[] { 0.2f, -0.5f, 0.8f, -0.3f };
+MathUtility.ApplyHannWindow(windowedSignal); // Applies Hann window in-place
+MathUtility.ApplyHammingWindow(windowedSignal); // Applies Hamming window in-place
+
+// Power of two operations (useful for FFT)
+int nextPowerOfTwo = MathUtility.NextPowerOf2(15); // Returns 16
+bool isPowerOfTwo = MathUtility.IsPowerOf2(16); // Returns true
+
+// Interpolation and mapping
+float interpolated = MathUtility.Lerp(0f, 10f, 0.5f); // Returns 5f
+float mapped = MathUtility.MapRange(0.5f, 0f, 1f, 0f, 100f); // Returns 50f
+
+// Distance calculation
+float distance = MathUtility.Distance(0f, 0f, 3f, 4f); // Returns 5f
+```
+
 ## MathUtilityTests
 
 `MathUtilityTests` is a test class that verifies the behavior of mathematical utility methods provided by the `MathUtility` class. It contains unit tests for frequency-to-MIDI conversion, amplitude-to-decibel conversion, RMS calculation, power-of-two operations, linear interpolation, and range mapping functions.
