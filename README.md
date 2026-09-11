@@ -2374,3 +2374,78 @@ catch (VisualizationException ex)
     }
 }
 ```
+
+## VisualizationData (base class)
+
+`VisualizationData` is an abstract base class for all visualization data types (waveform, spectrum, spectrogram) in the NAudioVisualizer domain model. It defines common properties and abstract methods that derived classes must implement.
+
+### Abstract Members
+
+- `GetData()` - Returns the visualization data as a float array
+- `Normalize()` - Normalizes the visualization data to 0-1 range
+- `IsValid()` - Validates that the visualization data is consistent
+
+### Shared Properties
+
+- `Id` - Unique identifier for this visualization data (Guid)
+- `VisualizationType` - Type of visualization (Waveform, Spectrum, Spectrogram)
+- `GeneratedAt` - Timestamp when this visualization was generated
+- `SourceFrame` - The audio frame from which this visualization was derived
+- `DataPointCount` - Number of data points in this visualization
+- `MinValue` - Minimum value in the visualization data
+- `MaxValue` - Maximum value in the visualization data
+- `IsNormalized` - Whether this visualization data has been normalized to 0-1 range
+
+### VisualizationType Enum
+
+The `VisualizationType` enumeration defines the supported visualization types:
+- `Waveform` - Represents waveform visualization data
+- `Spectrum` - Represents spectrum visualization data
+- `Spectrogram` - Represents spectrogram visualization data
+
+### Derived Classes
+
+Classes that derive from `VisualizationData` include:
+- `WaveformData` - Represents audio waveform visualization data
+- `SpectrumData` - Represents audio spectrum visualization data
+- `SpectrogramData` - Represents audio spectrogram visualization data
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Domain.Models;
+
+// Example of polymorphic usage with VisualizationData base class
+public void ProcessVisualization(VisualizationData visualization)
+{
+    // Access common properties
+    Console.WriteLine($"Visualization ID: {visualization.Id}");
+    Console.WriteLine($"Type: {visualization.VisualizationType}");
+    Console.WriteLine($"Generated at: {visualization.GeneratedAt}");
+    Console.WriteLine($"Data points: {visualization.DataPointCount}");
+    
+    // Validate the visualization data
+    if (!visualization.IsValid())
+    {
+        throw new InvalidOperationException("Invalid visualization data");
+    }
+    
+    // Get the raw data
+    float[] data = visualization.GetData();
+    
+    // Normalize if needed
+    if (!visualization.IsNormalized)
+    {
+        visualization.Normalize();
+    }
+    
+    // Process the data...
+}
+
+// Usage with concrete types
+var waveform = new WaveformData(samples, 1, 44100);
+ProcessVisualization(waveform);
+
+var spectrum = new SpectrumData(magnitudes, 44100, 2048);
+ProcessVisualization(spectrum);
+```
