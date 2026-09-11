@@ -2107,3 +2107,150 @@ float? valueAt3s = lane.Evaluate(3.0);
 lane.RemovePoint(2.5);
 lane.Clear();
 ```
+
+## Exceptions
+
+This section documents the custom exception classes used throughout the NAudioVisualizer application for handling various error conditions in audio processing, device management, and visualization rendering.
+
+### AudioDeviceException
+
+Thrown when an audio device is not found or inaccessible.
+
+#### Properties
+- `DeviceIndex`: The index of the audio device that caused the error (nullable)
+
+#### Constructors
+- `AudioDeviceException(string message)` - Basic constructor with error message
+- `AudioDeviceException(string message, int deviceIndex)` - Constructor with message and device index
+- `AudioDeviceException(string message, Exception innerException)` - Constructor with message and inner exception
+- `AudioDeviceException(string message, int deviceIndex, Exception innerException)` - Constructor with message, device index, and inner exception
+
+#### Extension Methods (AudioDeviceExceptionExtensions)
+- `GetDeviceIndexOrDefault(int defaultValue = -1)` - Returns the device index if set; otherwise returns the supplied defaultValue
+- `WithMessage(string newMessage)` - Creates a new AudioDeviceException with the same device index but a different message
+- `ToLogString()` - Returns a formatted string suitable for logging purposes
+- `HasDeviceIndex()` - Indicates whether the exception carries a device index
+
+### AudioStreamException
+
+Thrown when an error occurs during audio streaming or capture.
+
+#### Properties
+- `ErrorCode`: Error code for categorization (AudioStreamErrorCode enum)
+
+#### Constructors
+- `AudioStreamException(string message)` - Basic constructor with error message (sets ErrorCode to Unknown)
+- `AudioStreamException(string message, AudioStreamErrorCode errorCode)` - Constructor with message and error code
+- `AudioStreamException(string message, Exception innerException)` - Constructor with message and inner exception (sets ErrorCode to Unknown)
+- `AudioStreamException(string message, AudioStreamErrorCode errorCode, Exception innerException)` - Constructor with message, error code, and inner exception
+
+#### AudioStreamErrorCode Enum
+- `Unknown` = 0 - An unknown error occurred
+- `BufferOverflow` = 1 - The audio buffer overflowed
+- `BufferUnderrun` = 2 - The audio buffer underran
+- `DeviceDisconnected` = 3 - The audio device was disconnected
+- `FormatUnsupported` = 4 - The audio format is not supported
+- `PermissionDenied` = 5 - Permission to access the audio device was denied
+- `InitializationFailed` = 6 - Failed to initialize the audio device or stream
+- `HardwareError` = 7 - A hardware error occurred
+
+#### Extension Methods (AudioStreamExceptionExtensions)
+- `GetDetailedErrorMessage()` - Creates a detailed error message that includes the error code and any inner exception information
+- `IsRecoverable()` - Determines whether the exception represents a recoverable audio stream error
+- `IsFatal()` - Determines whether the exception represents a fatal audio stream error that cannot be recovered
+- `WithMessage(string newMessage)` - Creates a new exception with the same error code but a modified message
+- `GetUserFriendlyMessage()` - Gets a user-friendly description of the error code
+
+#### Validation Helper (AudioStreamExceptionValidation)
+- `Validate(AudioStreamException value)` - Validates an AudioStreamException instance and returns a list of validation problems
+- `IsValid(AudioStreamException value)` - Determines whether an AudioStreamException instance is valid
+- `EnsureValid(AudioStreamException value)` - Ensures that an AudioStreamException instance is valid, throwing an ArgumentException if not
+
+### VisualizationException
+
+Thrown when an error occurs during visualization generation or rendering.
+
+#### Properties
+- `VisualizationType`: Type of visualization that failed
+
+#### Constructors
+- `VisualizationException(string message)` - Basic constructor with error message
+- `VisualizationException(string message, string visualizationType)` - Constructor with message and visualization type
+- `VisualizationException(string message, Exception innerException)` - Constructor with message and inner exception
+- `VisualizationException(string message, string visualizationType, Exception innerException)` - Constructor with message, visualization type, and inner exception
+
+#### Extension Methods (VisualizationExceptionExtensions)
+- `GetFormattedMessage()` - Returns a formatted message that includes the exception message and the associated visualization type, if available
+- `IsVisualizationType(string visualizationType)` - Determines whether the exception is associated with a specific visualization type
+- `WithVisualizationType(string visualizationType)` - Creates a new VisualizationException with the same message and inner exception, but with the specified visualization type
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Exceptions;
+
+// Example: Handling audio device exceptions
+try
+{
+    var device = GetAudioDevice(-1); // Invalid device index
+}
+catch (AudioDeviceException ex) when (ex.HasDeviceIndex())
+{
+    Console.WriteLine($"Audio device error for device {ex.DeviceIndex}: {ex.Message}");
+    // Log detailed information
+    Logger.Error(ex.ToLogString());
+}
+catch (AudioDeviceException ex)
+{
+    Console.WriteLine($"Audio device error: {ex.Message}");
+}
+
+// Example: Handling audio stream exceptions with recovery logic
+try
+{
+    StartAudioCapture(deviceIndex, sampleRate, channelCount);
+}
+catch (AudioStreamException ex) when (ex.IsRecoverable())
+{
+    Console.WriteLine($"Recoverable audio error: {ex.GetUserFriendlyMessage()}");
+    // Attempt recovery or retry
+    RetryAudioCapture();
+}
+catch (AudioStreamException ex) when (ex.IsFatal())
+{
+    Console.WriteLine($"Fatal audio error: {ex.GetUserFriendlyMessage()}");
+    // Notify user and potentially shut down
+    NotifyUserOfAudioFailure(ex.GetUserFriendlyMessage());
+}
+
+// Example: Using validation helpers
+var streamException = new AudioStreamException("Buffer underrun occurred", AudioStreamErrorCode.BufferUnderrun);
+var validationProblems = streamException.Validate();
+if (validationProblems.Count == 0)
+{
+    Console.WriteLine("AudioStreamException is valid");
+}
+else
+{
+    foreach (var problem in validationProblems)
+    {
+        Console.WriteLine($"Validation issue: {problem}");
+    }
+}
+
+// Example: Visualization exception with type information
+try
+{
+    GenerateWaveformVisualization(audioData);
+}
+catch (VisualizationException ex)
+{
+    var formattedMessage = ex.GetFormattedMessage();
+    Console.WriteLine(formattedMessage);
+    // Add visualization type if missing
+    if (string.IsNullOrEmpty(ex.VisualizationType))
+    {
+        ex = ex.WithVisualizationType("Waveform");
+    }
+}
+```
