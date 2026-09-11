@@ -1077,6 +1077,172 @@ applicationLogger.Info("Logged through ILogger.");
 logger.Dispose();
 ```
 
+## ILogger and LoggerExtensions
+
+`ILogger` is a minimal logger abstraction used throughout the application, defining the contract for logging operations. `LoggerExtensions` provides extension methods for the `Logger` class that add convenient formatting and functionality.
+
+### ILogger Interface
+
+The `ILogger` interface defines the core logging contract:
+
+- `LogLevel MinimumLevel { get; set; }` - Gets or sets the minimum log level that will be emitted
+- `void Debug(string message)` - Logs a debug message
+- `void Info(string message)` - Logs an information message
+- `void Warn(string message)` - Logs a warning message
+- `void Error(string message, Exception? exception = null)` - Logs an error message, optionally with an exception
+- `void Critical(string message, Exception? exception = null)` - Logs a critical message, optionally with an exception
+
+### LogLevel Enum
+
+The `LogLevel` enumeration defines the available log levels:
+- `Debug = 0` - Detailed diagnostic information
+- `Info = 1` - General informational messages
+- `Warn = 2` - Warning messages
+- `Error = 3` - Error messages
+- `Critical = 4` - Critical messages
+
+### LoggerExtensions
+
+The `LoggerExtensions` class provides extension methods for the `Logger` class:
+
+#### Formatted Logging Methods
+- `void Debug(this Logger logger, string message, params object?[]? args)` - Logs a debug message with optional string formatting
+- `void Info(this Logger logger, string message, params object?[]? args)` - Logs an information message with optional string formatting
+- `void Warn(this Logger logger, string message, params object?[]? args)` - Logs a warning message with optional string formatting
+- `void Error(this Logger logger, string message, Exception? exception = null, params object?[]? args)` - Logs an error message with optional string formatting and exception
+- `void Critical(this Logger logger, string message, Exception? exception = null, params object?[]? args)` - Logs a critical message with optional string formatting and exception
+
+#### Additional Functionality
+- `IDisposable MethodScope(this Logger logger, [CallerMemberName] string methodName = "")` - Logs method entry and exit with timing information for performance monitoring
+- `long Time(this Logger logger, string operationName, Action action, params object?[]? args)` - Logs a message with the current execution time and returns the elapsed milliseconds
+- `bool If(this Logger logger, bool condition, string message, params object?[]? args)` - Conditionally logs a message based on a condition
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Infrastructure;
+
+// Create a logger instance
+var logger = new Logger(
+    logFilePath: "logs/application.log",
+    writeToConsole: true)
+{
+    MinimumLevel = LogLevel.Debug
+};
+
+// Basic logging
+logger.Debug("Starting audio analysis.");
+logger.Info("Audio analysis is running.");
+logger.Warn("The input signal is close to clipping.");
+
+try
+{
+    throw new InvalidOperationException("The audio device is unavailable.");
+}
+catch (Exception exception)
+{
+    logger.Error("Audio processing failed.", exception);
+    logger.Critical("The application cannot continue.", exception);
+}
+
+// Using extension methods with formatting
+logger.Info("Processing {Count} files at {Path}", fileCount, directoryPath);
+
+// Method scope timing
+using (logger.MethodScope())
+{
+    // Method execution here
+    PerformAudioProcessing();
+}
+
+// Timing operations
+long elapsedMs = logger.Time("AudioFileProcessing", () => 
+{
+    ProcessAudioFile("sample.wav");
+});
+
+// Conditional logging
+logger.If(debugMode, "Debug mode is enabled with level {Level}", logger.MinimumLevel);
+
+// Logger can be supplied wherever the ILogger abstraction is expected.
+ILogger applicationLogger = logger;
+applicationLogger.Info("Logged through ILogger.");
+
+// Release the underlying log writer when logging is complete.
+logger.Dispose();
+```
+
+### Implementing a Custom ILogger
+
+To create a custom logger implementation, implement the `ILogger` interface:
+
+```csharp
+using NAudioVisualizer.Infrastructure;
+
+public class CustomLogger : ILogger
+{
+    public LogLevel MinimumLevel { get; set; } = LogLevel.Info;
+    
+    public void Debug(string message)
+    {
+        if (MinimumLevel <= LogLevel.Debug)
+        {
+            // Custom debug logging implementation
+            WriteToCustomSink($"[DEBUG] {message}");
+        }
+    }
+    
+    public void Info(string message)
+    {
+        if (MinimumLevel <= LogLevel.Info)
+        {
+            // Custom info logging implementation
+            WriteToCustomSink($"[INFO] {message}");
+        }
+    }
+    
+    public void Warn(string message)
+    {
+        if (MinimumLevel <= LogLevel.Warn)
+        {
+            // Custom warning logging implementation
+            WriteToCustomSink($"[WARN] {message}");
+        }
+    }
+    
+    public void Error(string message, Exception? exception = null)
+    {
+        if (MinimumLevel <= LogLevel.Error)
+        {
+            // Custom error logging implementation
+            var formattedMessage = exception != null 
+                ? $"[ERROR] {message}\nException: {exception}"
+                : $"[ERROR] {message}";
+            WriteToCustomSink(formattedMessage);
+        }
+    }
+    
+    public void Critical(string message, Exception? exception = null)
+    {
+        if (MinimumLevel <= LogLevel.Critical)
+        {
+            // Custom critical logging implementation
+            var formattedMessage = exception != null 
+                ? $"[CRITICAL] {message}\nException: {exception}"
+                : $"[CRITICAL] {message}";
+            WriteToCustomSink(formattedMessage);
+        }
+    }
+    
+    private void WriteToCustomSink(string message)
+    {
+        // Implement your custom logging logic here
+        // For example: write to database, send to external service, etc.
+        Console.WriteLine(message); // Placeholder
+    }
+}
+```
+
 ## AudioProcessingWorker
 
 `AudioProcessingWorker` runs queued `ProcessingTask` instances asynchronously in the background. Use `Start` to begin processing, `EnqueueTask(ProcessingTask)` to add work, `GetQueueDepth` to inspect pending work, `ClearQueue` to remove and count pending tasks, `StopAsync` to stop gracefully, and `Dispose` to release the worker's resources.
