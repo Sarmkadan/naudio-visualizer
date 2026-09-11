@@ -2570,3 +2570,63 @@ The JSON output includes:
 - HopSize: Hop size between consecutive frames
 - ColormapType: Color mapping mode for visualization
 - Frames: Flattened spectrogram data (when includeMatrix is true)
+
+## SpectrumData
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Domain.Models;
+
+// Create spectrum data with sample magnitudes and frequencies
+var magnitudes = new float[] { 1f, 2f, 3f, 4f };
+var frequencies = new float[] { 100f, 200f, 300f, 400f };
+var spectrum = new SpectrumData(magnitudes, frequencies, 44100, 2048);
+
+// Access properties
+Console.WriteLine($"Sample rate: {spectrum.SampleRate} Hz");
+Console.WriteLine($"FFT size: {spectrum.FftSize}");
+Console.WriteLine($"Window type: {spectrum.WindowType}");
+Console.WriteLine($"Is log scale: {spectrum.IsLogScale}");
+Console.WriteLine($"Frequency resolution: {spectrum.FrequencyResolution} Hz/bin");
+Console.WriteLine($"Peak frequency: {spectrum.PeakFrequency} Hz");
+Console.WriteLine($"Peak magnitude: {spectrum.PeakMagnitude}");
+
+// Get magnitude spectrum data
+var data = spectrum.GetData();
+Console.WriteLine($"Magnitude data length: {data.Length}");
+
+// Get frequency values for each magnitude bin
+var freqValues = spectrum.GetFrequencies();
+Console.WriteLine($"Frequency data length: {freqValues.Length}");
+
+// Convert magnitude values to logarithmic scale (dB)
+spectrum.ConvertToLogScale();
+Console.WriteLine($"After log conversion - Is log scale: {spectrum.IsLogScale}");
+
+// Normalize spectrum data to 0-1 range
+spectrum.Normalize();
+Console.WriteLine($"After normalization - Min: {spectrum.MinValue}, Max: {spectrum.MaxValue}, Is normalized: {spectrum.IsNormalized}");
+
+// Apply smoothing to the spectrum using moving average
+spectrum.SmoothSpectrum(windowSize: 3);
+Console.WriteLine($"After smoothing - Peak frequency: {spectrum.PeakFrequency} Hz");
+
+// Validate the spectrum data integrity
+bool isValid = spectrum.IsValid();
+Console.WriteLine($"Spectrum data is valid: {isValid}");
+
+// Use extension methods
+bool hasValidPeak = spectrum.HasValidPeak();
+Console.WriteLine($"Has valid peak: {hasValidPeak}");
+
+int peakIndex = spectrum.GetPeakFrequencyIndex();
+Console.WriteLine($"Peak frequency index: {peakIndex}");
+
+// Normalize the spectrum data to a maximum magnitude of 1
+spectrum.NormalizeToOne();
+
+// JSON serialization
+string json = spectrum.ToJson();
+string jsonIndented = spectrum.ToJson(indented: true);
+```
