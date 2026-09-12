@@ -2688,6 +2688,37 @@ string readable = noteEvent.ToReadableString(); // "C3 (Channel 1, Velocity 100)
 string json = noteEvent.ToJson(indented: true);
 ```
 
+## ColorScheme
+
+`ColorScheme` provides predefined color scheme presets for audio visualization. Each preset bundles a `VisualizerTheme` with a descriptive name and a suggested `BackgroundStyle` hint. The class includes built-in Dark, Light, Neon, and Grayscale schemes, along with extension methods for querying and formatting.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Themes;
+
+// Access predefined color schemes
+ColorScheme dark = ColorScheme.Dark;
+ColorScheme light = ColorScheme.Light;
+ColorScheme neon = ColorScheme.Neon;
+ColorScheme grayscale = ColorScheme.Grayscale;
+
+// Check scheme properties
+Console.WriteLine($"Dark scheme: {dark.Name}");
+Console.WriteLine($"Light theme background: 0x{light.Theme.BackgroundColor:X8}");
+Console.WriteLine($"Neon waveform gradient stops: {neon.Theme.WaveformGradient.Count}");
+
+// Use extension methods
+bool isDark = dark.IsDark(); // true
+bool isPredefined = neon.IsPredefined(); // true
+string displayString = grayscale.ToDisplayString(); // "Grayscale (theme: Grayscale)"
+IReadOnlyList<ColorScheme> schemes = ColorSchemeExtensions.GetPredefinedSchemes(null);
+
+// JSON serialization
+string json = dark.ToJson(indented: true);
+Console.WriteLine(json);
+```
+
 ## AudioFrame
 
 `AudioFrame` represents a single frame of audio data with timing and sample information. It contains raw audio samples as floats normalized between -1.0 and 1.0, along with metadata such as timestamp, sample rate, channel count, and calculated metrics like peak amplitude and RMS energy.
