@@ -2887,3 +2887,115 @@ Console.WriteLine(device.ToString());
 
 - `AudioDeviceValidation` - Provides validation methods for AudioDevice instances
 - `AudioDeviceJsonExtensions` - Provides JSON serialization extensions for AudioDevice
+
+## VisualizationSettings
+
+`VisualizationSettings` contains configuration settings for audio visualization rendering, including theme, color scheme, rendering quality, and specific settings for waveform, spectrum, and spectrogram views.
+
+### Usage Example
+
+```csharp
+using NAudioVisualizer.Domain.Models;
+using NAudioVisualizer.Themes;
+
+// Create default visualization settings
+var settings = new VisualizationSettings();
+
+// Customize theme settings
+settings.Theme = VisualizerTheme.Presets.Accessible;
+settings.ColorScheme = ColorScheme.Dark;
+
+// Adjust rendering quality and performance
+settings.RenderingQuality = 90;
+settings.TargetFPS = 120;
+settings.EnableAntiAliasing = true;
+
+// Configure waveform appearance
+settings.WaveformSettings.LineColor = 0xFF00D9FF;
+settings.WaveformSettings.LineThickness = 2.0f;
+settings.WaveformSettings.ShowStereoSeparate = false;
+settings.WaveformSettings.AmplitudeZoom = 1.5f;
+
+// Configure spectrum appearance
+settings.SpectrumSettings.BarColor = 0xFF00FF00;
+settings.SpectrumSettings.UseLogFrequencyScale = true;
+settings.SpectrumSettings.UseLogMagnitudeScale = true;
+settings.SpectrumSettings.FrequencySmoothing = 5;
+settings.SpectrumSettings.TemporalSmoothing = 3;
+
+// Configure spectrogram appearance
+settings.SpectrogramSettings.Colormap = ColormapType.Plasma;
+settings.SpectrogramSettings.UseLogFrequencyScale = true;
+settings.SpectrogramSettings.UseLogMagnitudeScale = true;
+settings.SpectrogramSettings.TimeWindowSeconds = 15f;
+settings.SpectrogramSettings.Brightness = 1.2f;
+settings.SpectrogramSettings.Contrast = 1.1f;
+
+// General display settings
+settings.BackgroundColor = 0xFF1a1a1a;
+settings.ShowGrid = true;
+settings.ShowFrequencyLabels = true;
+settings.ShowTimeLabels = true;
+settings.TimeScale = 75f;
+settings.MaxFrequencyDisplay = 18000f;
+
+// Validate settings
+bool isValid = settings.IsValid();
+```
+
+### Public Properties
+
+- `Theme` - Color theme applied to waveform and spectrogram views. Defaults to `VisualizerTheme.Presets.Classic`.
+- `ColorScheme` - Preset color scheme applied to the visualizer. Setting this property also updates `Theme` to the scheme's underlying `ColorScheme.Theme`. Defaults to `null` (no scheme override; uses `Theme` directly).
+- `Id` - Unique settings identifier.
+- `WaveformSettings` - Waveform rendering settings.
+- `SpectrumSettings` - Spectrum rendering settings.
+- `SpectrogramSettings` - Spectrogram rendering settings.
+- `RenderingQuality` - General rendering quality (0-100).
+- `TargetFPS` - Target frames per second for visualization updates.
+- `EnableAntiAliasing` - Whether to enable anti-aliasing.
+- `BackgroundColor` - Background color (ARGB format).
+- `ShowGrid` - Whether to show grid lines.
+- `ShowFrequencyLabels` - Whether to show frequency labels.
+- `ShowTimeLabels` - Whether to show time labels.
+- `TimeScale` - Display scale: how many pixels per second of audio.
+- `MaxFrequencyDisplay` - Maximum frequency to display (Hz).
+
+### Public Methods
+
+- `IsValid()` - Validates the settings are valid (checks rendering quality, target FPS, time scale, and max frequency display).
+- `ToString()` - Returns a summary of the top-level scalar visualization settings.
+
+### Nested Classes
+
+#### WaveformRenderingSettings
+
+- `LineColor` - Waveform line color (ARGB format).
+- `LineThickness` - Line thickness in pixels.
+- `ShowStereoSeparate` - Whether to show stereo channels separately.
+- `AmplitudeZoom` - Vertical zoom level for waveform amplitude (0.1 to 10.0).
+- `DownsamplingFactor` - Downsampling factor for performance.
+- `ShowPeakIndicators` - Whether to show peak indicators.
+- `ToString()` - Returns a string representation of the WaveformRenderingSettings.
+
+#### SpectrumRenderingSettings
+
+- `BarColor` - Spectrum bar color (ARGB format).
+- `UseLogFrequencyScale` - Whether to use logarithmic frequency scale.
+- `UseLogMagnitudeScale` - Whether to use logarithmic magnitude scale (dB).
+- `FrequencySmoothing` - Frequency smoothing amount (0-10).
+- `TemporalSmoothing` - Temporal smoothing amount (0-10).
+- `ShowFrequencyGrid` - Whether to show frequency grid.
+- `BarGap` - Bar gap size in pixels.
+- `ToString()` - Returns a string representation of the SpectrumRenderingSettings.
+
+#### SpectrogramRenderingSettings
+
+- `Colormap` - Colormap type for spectrogram visualization.
+- `UseLogFrequencyScale` - Whether to use logarithmic frequency scale.
+- `UseLogMagnitudeScale` - Whether to use logarithmic magnitude scale.
+- `TimeWindowSeconds` - Time window size in seconds for spectrogram.
+- `Brightness` - Brightness adjustment (0.1 to 3.0).
+- `Contrast` - Contrast adjustment (0.5 to 2.0).
+- `ShowIntensityScale` - Whether to show intensity scale bar.
+- `ToString()` - Returns a string representation of the SpectrogramRenderingSettings.
