@@ -34,7 +34,8 @@ public class ColorSchemeExtensionsTests
         var scheme = ColorScheme.Dark;
         var brighter = scheme.WithBrightness(2.0f);
 
-        Assert.NotEqual(scheme.Theme.BackgroundColor, brighter.Theme.BackgroundColor);
+        // Brightness is a multiplicative factor, so pure black (the Dark background) stays black.
+        Assert.Equal(scheme.Theme.BackgroundColor, brighter.Theme.BackgroundColor);
         Assert.NotEqual(scheme.Theme.WaveformGradient[0].Color, brighter.Theme.WaveformGradient[0].Color);
     }
 
