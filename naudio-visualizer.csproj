@@ -6,10 +6,10 @@
     <UseWindowsForms>true</UseWindowsForms>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <PackageId>naudio-visualizer</PackageId>
-    <Version>1.0.0</Version>
+    <Version>2.0.2</Version>
     <Authors>Vladyslav Zaiets</Authors>
     <Description>A library for real-time audio visualization using NAudio and SkiaSharp.</Description>
-    <PackageTags>audio, naudio, visualization, csharp, dotnet</PackageTags>
+    <PackageTags>naudio;fft;spectrum;visualizer;skiasharp</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/sarmkadan/naudio-visualizer</PackageProjectUrl>
     <RepositoryUrl>https://github.com/sarmkadan/naudio-visualizer</RepositoryUrl>
@@ -17,6 +17,20 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>enable</Nullable>
+
+    <!-- Package validation (API/layout checks run during pack) -->
+    <EnablePackageValidation>true</EnablePackageValidation>
+
+    <!-- Deterministic builds; CI builds (GitHub Actions) are marked as CI so paths are normalized -->
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+
+    <!-- Symbols: separate .snupkg with portable PDBs; source is linked to the repo via SourceLink -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <DebugType>portable</DebugType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,6 +46,10 @@
     <PackageReference Include="NAudio" Version="2.2.1" />
     <PackageReference Include="SkiaSharp" Version="2.88.9" />
     <PackageReference Include="SkiaSharp.Views.Desktop.Common" Version="2.88.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.402" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>
