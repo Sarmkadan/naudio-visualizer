@@ -1,4 +1,127 @@
 // README.md
+## Getting Started
+
+This console example captures mono audio from the first input device, pushes each captured frame into an `AudioBuffer`, runs `SpectrumAnalyzer` every 100 ms to print the dominant frequency, and stops cleanly when you press a key.
+
+### Requirements
+
+- .NET 10 SDK
+- Target framework `net10.0-windows` (NAudio's `WaveInEvent` capture is Windows-only; the library builds elsewhere but capture only runs on Windows)
+- An audio input device
+
+### Install
+
+From NuGet:
+
+```bash
+dotnet new console -n AudioDemo -f net10.0-windows
+cd AudioDemo
+dotnet add package naudio-visualizer
+```
+
+Or, from a local clone, reference the project directly:
+
+```bash
+dotnet add reference path/to/naudio-visualizer/naudio-visualizer.csproj
+```
+
+The generated `.csproj` must target `net10.0-windows`:
+
+```xml
+<PropertyGroup>
+  <OutputType>Exe</OutputType>
+  <TargetFramework>net10.0-windows</TargetFramework>
+  <ImplicitUsings>enable</ImplicitUsings>
+  <Nullable>enable</Nullable>
+</PropertyGroup>
+```
+
+### Example
+
+Replace `Program.cs` with the following and run `dotnet run`:
+
+```csharp
+using NAudioVisualizer.Constants;
+using NAudioVisualizer.Domain.Models;
+using NAudioVisualizer.Services;
+
+const int sampleRate = AudioConstants.SAMPLE_RATE_48000;
+const int fftSize = AudioConstants.DEFAULT_FFT_SIZE;
+
+// Ring buffer sized to one FFT window, so Peek returns the newest fftSize samples.
+var buffer = new AudioBuffer(capacity: fftSize, sampleRate: sampleRate, channelCount: 1);
+var analyzer = new SpectrumAnalyzer();
+
+using var capture = new AudioCaptureService();
+
+capture.DeviceStatusChanged += (_, args) =>
+{
+    Console.WriteLine($"Device available: {args.IsAvailable}");
+
+    if (args.Exception is not null)
+    {
+        Console.WriteLine(args.Exception.Message);
+    }
+};
+
+capture.FrameCaptured += (_, args) =>
+{
+    if (args.Frame is not null)
+    {
+        buffer.Write(args.Frame.Samples);
+    }
+};
+
+var devices = capture.GetAvailableDevices();
+
+if (devices.Count == 0)
+{
+    Console.WriteLine("No audio input devices found.");
+    return;
+}
+
+capture.Initialize(deviceIndex: devices[0].DeviceIndex, sampleRate: sampleRate, channelCount: 1);
+await capture.StartRecordingAsync();
+
+using var cts = new CancellationTokenSource();
+var printing = PrintDominantFrequencyAsync(cts.Token);
+
+Console.WriteLine("Press any key to stop...");
+Console.ReadKey(intercept: true);
+
+cts.Cancel();
+await printing;
+await capture.StopRecordingAsync();
+
+async Task PrintDominantFrequencyAsync(CancellationToken token)
+{
+    using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(100));
+
+    try
+    {
+        while (await timer.WaitForNextTickAsync(token))
+        {
+            if (buffer.Count < fftSize)
+            {
+                continue;
+            }
+
+            var frame = new AudioFrame(buffer.Peek(fftSize), channelCount: 1, sampleRate, frameIndex: 0);
+            var spectrum = analyzer.AnalyzeSpectrum(frame, fftSize);
+            float dominant = analyzer.FindDominantFrequency(spectrum);
+
+            Console.WriteLine($"Dominant frequency: {dominant:F1} Hz");
+        }
+    }
+    catch (OperationCanceledException)
+    {
+        // Expected when a key is pressed and cts is cancelled.
+    }
+}
+```
+
+`AudioCaptureService` raises `FrameCaptured` on the capture thread with each chunk of samples, so the handler only writes to the buffer. The timer loop reads the newest window and analyzes it on the thread pool. Pressing a key cancels the loop, then `StopRecordingAsync()` stops the device, and `using` disposes the service.
+
 ## PathUtility
 
 `PathUtility` is a utility class for managing file paths and directories. It provides static methods for path normalization, validation, and manipulation, as well as directory operations and file existence checks.
