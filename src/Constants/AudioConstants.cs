@@ -28,6 +28,14 @@ public static class AudioConstants
     /// Sample rate of 192,000 Hz.
     /// </summary>
     public const int SAMPLE_RATE_192000 = 192000;
+    /// <summary>
+    /// Lowest accepted sample rate for capture and analysis (8,000 Hz).
+    /// </summary>
+    public const int MIN_SAMPLE_RATE = 8000;
+    /// <summary>
+    /// Highest accepted sample rate for capture and analysis (192,000 Hz).
+    /// </summary>
+    public const int MAX_SAMPLE_RATE = SAMPLE_RATE_192000;
 
     // Default values
     /// <summary>

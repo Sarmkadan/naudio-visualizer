@@ -6,6 +6,7 @@
 
 
 using System;
+using NAudioVisualizer.Configuration;
 using NAudioVisualizer.Constants;
 using NAudioVisualizer.Domain.Models;
 using NAudioVisualizer.Exceptions;
@@ -80,6 +81,30 @@ public sealed class SpectrumAnalyzer
     /// Default peak-hold decay rate in dB per second.
     /// </summary>
     public const float DefaultPeakHoldDecayDbPerSecond = 20f;
+
+    /// <summary>
+    /// Initializes a new analyzer with default <see cref="AnalyzerCaptureOptions"/>.
+    /// </summary>
+    public SpectrumAnalyzer() : this(new AnalyzerCaptureOptions())
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new analyzer with the specified options.
+    /// </summary>
+    /// <param name="options">The analyzer options. Validated immediately.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="options"/> is null.</exception>
+    /// <exception cref="ArgumentException">Thrown when one or more option values are invalid. The message lists every problem.</exception>
+    public SpectrumAnalyzer(AnalyzerCaptureOptions options)
+    {
+        options.EnsureValid();
+        Options = options;
+    }
+
+    /// <summary>
+    /// Gets the validated options this analyzer was constructed with.
+    /// </summary>
+    public AnalyzerCaptureOptions Options { get; }
 
     /// <summary>
     /// Generates a frequency magnitude spectrum from an audio frame using FFT.

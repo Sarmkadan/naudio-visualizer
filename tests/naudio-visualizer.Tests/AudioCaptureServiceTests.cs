@@ -5,7 +5,9 @@
 // CTO & Software Architect
 // =============================================================================
 
+using System;
 using NAudio.Wave;
+using NAudioVisualizer.Configuration;
 using NAudioVisualizer.Domain.Models;
 using NAudioVisualizer.Exceptions;
 using NAudioVisualizer.Services;
@@ -319,4 +321,30 @@ public class AudioCaptureServiceTests
         devices.Should().NotBeNull();
         // Device count may be 0 on headless systems
     }
+
+    [Fact]
+    public void Constructor_DefaultOptions_CreatesServiceWithoutDevice()
+    {
+        // Arrange & Act
+        using var service = new AudioCaptureService();
+
+        // Assert
+        service.Options.IsValid().Should().BeTrue();
+    }
+
+    [Fact]
+    public void Constructor_InvalidOptions_ThrowsArgumentExceptionWithAllProblems()
+    {
+        // Arrange
+        var options = new AnalyzerCaptureOptions { SampleRate = 4000, BufferMilliseconds = 0 };
+
+        // Act
+        Action act = () => _ = new AudioCaptureService(options);
+
+        // Assert
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*SampleRate must be between 8000 and 192000 Hz*")
+            .WithMessage("*BufferMilliseconds must be greater than 0*");
+    }
 }
+

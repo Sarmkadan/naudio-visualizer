@@ -7,6 +7,7 @@ using System;
 using System.Linq;
 using FluentAssertions;
 using NAudio.Dsp;
+using NAudioVisualizer.Configuration;
 using NAudioVisualizer.Domain.Models;
 using NAudioVisualizer.Services;
 using Xunit;
@@ -206,4 +207,41 @@ public class SpectrumAnalyzerTests
             float.IsNaN(mag).Should().BeFalse("Hann window magnitude should not be NaN");
         }
     }
+
+    [Fact]
+    public void Constructor_DefaultOptions_CreatesAnalyzer()
+    {
+        // Arrange & Act
+        var analyzer = new SpectrumAnalyzer();
+
+        // Assert
+        analyzer.Options.Should().NotBeNull();
+        analyzer.Options.IsValid().Should().BeTrue();
+    }
+
+    [Fact]
+    public void Constructor_InvalidOptions_ThrowsArgumentExceptionWithAllProblems()
+    {
+        // Arrange
+        var options = new AnalyzerCaptureOptions { FftSize = 1000, SmoothingFactor = 1.5f };
+
+        // Act
+        Action act = () => _ = new SpectrumAnalyzer(options);
+
+        // Assert
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("*FftSize must be a power of two*")
+            .WithMessage("*SmoothingFactor must be within [0, 1]*");
+    }
+
+    [Fact]
+    public void Constructor_NullOptions_ThrowsArgumentNullException()
+    {
+        // Arrange & Act
+        Action act = () => _ = new SpectrumAnalyzer(null!);
+
+        // Assert
+        act.Should().Throw<ArgumentNullException>();
+    }
 }
+

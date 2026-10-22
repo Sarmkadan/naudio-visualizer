@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NAudio.Wave;
+using NAudioVisualizer.Configuration;
 using NAudioVisualizer.Domain.Models;
 using NAudioVisualizer.Exceptions;
 using NAudioVisualizer.Constants;
@@ -41,6 +42,30 @@ public sealed class AudioCaptureService : IDisposable
 
     public event EventHandler<AudioFrameEventArgs>? FrameCaptured;
     public event EventHandler<AudioDeviceEventArgs>? DeviceStatusChanged;
+
+    /// <summary>
+    /// Initializes a new capture service with default <see cref="AnalyzerCaptureOptions"/>.
+    /// </summary>
+    public AudioCaptureService() : this(new AnalyzerCaptureOptions())
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new capture service with the specified options.
+    /// </summary>
+    /// <param name="options">The capture options. Validated immediately.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="options"/> is null.</exception>
+    /// <exception cref="ArgumentException">Thrown when one or more option values are invalid. The message lists every problem.</exception>
+    public AudioCaptureService(AnalyzerCaptureOptions options)
+    {
+        options.EnsureValid();
+        Options = options;
+    }
+
+    /// <summary>
+    /// Gets the validated options this service was constructed with.
+    /// </summary>
+    public AnalyzerCaptureOptions Options { get; }
 
     /// <summary>
     /// Gets all available audio input devices.
