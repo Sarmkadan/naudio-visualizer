@@ -122,6 +122,161 @@ async Task PrintDominantFrequencyAsync(CancellationToken token)
 
 `AudioCaptureService` raises `FrameCaptured` on the capture thread with each chunk of samples, so the handler only writes to the buffer. The timer loop reads the newest window and analyzes it on the thread pool. Pressing a key cancels the loop, then `StopRecordingAsync()` stops the device, and `using` disposes the service.
 
+## Render a WAV File to PNG (no audio device)
+
+This example reads a WAV file with NAudio's `AudioFileReader`, builds a waveform with `WaveformService` and a spectrum with `SpectrumAnalyzer`, and draws both with SkiaSharp into `waveform.png` and `spectrum.png`. It never opens an audio device, so it runs on machines without a sound card.
+
+The library has no `WaveformRenderer` type. The waveform is drawn directly with SkiaSharp from the `WaveformService` output.
+
+### Requirements
+
+- .NET 10 SDK, target `net10.0-windows` (same as the rest of the library)
+- NAudio **2.2.1** (`NAudio` package)
+- SkiaSharp **2.88.9** (`SkiaSharp` package)
+
+These are the versions pinned in `naudio-visualizer.csproj`. If you reference them directly, use the same versions to avoid conflicts. On Linux or macOS, also reference `SkiaSharp.NativeAssets.Linux` or `SkiaSharp.NativeAssets.macOS` at 2.88.9, because the native SkiaSharp library is not pulled in automatically there. Windows needs no extra package.
+
+### Setup
+
+```bash
+dotnet new console -n RenderAudio -f net10.0-windows
+cd RenderAudio
+dotnet add package naudio-visualizer
+dotnet add package NAudio --version 2.2.1
+dotnet add package SkiaSharp --version 2.88.9
+```
+
+From a local clone, replace the `naudio-visualizer` line with `dotnet add reference path/to/naudio-visualizer/naudio-visualizer.csproj`.
+
+### Example
+
+Replace `Program.cs` with the following, then run `dotnet run -- path/to/input.wav`:
+
+```csharp
+using NAudio.Wave;
+using NAudioVisualizer.Domain.Models;
+using NAudioVisualizer.Services;
+using SkiaSharp;
+
+if (args.Length != 1)
+{
+    Console.WriteLine("Usage: RenderAudio <input.wav>");
+    return;
+}
+
+const int width = 1200;
+const int height = 300;
+const int fftSize = 2048;
+
+using var reader = new AudioFileReader(args[0]);
+int sampleRate = reader.WaveFormat.SampleRate;
+float[] samples = ReadMono(reader);
+
+if (samples.Length == 0)
+{
+    Console.WriteLine("The file contains no audio samples.");
+    return;
+}
+
+// Waveform: keep every sample (downsamplingFactor 1), then take min/max per pixel column
+// so short peaks are not averaged away.
+var waveformService = new WaveformService();
+var fullFrame = new AudioFrame(samples, channelCount: 1, sampleRate, frameIndex: 0);
+WaveformData waveform = waveformService.GenerateWaveform(fullFrame, downsamplingFactor: 1);
+var columns = waveformService.DownsampleMinMax(waveform.GetData(), width);
+
+using (var surface = SKSurface.Create(new SKImageInfo(width, height)))
+{
+    SKCanvas canvas = surface.Canvas;
+    canvas.Clear(SKColors.Black);
+
+    using var paint = new SKPaint { Color = SKColors.LimeGreen, StrokeWidth = 1, IsAntialias = false };
+    float middle = height / 2f;
+
+    for (int x = 0; x < columns.Length; x++)
+    {
+        var (min, max) = columns[x];
+        canvas.DrawLine(x, middle - max * middle, x, middle - min * middle, paint);
+    }
+
+    SavePng(surface, "waveform.png");
+}
+
+// Spectrum: one Hann-windowed FFT of fftSize samples taken from the middle of the file.
+var analyzer = new SpectrumAnalyzer();
+int start = Math.Max(0, (samples.Length - fftSize) / 2);
+float[] window = samples.Skip(start).Take(fftSize).ToArray();
+var windowFrame = new AudioFrame(window, channelCount: 1, sampleRate, frameIndex: 0);
+SpectrumData spectrum = analyzer.AnalyzeSpectrum(windowFrame, fftSize);
+analyzer.NormalizeSpectrum(spectrum);
+float[] bins = spectrum.GetData();
+
+using (var surface = SKSurface.Create(new SKImageInfo(width, height)))
+{
+    SKCanvas canvas = surface.Canvas;
+    canvas.Clear(SKColors.Black);
+
+    using var paint = new SKPaint { Color = SKColors.DeepSkyBlue, Style = SKPaintStyle.Fill };
+    float barWidth = (float)width / bins.Length;
+
+    for (int i = 0; i < bins.Length; i++)
+    {
+        float barHeight = bins[i] * height;
+        canvas.DrawRect(i * barWidth, height - barHeight, barWidth, barHeight, paint);
+    }
+
+    SavePng(surface, "spectrum.png");
+}
+
+Console.WriteLine($"Wrote waveform.png and spectrum.png ({samples.Length} samples at {sampleRate} Hz).");
+
+// Mixes interleaved channels down to mono so both analyzers get one channel.
+static float[] ReadMono(AudioFileReader reader)
+{
+    int channels = reader.WaveFormat.Channels;
+    var buffer = new float[reader.WaveFormat.SampleRate * channels];
+    var mono = new List<float>();
+    int read;
+
+    while ((read = reader.Read(buffer, 0, buffer.Length)) > 0)
+    {
+        for (int i = 0; i + channels <= read; i += channels)
+        {
+            float sum = 0;
+            for (int c = 0; c < channels; c++)
+            {
+                sum += buffer[i + c];
+            }
+
+            mono.Add(sum / channels);
+        }
+    }
+
+    return mono.ToArray();
+}
+
+static void SavePng(SKSurface surface, string path)
+{
+    using SKImage image = surface.Snapshot();
+    using SKData data = image.Encode(SKEncodedImageFormat.Png, 100);
+    using FileStream output = File.Create(path);
+    data.SaveTo(output);
+}
+```
+
+### Expected output
+
+The console prints one line, for a 3-second, 44.1 kHz file:
+
+```
+Wrote waveform.png and spectrum.png (132300 samples at 44100 Hz).
+```
+
+Both PNGs are 1200 × 300 with a black background.
+
+- **`waveform.png`**: green vertical lines centred on y = 150, one per pixel column. Each column spans the minimum and maximum sample in its slice of the file. A 220 Hz tone at half amplitude appears as a band that fills about half the height. A louder section, such as a 1 kHz burst from 1 s to 2 s, shows as a taller block.
+- **`spectrum.png`**: blue bars rising from the bottom edge. The x-axis is linear from 0 Hz to 22,050 Hz (Nyquist for 44.1 kHz), so each bar is about 21.5 Hz wide. Bar height is normalized so the strongest bin reaches the top. For the test tone above, two tall peaks sit at the left edge, near 220 Hz and 1 kHz, and the rest of the plot stays near zero. The analysis uses one window from the middle of the file.
+
 ## PathUtility
 
 `PathUtility` is a utility class for managing file paths and directories. It provides static methods for path normalization, validation, and manipulation, as well as directory operations and file existence checks.
