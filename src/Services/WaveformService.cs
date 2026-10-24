@@ -37,7 +37,7 @@ public sealed class WaveformService
     /// Ratio by which the sample count is reduced for rendering performance.
     /// For example, a value of 4 averages every 4 input samples into one output sample.
     /// Valid range: 1 (no downsampling) to any positive integer. Defaults to
-    /// <see cref="AudioConstants.DEFAULT_WAVEFORM_DOWNSAMPLING"/> (4).
+    /// <see cref="NAudioVisualizer.Constants.VisualizationConstants.DEFAULT_WAVEFORM_DOWNSAMPLING"/> (4).
     /// </param>
     /// <returns>A <see cref="WaveformData"/> instance ready for rendering.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="frame"/> is null.</exception>
@@ -511,7 +511,7 @@ public sealed class WaveformService
     /// <param name="waveform">The waveform data to get zoom parameters from.</param>
     /// <param name="startSample">Output parameter for the start sample index.</param>
     /// <param name="lengthSamples">Output parameter for the zoom window length.</param>
-    /// <returns>True if zoom is active (length < original length), false otherwise.</returns>
+    /// <returns>True if zoom is active (length &lt; original length), false otherwise.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="waveform"/> is null.</exception>
     public bool GetZoomWindow(WaveformData waveform, out long startSample, out long lengthSamples)
     {

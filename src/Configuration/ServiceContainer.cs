@@ -6,10 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-using NAudioVisualizer.Data.Repositories;
-using NAudioVisualizer.Services;
-using NAudioVisualizer.Infrastructure;
 using NAudioVisualizer.Constants;
+using NAudioVisualizer.Data.Repositories;
+using NAudioVisualizer.Infrastructure;
+using NAudioVisualizer.Services;
 
 namespace NAudioVisualizer.Configuration;
 
@@ -157,7 +157,7 @@ public class ApplicationConfiguration
     /// </summary>
     public override string ToString()
     {
-        return GetType().FullName;
+        return GetType().FullName ?? GetType().Name;
     }
 }
 

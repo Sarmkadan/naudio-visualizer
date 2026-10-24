@@ -7,237 +7,236 @@ using System;
 using System.Text;
 using NAudioVisualizer.Configuration;
 
-namespace NaudioVisualizer.Services
+namespace NaudioVisualizer.Services;
+
+/// <summary>
+/// Renders a float spectrum frame as an ASCII bar chart.
+/// </summary>
+public sealed class AsciiSpectrumRenderer
 {
     /// <summary>
-    /// Renders a float spectrum frame as an ASCII bar chart.
+    /// Default width of the renderer in columns.
     /// </summary>
-    public sealed class AsciiSpectrumRenderer
+    public const int DefaultWidth = 80;
+
+    /// <summary>
+    /// Default height of the renderer in rows.
+    /// </summary>
+    public const int DefaultHeight = 20;
+
+    private readonly int _width;
+    private readonly int _height;
+    private readonly bool _logScale;
+    private readonly StringBuilder _renderBuffer;
+
+    // Peak‑hold support
+    private readonly bool _peakHoldEnabled;
+    private readonly float _peakFallRateDbPerSec;
+    private readonly float[] _peakValues;
+    private DateTime _lastRenderTime;
+    private const char PeakChar = '^';
+    private const float DefaultPeakFallRateDbPerSec = 10f;
+    private const float LogScaleOffset = 1e-6f;
+    private const double DecibelsPerAmplitudeDecade = 20.0;
+    private const double LinearAmplitudeBase = 10.0;
+
+    /// <summary>
+    /// Configuration key for peak hold enabled setting.
+    /// </summary>
+    private const string PeakHoldEnabledKey = "visualization.peakHoldEnabled";
+
+    /// <summary>
+    /// Configuration key for peak hold fall rate (dB per second).
+    /// </summary>
+    private const string PeakHoldFallRateDbPerSecKey = "visualization.peakHoldFallRateDbPerSec";
+
+    /// <summary>
+    /// Character used for empty spaces in the render output.
+    /// </summary>
+    private const char EmptyChar = ' ';
+
+    /// <summary>
+    /// Characters used for drawing bars from bottom to top.
+    /// </summary>
+    private static readonly char[] BarChars = new[]
     {
-        /// <summary>
-        /// Default width of the renderer in columns.
-        /// </summary>
-        public const int DefaultWidth = 80;
+        EmptyChar, '▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'
+    };
 
-        /// <summary>
-        /// Default height of the renderer in rows.
-        /// </summary>
-        public const int DefaultHeight = 20;
+    /// <summary>
+    /// Creates a new renderer.
+    /// </summary>
+    /// <param name="width">Number of columns in the output.</param>
+    /// <param name="height">Number of rows in the output.</param>
+    /// <param name="logScale">If true, values are log‑scaled before rendering.</param>
+    /// <param name="config">Optional configuration manager for peak‑hold settings.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when width or height is less than or equal to zero.</exception>
+    public AsciiSpectrumRenderer(int width = DefaultWidth, int height = DefaultHeight, bool logScale = false, ConfigurationManager? config = null)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
 
-        private readonly int _width;
-        private readonly int _height;
-        private readonly bool _logScale;
-        private readonly StringBuilder _renderBuffer;
+        _width = width;
+        _height = height;
+        _logScale = logScale;
+        _renderBuffer = new StringBuilder(_width * (_height + Environment.NewLine.Length));
 
-        // Peak‑hold support
-        private readonly bool _peakHoldEnabled;
-        private readonly float _peakFallRateDbPerSec;
-        private readonly float[] _peakValues;
-        private DateTime _lastRenderTime;
-        private const char PeakChar = '^';
-        private const float DefaultPeakFallRateDbPerSec = 10f;
-        private const float LogScaleOffset = 1e-6f;
-        private const double DecibelsPerAmplitudeDecade = 20.0;
-        private const double LinearAmplitudeBase = 10.0;
+        // Initialise peak‑hold state
+        _peakHoldEnabled = config?.GetValue<bool>(PeakHoldEnabledKey, false) ?? false;
+        _peakFallRateDbPerSec = config?.GetValue<float>(PeakHoldFallRateDbPerSecKey, DefaultPeakFallRateDbPerSec) ?? DefaultPeakFallRateDbPerSec;
+        _peakValues = new float[_width];
+        _lastRenderTime = DateTime.UtcNow;
+    }
 
-        /// <summary>
-        /// Configuration key for peak hold enabled setting.
-        /// </summary>
-        private const string PeakHoldEnabledKey = "visualization.peakHoldEnabled";
+    /// <summary>
+    /// Renders the given spectrum frame as an ASCII bar chart.
+    /// </summary>
+    /// <param name="spectrumFrame">Array of spectrum magnitudes.</param>
+    /// <returns>String containing the rendered chart.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when spectrumFrame is null.</exception>
+    public string Render(float[] spectrumFrame)
+    {
+        ArgumentNullException.ThrowIfNull(spectrumFrame);
+        if (spectrumFrame.Length == 0) return string.Empty;
 
-        /// <summary>
-        /// Configuration key for peak hold fall rate (dB per second).
-        /// </summary>
-        private const string PeakHoldFallRateDbPerSecKey = "visualization.peakHoldFallRateDbPerSec";
+        // Determine current console size and clamp rendering dimensions
+        int effectiveWidth = Math.Min(_width, Console.WindowWidth);
+        int effectiveHeight = Math.Min(_height, Console.WindowHeight);
 
-        /// <summary>
-        /// Character used for empty spaces in the render output.
-        /// </summary>
-        private const char EmptyChar = ' ';
+        // Map the spectrum to the desired width (clamped)
+        float[] mapped = MapToWidth(spectrumFrame, effectiveWidth);
 
-        /// <summary>
-        /// Characters used for drawing bars from bottom to top.
-        /// </summary>
-        private static readonly char[] BarChars = new[]
+        // Find maximum value for scaling
+        float max = 0f;
+        foreach (var v in mapped)
         {
-            EmptyChar, '▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'
-        };
-
-        /// <summary>
-        /// Creates a new renderer.
-        /// </summary>
-        /// <param name="width">Number of columns in the output.</param>
-        /// <param name="height">Number of rows in the output.</param>
-        /// <param name="logScale">If true, values are log‑scaled before rendering.</param>
-        /// <param name="config">Optional configuration manager for peak‑hold settings.</param>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when width or height is less than or equal to zero.</exception>
-        public AsciiSpectrumRenderer(int width = DefaultWidth, int height = DefaultHeight, bool logScale = false, ConfigurationManager? config = null)
-        {
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
-
-            _width = width;
-            _height = height;
-            _logScale = logScale;
-            _renderBuffer = new StringBuilder(_width * (_height + Environment.NewLine.Length));
-
-            // Initialise peak‑hold state
-            _peakHoldEnabled = config?.GetValue<bool>(PeakHoldEnabledKey, false) ?? false;
-            _peakFallRateDbPerSec = config?.GetValue<float>(PeakHoldFallRateDbPerSecKey, DefaultPeakFallRateDbPerSec) ?? DefaultPeakFallRateDbPerSec;
-            _peakValues = new float[_width];
-            _lastRenderTime = DateTime.UtcNow;
+            float val = ScaleValue(v);
+            if (val > max) max = val;
         }
 
-        /// <summary>
-        /// Renders the given spectrum frame as an ASCII bar chart.
-        /// </summary>
-        /// <param name="spectrumFrame">Array of spectrum magnitudes.</param>
-        /// <returns>String containing the rendered chart.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when spectrumFrame is null.</exception>
-        public string Render(float[] spectrumFrame)
+        // Avoid division by zero
+        if (max <= 0f) max = 1f;
+
+        // Update peak‑hold values if enabled
+        if (_peakHoldEnabled)
+            UpdatePeakValues(mapped, max);
+
+        // Build the chart line by line
+        _renderBuffer.Clear();
+        for (int row = 0; row < effectiveHeight; row++)
         {
-            ArgumentNullException.ThrowIfNull(spectrumFrame);
-            if (spectrumFrame.Length == 0) return string.Empty;
-
-            // Determine current console size and clamp rendering dimensions
-            int effectiveWidth = Math.Min(_width, Console.WindowWidth);
-            int effectiveHeight = Math.Min(_height, Console.WindowHeight);
-
-            // Map the spectrum to the desired width (clamped)
-            float[] mapped = MapToWidth(spectrumFrame, effectiveWidth);
-
-            // Find maximum value for scaling
-            float max = 0f;
-            foreach (var v in mapped)
+            int level = effectiveHeight - row; // 1‑based level from bottom
+            for (int col = 0; col < effectiveWidth; col++)
             {
-                float val = ScaleValue(v);
-                if (val > max) max = val;
-            }
+                float val = ScaleValue(mapped[col]);
+                int barHeight = (int)Math.Round((val / max) * effectiveHeight);
+                int peakHeight = (int)Math.Round((_peakValues[col] / max) * effectiveHeight);
 
-            // Avoid division by zero
-            if (max <= 0f) max = 1f;
-
-            // Update peak‑hold values if enabled
-            if (_peakHoldEnabled)
-                UpdatePeakValues(mapped, max);
-
-            // Build the chart line by line
-            _renderBuffer.Clear();
-            for (int row = 0; row < effectiveHeight; row++)
-            {
-                int level = effectiveHeight - row; // 1‑based level from bottom
-                for (int col = 0; col < effectiveWidth; col++)
+                char ch;
+                if (_peakHoldEnabled && peakHeight >= level && level > barHeight)
                 {
-                    float val = ScaleValue(mapped[col]);
-                    int barHeight = (int)Math.Round((val / max) * effectiveHeight);
-                    int peakHeight = (int)Math.Round((_peakValues[col] / max) * effectiveHeight);
-
-                    char ch;
-                    if (_peakHoldEnabled && peakHeight >= level && level > barHeight)
-                    {
-                        // Peak marker sits above the current bar
-                        ch = PeakChar;
-                    }
-                    else if (barHeight >= level)
-                    {
-                        ch = BarChars[Math.Min(barHeight, BarChars.Length - 1)];
-                    }
-                    else
-                    {
-                        ch = EmptyChar;
-                    }
-
-                    _renderBuffer.Append(ch);
+                    // Peak marker sits above the current bar
+                    ch = PeakChar;
                 }
-                _renderBuffer.AppendLine();
-            }
-
-            return _renderBuffer.ToString();
-        }
-
-        /// <summary>
-        /// Updates the stored peak values, applying decay based on elapsed time.
-        /// </summary>
-        private void UpdatePeakValues(float[] currentValues, float max)
-        {
-            DateTime now = DateTime.UtcNow;
-            double elapsedSec = (now - _lastRenderTime).TotalSeconds;
-            _lastRenderTime = now;
-
-            // Convert fall rate from dB/s to a linear decay factor
-            double decayFactor = Math.Pow(LinearAmplitudeBase, -_peakFallRateDbPerSec * elapsedSec / DecibelsPerAmplitudeDecade);
-
-            for (int i = 0; i < currentValues.Length; i++)
-            {
-                float current = currentValues[i];
-                if (current > _peakValues[i])
+                else if (barHeight >= level)
                 {
-                    _peakValues[i] = current;
+                    ch = BarChars[Math.Min(barHeight, BarChars.Length - 1)];
                 }
                 else
                 {
-                    _peakValues[i] = (float)(_peakValues[i] * decayFactor);
+                    ch = EmptyChar;
                 }
 
-                // Clamp to zero to avoid negative values due to rounding
-                if (_peakValues[i] < 0f) _peakValues[i] = 0f;
+                _renderBuffer.Append(ch);
             }
+            _renderBuffer.AppendLine();
         }
 
-        /// <summary>
-        /// Maps the input array to the target width by averaging blocks.
-        /// </summary>
-        private static float[] MapToWidth(float[] input, int targetWidth)
+        return _renderBuffer.ToString();
+    }
+
+    /// <summary>
+    /// Updates the stored peak values, applying decay based on elapsed time.
+    /// </summary>
+    private void UpdatePeakValues(float[] currentValues, float max)
+    {
+        DateTime now = DateTime.UtcNow;
+        double elapsedSec = (now - _lastRenderTime).TotalSeconds;
+        _lastRenderTime = now;
+
+        // Convert fall rate from dB/s to a linear decay factor
+        double decayFactor = Math.Pow(LinearAmplitudeBase, -_peakFallRateDbPerSec * elapsedSec / DecibelsPerAmplitudeDecade);
+
+        for (int i = 0; i < currentValues.Length; i++)
         {
-            if (input.Length <= targetWidth)
+            float current = currentValues[i];
+            if (current > _peakValues[i])
             {
-                // Pad with zeros if needed
-                var padded = new float[targetWidth];
-                Array.Copy(input, padded, input.Length);
-                return padded;
+                _peakValues[i] = current;
             }
-
-            float[] result = new float[targetWidth];
-            int blockSize = input.Length / targetWidth;
-            int remainder = input.Length % targetWidth;
-            int index = 0;
-
-            for (int i = 0; i < targetWidth; i++)
+            else
             {
-                int count = blockSize + (i < remainder ? 1 : 0);
-                float sum = 0f;
-                for (int j = 0; j < count; j++)
-                {
-                    sum += input[index++];
-                }
-                result[i] = sum / count;
+                _peakValues[i] = (float)(_peakValues[i] * decayFactor);
             }
 
-            return result;
+            // Clamp to zero to avoid negative values due to rounding
+            if (_peakValues[i] < 0f) _peakValues[i] = 0f;
+        }
+    }
+
+    /// <summary>
+    /// Maps the input array to the target width by averaging blocks.
+    /// </summary>
+    private static float[] MapToWidth(float[] input, int targetWidth)
+    {
+        if (input.Length <= targetWidth)
+        {
+            // Pad with zeros if needed
+            var padded = new float[targetWidth];
+            Array.Copy(input, padded, input.Length);
+            return padded;
         }
 
-        /// <summary>
-        /// Applies the configured scaling method to a spectrum magnitude.
-        /// </summary>
-        private float ScaleValue(float value)
+        float[] result = new float[targetWidth];
+        int blockSize = input.Length / targetWidth;
+        int remainder = input.Length % targetWidth;
+        int index = 0;
+
+        for (int i = 0; i < targetWidth; i++)
         {
-            return _logScale ? ApplyLogarithmicScale(value) : ApplyLinearScale(value);
+            int count = blockSize + (i < remainder ? 1 : 0);
+            float sum = 0f;
+            for (int j = 0; j < count; j++)
+            {
+                sum += input[index++];
+            }
+            result[i] = sum / count;
         }
 
-        /// <summary>
-        /// Leaves a spectrum magnitude on its linear scale.
-        /// </summary>
-        private static float ApplyLinearScale(float value)
-        {
-            return value;
-        }
+        return result;
+    }
 
-        /// <summary>
-        /// Applies base-10 logarithmic scaling with an offset to avoid log(0).
-        /// </summary>
-        private static float ApplyLogarithmicScale(float value)
-        {
-            return (float)Math.Log10(value + LogScaleOffset);
-        }
+    /// <summary>
+    /// Applies the configured scaling method to a spectrum magnitude.
+    /// </summary>
+    private float ScaleValue(float value)
+    {
+        return _logScale ? ApplyLogarithmicScale(value) : ApplyLinearScale(value);
+    }
+
+    /// <summary>
+    /// Leaves a spectrum magnitude on its linear scale.
+    /// </summary>
+    private static float ApplyLinearScale(float value)
+    {
+        return value;
+    }
+
+    /// <summary>
+    /// Applies base-10 logarithmic scaling with an offset to avoid log(0).
+    /// </summary>
+    private static float ApplyLogarithmicScale(float value)
+    {
+        return (float)Math.Log10(value + LogScaleOffset);
     }
 }

@@ -46,6 +46,7 @@ public sealed class MidiInputService : IDisposable
     public event EventHandler<MidiNoteEventArgs>? NoteReceived;
 
     // Added for held notes
+    /// <summary>Raised when the set of currently held MIDI notes changes.</summary>
     public event EventHandler<HeldNotesChangedEventArgs>? HeldNotesChanged;
 
     /// <summary>

@@ -7,16 +7,13 @@
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <PackageId>naudio-visualizer</PackageId>
     <Version>2.0.2</Version>
-    <Authors>Vladyslav Zaiets</Authors>
     <Description>A library for real-time audio visualization using NAudio and SkiaSharp.</Description>
     <PackageTags>naudio;fft;spectrum;visualizer;skiasharp</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/sarmkadan/naudio-visualizer</PackageProjectUrl>
     <RepositoryUrl>https://github.com/sarmkadan/naudio-visualizer</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Nullable>enable</Nullable>
 
     <!-- Package validation (API/layout checks run during pack) -->
     <EnablePackageValidation>true</EnablePackageValidation>

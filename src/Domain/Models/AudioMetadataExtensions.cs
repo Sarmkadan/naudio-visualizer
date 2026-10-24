@@ -2,68 +2,67 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace NAudioVisualizer.Domain.Models
+namespace NAudioVisualizer.Domain.Models;
+
+/// <summary>
+/// Provides extension methods for <see cref="AudioMetadata"/> that offer additional insight and utility operations.
+/// </summary>
+public static class AudioMetadataExtensions
 {
     /// <summary>
-    /// Provides extension methods for <see cref="AudioMetadata"/> that offer additional insight and utility operations.
+    /// Gets the current captured duration formatted as a human-readable string (hh:mm:ss.fff).
     /// </summary>
-    public static class AudioMetadataExtensions
+    /// <param name="metadata">The <see cref="AudioMetadata"/> instance.</param>
+    /// <returns>A formatted duration string.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="metadata"/> is <c>null</c>.</exception>
+    public static string GetFormattedDuration(this AudioMetadata metadata)
     {
-        /// <summary>
-        /// Gets the current captured duration formatted as a human-readable string (hh:mm:ss.fff).
-        /// </summary>
-        /// <param name="metadata">The <see cref="AudioMetadata"/> instance.</param>
-        /// <returns>A formatted duration string.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="metadata"/> is <c>null</c>.</exception>
-        public static string GetFormattedDuration(this AudioMetadata metadata)
-        {
-            ArgumentNullException.ThrowIfNull(metadata);
-            var ts = TimeSpan.FromSeconds(metadata.CurrentDurationSeconds);
-            return ts.ToString(@"hh\:mm\:ss\.fff", CultureInfo.InvariantCulture);
-        }
+        ArgumentNullException.ThrowIfNull(metadata);
+        var ts = TimeSpan.FromSeconds(metadata.CurrentDurationSeconds);
+        return ts.ToString(@"hh\:mm\:ss\.fff", CultureInfo.InvariantCulture);
+    }
 
-        /// <summary>
-        /// Retrieves the level metrics (current, peak and average) as a read-only dictionary.
-        /// </summary>
-        /// <param name="metadata">The <see cref="AudioMetadata"/> instance.</param>
-        /// <returns>An <see cref="IReadOnlyDictionary{TKey,TValue}"/> containing the level values.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="metadata"/> is <c>null</c>.</exception>
-        public static IReadOnlyDictionary<string, float> GetLevelMetrics(this AudioMetadata metadata)
-        {
-            ArgumentNullException.ThrowIfNull(metadata);
+    /// <summary>
+    /// Retrieves the level metrics (current, peak and average) as a read-only dictionary.
+    /// </summary>
+    /// <param name="metadata">The <see cref="AudioMetadata"/> instance.</param>
+    /// <returns>An <see cref="IReadOnlyDictionary{TKey,TValue}"/> containing the level values.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="metadata"/> is <c>null</c>.</exception>
+    public static IReadOnlyDictionary<string, float> GetLevelMetrics(this AudioMetadata metadata)
+    {
+        ArgumentNullException.ThrowIfNull(metadata);
 
-            return new Dictionary<string, float>(capacity: 3)
-            {
-                ["Current"] = metadata.CurrentLevel,
-                ["Peak"] = metadata.PeakLevel,
-                ["Average"] = metadata.AverageLevel
-            };
-        }
-
-        /// <summary>
-        /// Determines whether the capture session is experiencing performance issues.
-        /// </summary>
-        /// <param name="metadata">The <see cref="AudioMetadata"/> instance.</param>
-        /// <returns>
-        /// <c>true</c> if CPU usage exceeds 80 % or any buffer underruns have been recorded; otherwise, <c>false</c>.
-        /// </returns>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="metadata"/> is <c>null</c>.</exception>
-        public static bool HasPerformanceIssues(this AudioMetadata metadata)
+        return new Dictionary<string, float>(capacity: 3)
         {
-            ArgumentNullException.ThrowIfNull(metadata);
-            return metadata.CpuUsagePercent > 80f || metadata.BufferUnderruns > 0;
-        }
+            ["Current"] = metadata.CurrentLevel,
+            ["Peak"] = metadata.PeakLevel,
+            ["Average"] = metadata.AverageLevel
+        };
+    }
 
-        /// <summary>
-        /// Returns a concise description of the associated audio device, or a placeholder if none is set.
-        /// </summary>
-        /// <param name="metadata">The <see cref="AudioMetadata"/> instance.</param>
-        /// <returns>A string describing the audio device.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="metadata"/> is <c>null</c>.</exception>
-        public static string GetDeviceDescription(this AudioMetadata metadata)
-        {
-            ArgumentNullException.ThrowIfNull(metadata);
-            return metadata.AudioDevice?.ToString() ?? "No audio device assigned";
-        }
+    /// <summary>
+    /// Determines whether the capture session is experiencing performance issues.
+    /// </summary>
+    /// <param name="metadata">The <see cref="AudioMetadata"/> instance.</param>
+    /// <returns>
+    /// <c>true</c> if CPU usage exceeds 80 % or any buffer underruns have been recorded; otherwise, <c>false</c>.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="metadata"/> is <c>null</c>.</exception>
+    public static bool HasPerformanceIssues(this AudioMetadata metadata)
+    {
+        ArgumentNullException.ThrowIfNull(metadata);
+        return metadata.CpuUsagePercent > 80f || metadata.BufferUnderruns > 0;
+    }
+
+    /// <summary>
+    /// Returns a concise description of the associated audio device, or a placeholder if none is set.
+    /// </summary>
+    /// <param name="metadata">The <see cref="AudioMetadata"/> instance.</param>
+    /// <returns>A string describing the audio device.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="metadata"/> is <c>null</c>.</exception>
+    public static string GetDeviceDescription(this AudioMetadata metadata)
+    {
+        ArgumentNullException.ThrowIfNull(metadata);
+        return metadata.AudioDevice?.ToString() ?? "No audio device assigned";
     }
 }

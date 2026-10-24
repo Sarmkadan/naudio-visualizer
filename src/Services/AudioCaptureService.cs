@@ -11,9 +11,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using NAudio.Wave;
 using NAudioVisualizer.Configuration;
+using NAudioVisualizer.Constants;
 using NAudioVisualizer.Domain.Models;
 using NAudioVisualizer.Exceptions;
-using NAudioVisualizer.Constants;
 
 namespace NAudioVisualizer.Services;
 
@@ -40,7 +40,9 @@ public sealed class AudioCaptureService : IDisposable
     private bool _isDisposed;
     private bool _isRecording;
 
+    /// <summary>Raised for every frame of audio captured from the device.</summary>
     public event EventHandler<AudioFrameEventArgs>? FrameCaptured;
+    /// <summary>Raised when the status of the capture device changes.</summary>
     public event EventHandler<AudioDeviceEventArgs>? DeviceStatusChanged;
 
     /// <summary>
@@ -320,15 +322,21 @@ public sealed class AudioCaptureService : IDisposable
 
     private void ProcessAudioData(byte[] buffer, int bytesRecorded)
     {
-        var samples = ConvertBytesToFloatSamples(buffer, bytesRecorded);
-        _audioBuffer.Write(samples);
+        // Snapshot the fields: the compiler cannot keep their null-state across calls.
+        var audioBuffer = _audioBuffer;
+        var metadata = _currentMetadata;
+        if (audioBuffer is null || metadata is null)
+            return;
 
-        UpdateAudioMetadata(samples.Length);
+        var samples = ConvertBytesToFloatSamples(buffer, bytesRecorded);
+        audioBuffer.Write(samples);
+
+        UpdateAudioMetadata(metadata, samples.Length);
 
         float rmsLevel = CalculateRmsLevel(samples);
-        _currentMetadata.UpdateLevelMetrics(rmsLevel);
+        metadata.UpdateLevelMetrics(rmsLevel);
 
-        var frame = CreateAudioFrame(samples);
+        var frame = CreateAudioFrame(metadata, samples);
         FrameCaptured?.Invoke(this, new AudioFrameEventArgs { Frame = frame });
     }
 
@@ -346,20 +354,20 @@ public sealed class AudioCaptureService : IDisposable
         return samples;
     }
 
-    private void UpdateAudioMetadata(int samplesAdded)
+    private static void UpdateAudioMetadata(AudioMetadata metadata, int samplesAdded)
     {
-        _currentMetadata.TotalSamplesCaptured += samplesAdded;
-        _currentMetadata.TotalFramesProcessed++;
-        _currentMetadata.UpdateDuration();
+        metadata.TotalSamplesCaptured += samplesAdded;
+        metadata.TotalFramesProcessed++;
+        metadata.UpdateDuration();
     }
 
-    private AudioFrame CreateAudioFrame(float[] samples)
+    private static AudioFrame CreateAudioFrame(AudioMetadata metadata, float[] samples)
     {
         return new AudioFrame(
             samples,
-            _currentMetadata.ChannelCount,
-            _currentMetadata.SampleRate,
-            _currentMetadata.TotalFramesProcessed
+            metadata.ChannelCount,
+            metadata.SampleRate,
+            metadata.TotalFramesProcessed
         );
     }
 
@@ -451,6 +459,7 @@ public sealed class AudioCaptureService : IDisposable
             throw new ObjectDisposedException(GetType().Name);
     }
 
+    /// <summary>Stops any active capture and releases the underlying resources.</summary>
     public void Dispose()
     {
         if (_isDisposed)

@@ -298,13 +298,21 @@ public class AudioSessionRepository
 /// </summary>
 public class AudioSessionData
 {
+    /// <summary>Unique identifier of the recording session.</summary>
     public Guid SessionId { get; set; }
+    /// <summary>Time at which the session started.</summary>
     public DateTime StartTime { get; set; }
+    /// <summary>Time at which the session ended, or <c>null</c> while it is still active.</summary>
     public DateTime? EndTime { get; set; }
+    /// <summary>Audio device used for the session, if known.</summary>
     public AudioDevice? Device { get; set; }
+    /// <summary>Sample rate of the captured audio, in Hz.</summary>
     public int SampleRate { get; set; }
+    /// <summary>Number of audio channels in the captured stream.</summary>
     public int ChannelCount { get; set; }
+    /// <summary>Number of audio frames captured during the session.</summary>
     public int FrameCount { get; set; }
+    /// <summary>Time at which the most recent frame was captured.</summary>
     public DateTime LastFrameTime { get; set; } = DateTime.UtcNow;
 
     /// <summary>
@@ -332,10 +340,15 @@ public class AudioSessionData
 /// </summary>
 public class SessionRepositoryStats
 {
+    /// <summary>Total number of sessions stored in the repository.</summary>
     public int TotalSessionCount { get; set; }
+    /// <summary>Total number of frames across all sessions.</summary>
     public int TotalFrameCount { get; set; }
+    /// <summary>Number of sessions that have not yet ended.</summary>
     public int ActiveSessionCount { get; set; }
+    /// <summary>Number of sessions that have ended.</summary>
     public int CompletedSessionCount { get; set; }
+    /// <summary>Largest frame count of any single session.</summary>
     public int MaxFramesPerSession { get; set; }
 
     /// <summary>

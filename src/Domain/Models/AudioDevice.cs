@@ -135,6 +135,7 @@ public class AudioDevice
         LastStatusCheck = DateTime.UtcNow;
     }
 
+    /// <summary>Returns a short description of the device for display.</summary>
     public override string ToString() => $"{Name} (Device {DeviceIndex}, {ChannelCount} ch, {DefaultSampleRate}Hz)";
 }
 

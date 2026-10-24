@@ -6,11 +6,11 @@
 
 
 using System;
+using NAudio.Dsp;
 using NAudioVisualizer.Configuration;
 using NAudioVisualizer.Constants;
 using NAudioVisualizer.Domain.Models;
 using NAudioVisualizer.Exceptions;
-using NAudio.Dsp;
 
 namespace NAudioVisualizer.Services;
 

@@ -257,10 +257,15 @@ public sealed class AudioBuffer
 /// </summary>
 public class AudioBufferStats
 {
+    /// <summary>Total number of samples written to the buffer since it was created.</summary>
     public long SamplesWritten { get; set; }
+    /// <summary>Number of samples currently held in the buffer.</summary>
     public int CurrentCount { get; set; }
+    /// <summary>Maximum number of samples the buffer can hold.</summary>
     public int Capacity { get; set; }
+    /// <summary>Fill level of the buffer as a percentage of its capacity.</summary>
     public float FillPercentage { get; set; }
+    /// <summary>Duration of the buffered audio, in seconds.</summary>
     public double DurationSeconds { get; set; }
 
     /// <summary>

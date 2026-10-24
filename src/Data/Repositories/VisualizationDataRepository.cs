@@ -6,11 +6,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using NAudioVisualizer.Domain.Models;
-using System.Globalization;
 
 namespace NAudioVisualizer.Data.Repositories;
 

@@ -31,8 +31,8 @@ public class SpectrumData : VisualizationData
 
     /// <summary>
     /// FFT size used for spectrum analysis.
-    /// Must be a power of two in the range [<see cref="AudioConstants.FFT_MINIMUM"/>,
-    /// <see cref="AudioConstants.FFT_MAXIMUM"/>] (e.g. 512, 1024, 2048, 4096).
+    /// Must be a power of two in the range [<see cref="NAudioVisualizer.Constants.AudioConstants.FFT_MINIMUM"/>,
+    /// <see cref="NAudioVisualizer.Constants.AudioConstants.FFT_MAXIMUM"/>] (e.g. 512, 1024, 2048, 4096).
     /// Larger values increase frequency resolution (Hz per bin = SampleRate / FftSize)
     /// but require more CPU time per frame.
     /// </summary>

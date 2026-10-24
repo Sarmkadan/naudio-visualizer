@@ -1,7 +1,7 @@
 using System;
 
-namespace NAudioVisualizer.Exceptions
-{
+namespace NAudioVisualizer.Exceptions;
+
 	/// <summary>
 	/// Extension methods that add useful behaviour to <see cref="AudioDeviceException"/>.
 	/// </summary>
@@ -64,4 +64,3 @@ namespace NAudioVisualizer.Exceptions
 			return ex.DeviceIndex.HasValue;
 		}
 	}
-}

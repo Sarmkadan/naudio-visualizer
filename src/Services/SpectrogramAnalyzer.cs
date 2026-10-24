@@ -49,6 +49,7 @@ public sealed class SpectrogramAnalyzer
     private const int DefaultHopSize = 512;
     private const float DefaultTransientThreshold = 0.5f;
 
+    /// <summary>Initializes a new instance of the spectrogram analyzer with default settings.</summary>
     public SpectrogramAnalyzer()
     {
         _spectrumAnalyzer = new SpectrumAnalyzer();

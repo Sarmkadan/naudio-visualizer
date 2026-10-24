@@ -7,6 +7,9 @@
     <!-- Tests do not use WinForms; without this the host requires Microsoft.WindowsDesktop.App, which is absent on non-Windows machines. -->
     <DisableTransitiveFrameworkReferences>true</DisableTransitiveFrameworkReferences>
     <Version>2.0.2</Version>
+    <!-- MSB3277: SkiaSharp.Views.Desktop.Common 2.88.9 -> System.Windows.Extensions 6.0.0 -> System.Drawing.Common 6.0.0 conflicts with the 10.0 framework copy.
+         Tests do not exercise System.Drawing; remove once SkiaSharp is upgraded to a release that no longer pulls this in. -->
+    <NoWarn>$(NoWarn);MSB3277</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

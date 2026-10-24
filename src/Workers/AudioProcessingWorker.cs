@@ -197,6 +197,7 @@ public sealed class AudioProcessingWorker : IDisposable
         }
     }
 
+    /// <summary>Releases the resources used by the worker.</summary>
     public void Dispose()
     {
         if (_isRunning)
@@ -215,12 +216,18 @@ public sealed class AudioProcessingWorker : IDisposable
 /// </summary>
 public sealed class ProcessingTask
 {
+    /// <summary>Gets the display name of the task.</summary>
     public required string Name { get; init; }
+    /// <summary>Gets the delegate that performs the work of the task.</summary>
     public required Func<CancellationToken, Task> ExecuteAsync { get; init; }
+    /// <summary>Gets an optional callback invoked when the task throws.</summary>
     public Action<Exception>? OnError { get; init; }
+    /// <summary>Gets an optional callback invoked when the task completes.</summary>
     public Action? OnComplete { get; init; }
+    /// <summary>Gets the UTC time at which the task was created.</summary>
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
 
+    /// <summary>Returns the name of the task.</summary>
     public override string ToString()
     {
         return $"{Name} (CreatedAt: {CreatedAt:O})";

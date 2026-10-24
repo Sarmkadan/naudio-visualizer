@@ -51,7 +51,6 @@ public static class DateTimeUtility
     /// <exception cref="ArgumentNullException">If <paramref name="dateTime"/> is null.</exception>
     public static string ToIso8601(DateTime dateTime)
     {
-        ArgumentNullException.ThrowIfNull(dateTime);
         return dateTime.ToUniversalTime().ToString("o");
     }
 
@@ -95,8 +94,6 @@ public static class DateTimeUtility
     /// <exception cref="ArgumentNullException">If <paramref name="date2"/> is null.</exception>
     public static int DaysBetween(DateTime date1, DateTime date2)
     {
-        ArgumentNullException.ThrowIfNull(date1);
-        ArgumentNullException.ThrowIfNull(date2);
         return Math.Abs((date2.Date - date1.Date).Days);
     }
 
@@ -106,7 +103,6 @@ public static class DateTimeUtility
     /// <exception cref="ArgumentNullException">If <paramref name="dateTime"/> is null.</exception>
     public static bool IsToday(DateTime dateTime)
     {
-        ArgumentNullException.ThrowIfNull(dateTime);
         return dateTime.Date == DateTime.Today;
     }
 
@@ -116,7 +112,6 @@ public static class DateTimeUtility
     /// <exception cref="ArgumentNullException">If <paramref name="dateTime"/> is null.</exception>
     public static bool IsInPast(DateTime dateTime)
     {
-        ArgumentNullException.ThrowIfNull(dateTime);
         return dateTime < DateTime.UtcNow;
     }
 
@@ -126,7 +121,6 @@ public static class DateTimeUtility
     /// <exception cref="ArgumentNullException">If <paramref name="dateTime"/> is null.</exception>
     public static bool IsInFuture(DateTime dateTime)
     {
-        ArgumentNullException.ThrowIfNull(dateTime);
         return dateTime > DateTime.UtcNow;
     }
 
@@ -136,7 +130,6 @@ public static class DateTimeUtility
     /// <exception cref="ArgumentNullException">If <paramref name="dateTime"/> is null.</exception>
     public static string GetRelativeTime(DateTime dateTime)
     {
-        ArgumentNullException.ThrowIfNull(dateTime);
         var now = DateTime.UtcNow;
         var diff = now - dateTime;
 
@@ -167,7 +160,6 @@ public static class DateTimeUtility
     /// <exception cref="ArgumentNullException">If <paramref name="dateTime"/> is null.</exception>
     public static DateTime GetStartOfDay(DateTime dateTime)
     {
-        ArgumentNullException.ThrowIfNull(dateTime);
         return dateTime.Date;
     }
 
@@ -177,7 +169,6 @@ public static class DateTimeUtility
     /// <exception cref="ArgumentNullException">If <paramref name="dateTime"/> is null.</exception>
     public static DateTime GetEndOfDay(DateTime dateTime)
     {
-        ArgumentNullException.ThrowIfNull(dateTime);
         return dateTime.Date.AddDays(1).AddTicks(-1);
     }
 
@@ -187,7 +178,6 @@ public static class DateTimeUtility
     /// <exception cref="ArgumentNullException">If <paramref name="dateTime"/> is null.</exception>
     public static DateTime GetStartOfWeek(DateTime dateTime)
     {
-        ArgumentNullException.ThrowIfNull(dateTime);
         int daysToMonday = ((int)dateTime.DayOfWeek - (int)DayOfWeek.Monday + 7) % 7;
         return dateTime.Date.AddDays(-daysToMonday);
     }
@@ -198,7 +188,6 @@ public static class DateTimeUtility
     /// <exception cref="ArgumentNullException">If <paramref name="dateTime"/> is null.</exception>
     public static DateTime GetStartOfMonth(DateTime dateTime)
     {
-        ArgumentNullException.ThrowIfNull(dateTime);
         return new DateTime(dateTime.Year, dateTime.Month, 1);
     }
 
@@ -208,7 +197,6 @@ public static class DateTimeUtility
     /// <exception cref="ArgumentNullException">If <paramref name="dateTime"/> is null.</exception>
     public static DateTime GetEndOfMonth(DateTime dateTime)
     {
-        ArgumentNullException.ThrowIfNull(dateTime);
         var lastDay = DateTime.DaysInMonth(dateTime.Year, dateTime.Month);
         return new DateTime(dateTime.Year, dateTime.Month, lastDay);
     }
@@ -219,7 +207,6 @@ public static class DateTimeUtility
     /// <exception cref="ArgumentNullException">If <paramref name="birthDate"/> is null.</exception>
     public static int CalculateAge(DateTime birthDate)
     {
-        ArgumentNullException.ThrowIfNull(birthDate);
         var today = DateTime.Today;
         int age = today.Year - birthDate.Year;
 
@@ -235,7 +222,6 @@ public static class DateTimeUtility
     /// <exception cref="ArgumentNullException">If <paramref name="dateTime"/> is null.</exception>
     public static string GetDayName(DateTime dateTime)
     {
-        ArgumentNullException.ThrowIfNull(dateTime);
         return dateTime.ToString("dddd");
     }
 

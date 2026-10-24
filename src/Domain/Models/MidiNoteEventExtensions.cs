@@ -1,7 +1,7 @@
 using System;
 
-namespace NAudioVisualizer.Domain.Models
-{
+namespace NAudioVisualizer.Domain.Models;
+
 	/// <summary>
 	/// Provides extension methods for <see cref="MidiNoteEvent"/> to simplify common MIDI event operations.
 	/// </summary>
@@ -43,4 +43,3 @@ namespace NAudioVisualizer.Domain.Models
 			return $"{@event.NoteName} (Channel {@event.Channel}, Velocity {@event.Velocity})" ;
 		}
 	}
-}

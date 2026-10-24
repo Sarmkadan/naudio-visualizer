@@ -6,89 +6,88 @@
 using System;
 using System.Linq;
 
-namespace NaudioVisualizer.Utilities
+namespace NaudioVisualizer.Utilities;
+
+/// <summary>
+/// Extension methods for working with raw audio buffers represented as <c>float[]</c>.
+/// </summary>
+public static class AudioBufferExtensions
 {
+    private const float MinAmplitude = 1e-12f; // Prevent log(0)
+
     /// <summary>
-    /// Extension methods for working with raw audio buffers represented as <c>float[]</c>.
+    /// Returns the peak amplitude of the buffer expressed in decibels (dBFS).
     /// </summary>
-    public static class AudioBufferExtensions
+    /// <param name="buffer">The audio buffer.</param>
+    /// <returns>Peak level in dB.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
+    /// <remarks>
+    /// The level is computed as <c>20 * log10(peak)</c>, where <c>peak</c> is the largest
+    /// absolute sample value, clamped to a minimum of <see cref="MinAmplitude"/> to avoid
+    /// taking the logarithm of zero.
+    /// </remarks>
+    public static float PeakDb(this float[] buffer)
     {
-        private const float MinAmplitude = 1e-12f; // Prevent log(0)
+        if (buffer == null) throw new ArgumentNullException(nameof(buffer));
+        if (buffer.Length == 0) return float.NegativeInfinity;
 
-        /// <summary>
-        /// Returns the peak amplitude of the buffer expressed in decibels (dBFS).
-        /// </summary>
-        /// <param name="buffer">The audio buffer.</param>
-        /// <returns>Peak level in dB.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
-        /// <remarks>
-        /// The level is computed as <c>20 * log10(peak)</c>, where <c>peak</c> is the largest
-        /// absolute sample value, clamped to a minimum of <see cref="MinAmplitude"/> to avoid
-        /// taking the logarithm of zero.
-        /// </remarks>
-        public static float PeakDb(this float[] buffer)
+        float peak = buffer.Max(v => Math.Abs(v));
+        peak = Math.Max(peak, MinAmplitude);
+        return 20f * (float)Math.Log10(peak);
+    }
+
+    /// <summary>
+    /// Returns the RMS (root‑mean‑square) level of the buffer expressed in decibels (dBFS).
+    /// </summary>
+    /// <param name="buffer">The audio buffer.</param>
+    /// <returns>RMS level in dB.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
+    /// <remarks>
+    /// The level is computed as <c>20 * log10(rms)</c>, where <c>rms</c> is the root-mean-square
+    /// of the sample values, clamped to a minimum of <see cref="MinAmplitude"/> to avoid
+    /// taking the logarithm of zero.
+    /// </remarks>
+    public static float RmsDb(this float[] buffer)
+    {
+        if (buffer == null) throw new ArgumentNullException(nameof(buffer));
+        if (buffer.Length == 0) return float.NegativeInfinity;
+
+        double sumSquares = 0.0;
+        foreach (var sample in buffer)
         {
-            if (buffer == null) throw new ArgumentNullException(nameof(buffer));
-            if (buffer.Length == 0) return float.NegativeInfinity;
-
-            float peak = buffer.Max(v => Math.Abs(v));
-            peak = Math.Max(peak, MinAmplitude);
-            return 20f * (float)Math.Log10(peak);
+            sumSquares += sample * sample;
         }
 
-        /// <summary>
-        /// Returns the RMS (root‑mean‑square) level of the buffer expressed in decibels (dBFS).
-        /// </summary>
-        /// <param name="buffer">The audio buffer.</param>
-        /// <returns>RMS level in dB.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
-        /// <remarks>
-        /// The level is computed as <c>20 * log10(rms)</c>, where <c>rms</c> is the root-mean-square
-        /// of the sample values, clamped to a minimum of <see cref="MinAmplitude"/> to avoid
-        /// taking the logarithm of zero.
-        /// </remarks>
-        public static float RmsDb(this float[] buffer)
+        double rms = Math.Sqrt(sumSquares / buffer.Length);
+        rms = Math.Max(rms, MinAmplitude);
+        return 20f * (float)Math.Log10(rms);
+    }
+
+    /// <summary>
+    /// Normalises the buffer in‑place so that its peak amplitude matches the specified target.
+    /// </summary>
+    /// <param name="buffer">The audio buffer to normalise.</param>
+    /// <param name="targetPeak">The desired peak amplitude (linear, not dB).</param>
+    /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="targetPeak"/> is less than or equal to zero.</exception>
+    /// <remarks>
+    /// Each sample is multiplied by <c>targetPeak / currentPeak</c>, where <c>currentPeak</c> is
+    /// the largest absolute sample value. A silent buffer (peak of zero) is left unchanged.
+    /// </remarks>
+    public static void NormalizeInPlace(this float[] buffer, float targetPeak)
+    {
+        if (buffer == null) throw new ArgumentNullException(nameof(buffer));
+        if (targetPeak <= 0f) throw new ArgumentOutOfRangeException(nameof(targetPeak), "Target peak must be positive.");
+
+        if (buffer.Length == 0) return;
+
+        float currentPeak = buffer.Max(v => Math.Abs(v));
+        if (currentPeak <= 0f) return; // Silent buffer – nothing to scale
+
+        float scale = targetPeak / currentPeak;
+        for (int i = 0; i < buffer.Length; i++)
         {
-            if (buffer == null) throw new ArgumentNullException(nameof(buffer));
-            if (buffer.Length == 0) return float.NegativeInfinity;
-
-            double sumSquares = 0.0;
-            foreach (var sample in buffer)
-            {
-                sumSquares += sample * sample;
-            }
-
-            double rms = Math.Sqrt(sumSquares / buffer.Length);
-            rms = Math.Max(rms, MinAmplitude);
-            return 20f * (float)Math.Log10(rms);
-        }
-
-        /// <summary>
-        /// Normalises the buffer in‑place so that its peak amplitude matches the specified target.
-        /// </summary>
-        /// <param name="buffer">The audio buffer to normalise.</param>
-        /// <param name="targetPeak">The desired peak amplitude (linear, not dB).</param>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="targetPeak"/> is less than or equal to zero.</exception>
-        /// <remarks>
-        /// Each sample is multiplied by <c>targetPeak / currentPeak</c>, where <c>currentPeak</c> is
-        /// the largest absolute sample value. A silent buffer (peak of zero) is left unchanged.
-        /// </remarks>
-        public static void NormalizeInPlace(this float[] buffer, float targetPeak)
-        {
-            if (buffer == null) throw new ArgumentNullException(nameof(buffer));
-            if (targetPeak <= 0f) throw new ArgumentOutOfRangeException(nameof(targetPeak), "Target peak must be positive.");
-
-            if (buffer.Length == 0) return;
-
-            float currentPeak = buffer.Max(v => Math.Abs(v));
-            if (currentPeak <= 0f) return; // Silent buffer – nothing to scale
-
-            float scale = targetPeak / currentPeak;
-            for (int i = 0; i < buffer.Length; i++)
-            {
-                buffer[i] *= scale;
-            }
+            buffer[i] *= scale;
         }
     }
 }

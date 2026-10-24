@@ -84,6 +84,7 @@ public sealed partial class MainForm : Form
     private readonly ServiceContainer _serviceContainer;
     private readonly ApplicationSettings _settings;
 
+    /// <summary>Initializes a new instance of the main form.</summary>
     public MainForm(ServiceContainer serviceContainer, ApplicationSettings settings)
     {
         _serviceContainer = serviceContainer ?? throw new ArgumentNullException(nameof(serviceContainer));
@@ -175,7 +176,7 @@ public sealed partial class MainForm : Form
     /// Handles start capture event.
     /// </summary>
     /// <remarks>
-    /// Placeholder. Intended to call <see cref="AudioCaptureService.StartRecordingAsync"/>
+    /// Placeholder. Intended to call <c>AudioCaptureService.StartRecordingAsync</c>
     /// to begin capturing audio from the selected input device.
     /// </remarks>
     private void OnStartCapture(object? sender, EventArgs e)
@@ -186,7 +187,7 @@ public sealed partial class MainForm : Form
     /// Handles stop capture event.
     /// </summary>
     /// <remarks>
-    /// Placeholder. Intended to call <see cref="AudioCaptureService.StopRecordingAsync"/>
+    /// Placeholder. Intended to call <c>AudioCaptureService.StopRecordingAsync</c>
     /// to stop the active audio capture session.
     /// </remarks>
     private void OnStopCapture(object? sender, EventArgs e)
@@ -198,7 +199,7 @@ public sealed partial class MainForm : Form
     /// </summary>
     /// <remarks>
     /// Placeholder. Intended to enumerate available devices via
-    /// <see cref="AudioCaptureService.GetAvailableDevices"/> and present them in a dialog.
+    /// <c>AudioCaptureService.GetAvailableDevices</c> and present them in a dialog.
     /// </remarks>
     private void OnShowDevices(object? sender, EventArgs e)
     {
@@ -209,7 +210,7 @@ public sealed partial class MainForm : Form
     /// </summary>
     /// <remarks>
     /// Placeholder. Intended to switch the active view to the waveform renderer,
-    /// driven by <see cref="WaveformService"/>.
+    /// driven by <c>WaveformService</c>.
     /// </remarks>
     private void OnShowWaveform(object? sender, EventArgs e)
     {
@@ -220,7 +221,7 @@ public sealed partial class MainForm : Form
     /// </summary>
     /// <remarks>
     /// Placeholder. Intended to switch the active view to the spectrum renderer,
-    /// driven by <see cref="SpectrumAnalyzer"/>.
+    /// driven by <c>SpectrumAnalyzer</c>.
     /// </remarks>
     private void OnShowSpectrum(object? sender, EventArgs e)
     {
@@ -231,7 +232,7 @@ public sealed partial class MainForm : Form
     /// </summary>
     /// <remarks>
     /// Placeholder. Intended to switch the active view to the spectrogram renderer,
-    /// driven by <see cref="SpectrogramAnalyzer"/>.
+    /// driven by <c>SpectrogramAnalyzer</c>.
     /// </remarks>
     private void OnShowSpectrogram(object? sender, EventArgs e)
     {
@@ -253,6 +254,7 @@ public sealed partial class MainForm : Form
         );
     }
 
+    /// <summary>Releases the unmanaged resources and optionally the managed resources.</summary>
     protected override void Dispose(bool disposing)
     {
         if (disposing)

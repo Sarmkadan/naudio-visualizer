@@ -5,8 +5,8 @@
 // =============================================================================
 
 using System;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 
 namespace NAudioVisualizer.Utilities;
 
@@ -168,7 +168,7 @@ public static class PathUtilityValidation
         var problems = new List<string>();
 
         // Null - test with null literal
-        if (PathUtility.EnsureTrailingSeparator(null) != null)
+        if (PathUtility.EnsureTrailingSeparator(null!) != null)
             problems.Add("EnsureTrailingSeparator(null) should return null");
 
         // Empty string
@@ -201,7 +201,7 @@ public static class PathUtilityValidation
         var problems = new List<string>();
 
         // Null - test with null literal
-        if (PathUtility.RemoveTrailingSeparator(null) != null)
+        if (PathUtility.RemoveTrailingSeparator(null!) != null)
             problems.Add("RemoveTrailingSeparator(null) should return null");
 
         // Empty string
@@ -234,7 +234,7 @@ public static class PathUtilityValidation
         var problems = new List<string>();
 
         // Null - test with null literal
-        if (PathUtility.IsAbsolute(null))
+        if (PathUtility.IsAbsolute(null!))
             problems.Add("IsAbsolute(null) should return false");
 
         // Empty string
@@ -265,7 +265,7 @@ public static class PathUtilityValidation
         var problems = new List<string>();
 
         // Null - test with null literal
-        if (PathUtility.IsRelative(null))
+        if (PathUtility.IsRelative(null!))
             problems.Add("IsRelative(null) should return false");
 
         // Empty string
@@ -296,7 +296,7 @@ public static class PathUtilityValidation
         var problems = new List<string>();
 
         // Null - test with null literal
-        var files1 = PathUtility.GetFilesRecursive(null);
+        var files1 = PathUtility.GetFilesRecursive(null!);
         if (files1 != null && files1.GetEnumerator().MoveNext())
             problems.Add("GetFilesRecursive(null) should return empty enumerable");
 
@@ -400,7 +400,7 @@ public static class PathUtilityValidation
         var problems = new List<string>();
 
         // Null - test with null literal
-        if (PathUtility.IsValidPath(null))
+        if (PathUtility.IsValidPath(null!))
             problems.Add("IsValidPath(null) should return false");
 
         // Empty string
@@ -427,7 +427,7 @@ public static class PathUtilityValidation
         var problems = new List<string>();
 
         // Null
-        if (PathUtility.GetDirectorySize(null) != 0)
+        if (PathUtility.GetDirectorySize(null!) != 0)
             problems.Add("GetDirectorySize(null) should return 0");
 
         // Empty string
@@ -462,7 +462,7 @@ public static class PathUtilityValidation
         // Null
         try
         {
-            PathUtility.GenerateUniqueFileName(null);
+            PathUtility.GenerateUniqueFileName(null!);
             problems.Add("GenerateUniqueFileName(null) should throw exception");
         }
         catch { }
@@ -513,7 +513,7 @@ public static class PathUtilityValidation
             return;
 
         throw new ArgumentException(
-            $"PathUtility validation failed:{Environment.NewLine}{string.Join(Environment.NewLine, problems)}");
+            $"PathUtility validation failed:{Environment.NewLine}{string.Join(Environment.NewLine, problems!)}");
     }
 
     /// <summary>

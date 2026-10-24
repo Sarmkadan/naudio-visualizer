@@ -11,7 +11,7 @@ namespace NAudioVisualizer.Themes;
 /// <summary>
 /// Provides predefined color scheme presets for audio visualization.
 /// Each preset bundles a <see cref="VisualizerTheme"/> with a descriptive name
-/// and a suggested <see cref="BackgroundStyle"/> hint.
+/// and a suggested background style hint.
 /// </summary>
 public sealed class ColorScheme
 {
