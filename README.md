@@ -3277,3 +3277,7 @@ bool isValid = settings.IsValid();
 - `Contrast` - Contrast adjustment (0.5 to 2.0).
 - `ShowIntensityScale` - Whether to show intensity scale bar.
 - `ToString()` - Returns a string representation of the SpectrogramRenderingSettings.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
