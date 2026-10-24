@@ -1,29 +1,34 @@
 ---
-name: Bug Report
-about: Report a bug to help improve naudio-visualizer
-title: '[BUG] '
+name: Bug report
+about: Report a bug in naudio-visualizer
 labels: bug
-assignees: ''
 ---
 
 ## Description
 A clear and concise description of the bug.
 
 ## Steps to Reproduce
-1. Step one
-2. Step two
-3. Step three
+1. Go to '...'
+2. Click on '...'
+3. Play audio from '...'
+4. See error
 
 ## Expected Behavior
 What you expected to happen.
 
 ## Actual Behavior
-What actually happened.
+What actually happened. Include screenshots or a screen recording if they help.
 
 ## Environment
-- OS: [e.g., Windows 11, Ubuntu 22.04]
-- .NET Version: [e.g., 8.0]
-- Package Version: [e.g., 1.0.0]
+- OS: [e.g., Windows 11 23H2 (build 22631)]
+- .NET version: [e.g., 10.0.100 runtime, output of `dotnet --list-runtimes`]
+- naudio-visualizer version: [e.g., 1.0.0 or commit SHA]
+- Audio device: [e.g., Realtek Speakers, USB audio interface, default loopback device]
+- Audio driver: [e.g., Realtek 6.0.9xxx.x, WASAPI shared mode, sample rate 48 kHz]
 
-## Additional Context
-Add any other context, logs, or screenshots.
+## Logs
+Paste relevant log output here. Wrap it in a code block:
+
+```text
+paste logs here
+```

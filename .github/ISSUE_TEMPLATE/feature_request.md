@@ -1,19 +1,17 @@
 ---
-name: Feature Request
-about: Suggest a feature for naudio-visualizer
-title: '[FEATURE] '
+name: Feature request
+about: Suggest an idea or improvement for naudio-visualizer
 labels: enhancement
-assignees: ''
 ---
 
-## Problem Statement
-A clear description of the problem or limitation.
+## Problem
+A clear description of the problem or limitation you are running into. Why does it matter?
 
 ## Proposed Solution
-Describe the solution you'd like to see.
+Describe the change you would like to see.
 
-## Alternatives Considered
-List any alternative solutions or workarounds you've considered.
+## Alternatives
+Other approaches you have considered, or workarounds you currently use.
 
 ## Additional Context
-Any other context, mockups, or examples.
+Any other context, mockups, examples, or references.
