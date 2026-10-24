@@ -1,93 +1,66 @@
 # Contributing to naudio-visualizer
 
-Thank you for considering contributing to naudio-visualizer!
+Thanks for helping out. This guide covers setup, building, testing, code style, and the PR process.
 
 ## Prerequisites
 
-- [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
-- Windows OS (the application targets `net10.0-windows` with WinForms)
+- **.NET SDK 10.0.100 or newer in the 10.0 line.** `global.json` pins `10.0.100` with `rollForward: latestMinor`.
+- **Windows** to run the app (WinForms, `net10.0-windows`). The project also builds on Linux and macOS because `EnableWindowsTargeting` is set, but the app itself only runs on Windows.
 - Git
 
-## Building Locally
+## Build
 
 ```bash
-# Clone the repository
-git clone https://github.com/your-username/naudio-visualizer.git
-cd naudio-visualizer
-
-# Restore dependencies
 dotnet restore
-
-# Build in Release mode
-dotnet build --configuration Release
-
-# Or use the Makefile
-make build
+dotnet build -c Release     # or: make build
 ```
 
-## Running Tests
+`make publish` produces a publish folder in `./publish`.
+
+## Test
 
 ```bash
-# Run all tests
-dotnet test --configuration Release --verbosity normal
-
-# Run with detailed output and save results
-dotnet test --configuration Release --verbosity normal --logger "trx;LogFileName=test-results.trx"
-
-# Run a specific test project
-dotnet test tests/naudio-visualizer.Tests/ --configuration Release
+dotnet test -c Release      # or: make test
 ```
 
-## Code Style
+Tests live in `tests/naudio-visualizer.Tests/` and use xUnit, FluentAssertions and Moq. Benchmarks are in `tests/naudio-visualizer.Benchmarks/` and run with `dotnet run -c Release --project tests/naudio-visualizer.Benchmarks`. They are not part of CI.
 
-The project uses an `.editorconfig` to enforce consistent formatting. Key conventions:
+## Code style
 
-- **Indentation**: 4 spaces for C# files
-- **Namespaces**: File-scoped namespace declarations
-- **Nullability**: Nullable reference types enabled (`#nullable enable`)
-- **Naming**:
-  - Types and public members: `PascalCase`
-  - Private fields: `_camelCase` with underscore prefix
-  - Interfaces: `IPascalCase`
-- **Documentation**: XML doc comments required for all public APIs
-- Braces on new lines (`Allman` style)
-- Warnings are treated as errors — keep the build clean
+Formatting rules live in `.editorconfig`. Check them with `make lint` (`dotnet format --verify-no-changes`) and fix with `make format-fix`.
 
-## Workflow
+- 4-space indentation, LF line endings, Allman braces (opening brace on its own line).
+- File-scoped namespaces. Root namespace is `NAudioVisualizer`; sub-namespaces mirror folders.
+- Every `.cs` file starts with `#nullable enable`. Nullable reference types are enabled project-wide.
+- Public members need XML doc comments (`GenerateDocumentationFile` is on).
+- One type per file. Companion files are named `<Type>Extensions.cs`, `<Type>JsonExtensions.cs`, or `<Type>Validation.cs`.
+- Constants are `UPPER_SNAKE_CASE` and live in `AudioConstants` or `VisualizationConstants`.
+- Custom exceptions derive from a base and end in `Exception`.
+- Tests: one class per target type, named `<Type>Tests`. Methods are named `Method_Scenario_Expected` and use FluentAssertions `.Should()`.
 
-### 1. Fork and branch
+## Branches and commits
 
-```bash
-git checkout -b feature/your-feature-name
-# or
-git checkout -b fix/issue-description
-```
+Branch from `main` using a prefix and a short description:
 
-### 2. Make your changes
+- `feature/<short-description>`
+- `fix/<short-description>`
+- `docs/<short-description>`
+- `chore/<short-description>`
 
-- Write clean, focused commits with descriptive messages
-- Use conventional commit prefixes: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`
-- Add or update tests for any changed behaviour
-- Ensure all existing tests still pass
+Use conventional commit prefixes: `feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `test:`.
 
-### 3. Submit a Pull Request
+## Pull requests
 
-1. Push your branch to your fork
-2. Open a PR against the `main` branch
-3. Fill in the PR template completely
-4. Link any related issues with `Closes #<issue-number>`
+1. Keep PRs small and focused on one change. Split unrelated work into separate PRs.
+2. Add or update tests for any behaviour you change.
+3. Run `make lint`, `dotnet build -c Release` and `dotnet test -c Release` locally first.
+4. Open the PR against `main` and fill in `.github/PULL_REQUEST_TEMPLATE.md`. Describe what changed and why, and how you tested it. Link related issues with `Closes #<n>`.
+5. CI (GitHub Actions, `windows-latest`) runs build and test on every PR to `main`. All checks must pass before merge.
 
-PRs require passing CI checks before merging.
+## Reporting issues
 
-## Reporting Issues
-
-Use [GitHub Issues](https://github.com/sarmkadan/naudio-visualizer/issues). Include:
-
-- Steps to reproduce
-- Expected vs. actual behaviour
-- OS version and .NET SDK version (`dotnet --version`)
-- Relevant log output or error messages
+Use [GitHub Issues](https://github.com/sarmkadan/naudio-visualizer/issues). Include steps to reproduce, expected and actual behaviour, the output of `dotnet --version`, your Windows version, and any relevant logs.
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under the [MIT License](LICENSE).
+By contributing, you agree that your contributions are licensed under the [MIT License](LICENSE).
