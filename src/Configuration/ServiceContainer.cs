@@ -130,8 +130,10 @@ public class ApplicationConfiguration
         // Register services with factory pattern (lazy initialization)
         container.RegisterFactory<AudioCaptureService>(c => new AudioCaptureService());
         container.RegisterFactory<WaveformService>(c => new WaveformService());
+        container.RegisterFactory<MidiInputService>(c => new MidiInputService());
+        container.RegisterFactory<AsciiSpectrumRenderer>(c => new AsciiSpectrumRenderer());
         container.RegisterFactory<SpectrumAnalyzer>(c => new SpectrumAnalyzer());
-        container.RegisterFactory<SpectrogramAnalyzer>(c => new SpectrogramAnalyzer());
+        container.RegisterFactory<SpectrogramAnalyzer>(c => new SpectrogramAnalyzer(c.Resolve<SpectrumAnalyzer>()));
 
         return container;
     }

@@ -50,9 +50,12 @@ public sealed class SpectrogramAnalyzer
     private const float DefaultTransientThreshold = 0.5f;
 
     /// <summary>Initializes a new instance of the spectrogram analyzer with default settings.</summary>
-    public SpectrogramAnalyzer()
+    /// <param name="spectrumAnalyzer">
+    /// Spectrum analyzer used to transform each frame. When <c>null</c>, a default instance is created.
+    /// </param>
+    public SpectrogramAnalyzer(SpectrumAnalyzer? spectrumAnalyzer = null)
     {
-        _spectrumAnalyzer = new SpectrumAnalyzer();
+        _spectrumAnalyzer = spectrumAnalyzer ?? new SpectrumAnalyzer();
         _spectrumBuffer = new Queue<SpectrumData>();
         _maxFramesInBuffer = DefaultMaxFramesInBuffer;
     }

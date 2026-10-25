@@ -7,7 +7,7 @@ using System;
 using System.Text;
 using NAudioVisualizer.Configuration;
 
-namespace NaudioVisualizer.Services;
+namespace NAudioVisualizer.Services;
 
 /// <summary>
 /// Renders a float spectrum frame as an ASCII bar chart.

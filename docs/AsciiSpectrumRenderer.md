@@ -33,7 +33,7 @@ The `AsciiSpectrumRenderer` class converts an array of spectrum magnitudes into 
 ## Usage
 
 ```csharp
-using NaudioVisualizer.Services;
+using NAudioVisualizer.Services;
 
 var renderer = new AsciiSpectrumRenderer(
     width: 4,
