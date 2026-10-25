@@ -1,4 +1,74 @@
-// README.md
+# NAudio Visualizer
+
+NAudio Visualizer is a real-time audio visualizer built on NAudio for capture and SkiaSharp for drawing. `AudioCaptureService` captures frames from an input device, which can be buffered in an `AudioBuffer`, and `WaveformService`, `SpectrumAnalyzer`, and `SpectrogramAnalyzer` turn those samples into waveform, spectrum, and spectrogram data. `MidiInputService` accepts MIDI input, and `AsciiSpectrumRenderer` draws spectra as text. An event bus, a cache, and a configuration layer (`ServiceContainer`, `ConfigurationManager`) connect the pieces, and the project ships as both a Windows Forms app and a NuGet library.
+
+## Requirements
+
+- .NET 10 SDK, version pinned in `global.json` (`10.0.100`, `rollForward: latestMinor`)
+- Windows for audio capture (WASAPI/WaveIn) and MIDI input; the library targets `net10.0-windows` and only compiles elsewhere because `EnableWindowsTargeting` is set
+- An audio input device, if you run live capture
+
+## Table of Contents
+
+- [Getting Started](#getting-started)
+- [Render a WAV File to PNG (no audio device)](#render-a-wav-file-to-png-no-audio-device)
+- [PathUtility](#pathutility)
+- [PathUtilityValidation](#pathutilityvalidation)
+- [PerformanceProfiler](#performanceprofiler)
+- [StringUtility](#stringutility)
+- [DateTimeUtility](#datetimeutility)
+- [AudioDeviceExtensions](#audiodeviceextensions)
+- [ValidationUtility](#validationutility)
+- [WaveformDataExtensions](#waveformdataextensions)
+- [WaveformData](#waveformdata)
+- [ValidationAndStringUtilityTests](#validationandstringutilitytests)
+- [AudioBufferAndEventBusTests](#audiobufferandeventbustests)
+- [WaveformServiceBenchmarks](#waveformservicebenchmarks)
+- [MathUtility](#mathutility)
+- [MathUtilityTests](#mathutilitytests)
+- [EventPublisher](#eventpublisher)
+- [WaveformServiceTests](#waveformservicetests)
+- [AudioSessionRepository](#audiosessionrepository)
+- [VstPluginInfo](#vstplugininfo)
+- [VisualizationDataRepository](#visualizationdatarepository)
+- [FrequencyBands](#frequencybands)
+- [FileSystemUtility](#filesystemutility)
+- [EventBus Extensions](#eventbus-extensions)
+- [CacheStatistics](#cachestatistics)
+- [Event Catalog](#event-catalog)
+- [Constants](#constants)
+- [Logger](#logger)
+- [ILogger and LoggerExtensions](#ilogger-and-loggerextensions)
+- [AudioProcessingWorker](#audioprocessingworker)
+- [VisualizerTheme](#visualizertheme)
+- [GradientStop](#gradientstop)
+- [AudioBuffer](#audiobuffer)
+- [AudioDataConverter](#audiodataconverter)
+- [ProcessingTask](#processingtask)
+- [ColorUtility](#colorutility)
+- [MidiInputService](#midiinputservice)
+- [AudioCaptureService](#audiocaptureservice)
+- [ServiceContainer](#servicecontainer)
+- [ConfigurationManager](#configurationmanager)
+- [CacheManager](#cachemanager)
+- [EventBus](#eventbus)
+- [SpectrogramAnalyzer](#spectrogramanalyzer)
+- [WaveformService](#waveformservice)
+- [SpectrumAnalyzer](#spectrumanalyzer)
+- [Validation Helpers](#validation-helpers)
+- [JSON Serialization Helpers](#json-serialization-helpers)
+- [VST Plugin Model](#vst-plugin-model)
+- [Exceptions](#exceptions)
+- [VisualizationData (base class)](#visualizationdata-base-class)
+- [SpectrogramData](#spectrogramdata)
+- [SpectrumData](#spectrumdata)
+- [MidiNoteEvent](#midinoteevent)
+- [ColorScheme](#colorscheme)
+- [AudioFrame](#audioframe)
+- [AudioDevice](#audiodevice)
+- [VisualizationSettings](#visualizationsettings)
+- [License](#license)
+
 ## Getting Started
 
 This console example captures mono audio from the first input device, pushes each captured frame into an `AudioBuffer`, runs `SpectrumAnalyzer` every 100 ms to print the dominant frequency, and stops cleanly when you press a key.
