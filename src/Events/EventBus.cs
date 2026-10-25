@@ -83,6 +83,10 @@ public sealed class EventBus : IDisposable
 
         foreach (var subscription in handlers)
         {
+            // Skip handlers unsubscribed after the snapshot was taken
+            if (!subscription.IsActive)
+                continue;
+
             if (subscription.IsAlive)
             {
                 try
@@ -176,6 +180,13 @@ public sealed class EventBus : IDisposable
         private readonly WeakReference _handlerReference;
         private readonly EventBus _eventBus;
         private readonly Type _eventType;
+        private volatile bool _active = true;
+
+        /// <summary>
+        /// Gets a value indicating whether this subscription is still registered with the bus.
+        /// </summary>
+        /// <returns><see langword="true"/> until the subscription has been disposed; otherwise, <see langword="false"/>.</returns>
+        public bool IsActive => _active;
 
         /// <summary>
         /// Gets a value indicating whether the referenced handler is still alive.
@@ -211,7 +222,11 @@ public sealed class EventBus : IDisposable
         /// <summary>
         /// Unsubscribes this subscription from the owning event bus.
         /// </summary>
-        public void Dispose() => _eventBus.Unsubscribe(this, _eventType);
+        public void Dispose()
+        {
+            _active = false;
+            _eventBus.Unsubscribe(this, _eventType);
+        }
     }
 
     /// <summary>
